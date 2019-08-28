@@ -1,9 +1,5 @@
-///<reference path="../globals.ts" />
-
 /* ------------
      Console.ts
-
-     Requires globals.ts
 
      The OS Console - stdIn and stdOut by default.
      Note: This is not the Shell. The Shell is the "command line interface" (CLI) or interpreter for this console.
@@ -25,11 +21,11 @@ module TSOS {
             this.resetXY();
         }
 
-        private clearScreen(): void {
+        public clearScreen(): void {
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         }
 
-        private resetXY(): void {
+        public resetXY(): void {
             this.currentXPosition = 0;
             this.currentYPosition = this.currentFontSize;
         }
@@ -39,7 +35,7 @@ module TSOS {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-                if (chr === String.fromCharCode(13)) { //     Enter key
+                if (chr === String.fromCharCode(13)) { // the Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
@@ -52,19 +48,18 @@ module TSOS {
                     // ... and add it to our buffer.
                     this.buffer += chr;
                 }
-                // TODO: Write a case for Ctrl-C.
+                // TODO: Add a case for Ctrl-C that would allow the user to break the current program.
             }
         }
 
         public putText(text): void {
-            // My first inclination here was to write two functions: putChar() and putString().
-            // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-            // between the two.  So rather than be like PHP and write two (or more) functions that
-            // do the same thing, thereby encouraging confusion and decreasing readability, I
-            // decided to write one function and use the term "text" to connote string or char.
-            //
-            // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
-            //         Consider fixing that.
+            /*  My first inclination here was to write two functions: putChar() and putString().
+                Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
+                between the two. (Although TypeScript would. But we're compiling to JavaScipt anyway.)
+                So rather than be like PHP and write two (or more) functions that
+                do the same thing, thereby encouraging confusion and decreasing readability, I
+                decided to write one function and use the term "text" to connote string or char.
+            */
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);

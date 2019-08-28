@@ -1,8 +1,5 @@
-///<reference path="../globals.ts" />
 /* ------------
      Devices.ts
-
-     Requires global.ts.
 
      Routines for the hardware simulation, NOT for our client OS itself.
      These are static because we are never going to instantiate them, because they represent the hardware.

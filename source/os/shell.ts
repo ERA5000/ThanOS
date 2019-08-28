@@ -1,9 +1,3 @@
-///<reference path="../globals.ts" />
-///<reference path="../utils.ts" />
-///<reference path="shellCommand.ts" />
-///<reference path="userCommand.ts" />
-
-
 /* ------------
    Shell.ts
 
@@ -27,7 +21,7 @@ module TSOS {
         }
 
         public init() {
-            var sc;
+            var sc: ShellCommand;
             //
             // Load the command list.
 
@@ -82,7 +76,6 @@ module TSOS {
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
-            //
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -104,7 +97,8 @@ module TSOS {
             // Determine the command and execute it.
             //
             // TypeScript/JavaScript may not support associative arrays in all browsers so we have to iterate over the
-            // command list in attempt to find a match.  TODO: Is there a better way? Probably. Someone work it out and tell me in class.
+            // command list in attempt to find a match. 
+            // TODO: Is there a better way? Probably. Someone work it out and tell me in class.
             var index: number = 0;
             var found: boolean = false;
             var fn = undefined;
@@ -117,7 +111,7 @@ module TSOS {
                 }
             }
             if (found) {
-                this.execute(fn, args);
+                this.execute(fn, args);  // Note that args is always supplied, though it might be empty.
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
                 if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses.
@@ -130,7 +124,7 @@ module TSOS {
             }
         }
 
-        // Note: args is an option parameter, ergo the ? which allows TypeScript to understand that.
+        // Note: args is an optional parameter, ergo the ? which allows TypeScript to understand that.
         public execute(fn, args?) {
             // We just got a command, so advance the line...
             _StdOut.advanceLine();
@@ -144,7 +138,7 @@ module TSOS {
             this.putPrompt();
         }
 
-        public parseInput(buffer): UserCommand {
+        public parseInput(buffer: string): UserCommand {
             var retVal = new UserCommand();
 
             // 1. Remove leading and trailing spaces.
@@ -157,7 +151,7 @@ module TSOS {
             var tempList = buffer.split(" ");
 
             // 4. Take the first (zeroth) element and use that as the command.
-            var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript.  See the Queue class.
+            var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript. See the Queue class.
             // 4.1 Remove any left-over spaces.
             cmd = Utils.trim(cmd);
             // 4.2 Record it in the return value.
@@ -174,7 +168,7 @@ module TSOS {
         }
 
         //
-        // Shell Command Functions.  Kinda not part of Shell() class exactly, but
+        // Shell Command Functions. Kinda not part of Shell() class exactly, but
         // called from here, so kept here to avoid violating the law of least astonishment.
         //
         public shellInvalidCommand() {
@@ -206,11 +200,14 @@ module TSOS {
            }
         }
 
-        public shellVer(args) {
+        // Although args is unused in some of these functions, it is always provided in the 
+        // actual parameter list when this function is called, so I feel like we need it.
+
+        public shellVer(args: string[]) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         }
 
-        public shellHelp(args) {
+        public shellHelp(args: string[]) {
             _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
                 _StdOut.advanceLine();
@@ -218,19 +215,19 @@ module TSOS {
             }
         }
 
-        public shellShutdown(args) {
+        public shellShutdown(args: string[]) {
              _StdOut.putText("Shutting down...");
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+            // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         }
 
-        public shellCls(args) {
-            _StdOut.clearScreen();
+        public shellCls(args: string[]) {         
+            _StdOut.clearScreen();     
             _StdOut.resetXY();
         }
 
-        public shellMan(args) {
+        public shellMan(args: string[]) {
             if (args.length > 0) {
                 var topic = args[0];
                 switch (topic) {
@@ -246,7 +243,7 @@ module TSOS {
             }
         }
 
-        public shellTrace(args) {
+        public shellTrace(args: string[]) {
             if (args.length > 0) {
                 var setting = args[0];
                 switch (setting) {
@@ -270,7 +267,7 @@ module TSOS {
             }
         }
 
-        public shellRot13(args) {
+        public shellRot13(args: string[]) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
                 _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
@@ -279,7 +276,7 @@ module TSOS {
             }
         }
 
-        public shellPrompt(args) {
+        public shellPrompt(args: string[]) {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {

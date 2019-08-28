@@ -27,7 +27,7 @@ var TSOS;
                trouble explaining it in the future.  There's a lot to be said for obvious code.
             */
             var retVal = "";
-            for (var i in str) {
+            for (var i in str) { // We need to cast the string to any for use in the for...in construct.
                 var ch = str[i];
                 var code = 0;
                 if ("abcedfghijklmABCDEFGHIJKLM".indexOf(ch) >= 0) {

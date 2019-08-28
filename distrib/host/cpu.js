@@ -1,8 +1,5 @@
-///<reference path="../globals.ts" />
 /* ------------
      CPU.ts
-
-     Requires global.ts.
 
      Routines for the host CPU simulation, NOT for the OS itself.
      In this manner, it's A LITTLE BIT like a hypervisor,

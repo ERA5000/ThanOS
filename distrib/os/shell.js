@@ -1,7 +1,3 @@
-///<reference path="../globals.ts" />
-///<reference path="../utils.ts" />
-///<reference path="shellCommand.ts" />
-///<reference path="userCommand.ts" />
 /* ------------
    Shell.ts
 
@@ -51,7 +47,6 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
-            //
             // Display the initial prompt.
             this.putPrompt();
         };
@@ -71,7 +66,8 @@ var TSOS;
             // Determine the command and execute it.
             //
             // TypeScript/JavaScript may not support associative arrays in all browsers so we have to iterate over the
-            // command list in attempt to find a match.  TODO: Is there a better way? Probably. Someone work it out and tell me in class.
+            // command list in attempt to find a match. 
+            // TODO: Is there a better way? Probably. Someone work it out and tell me in class.
             var index = 0;
             var found = false;
             var fn = undefined;
@@ -85,22 +81,22 @@ var TSOS;
                 }
             }
             if (found) {
-                this.execute(fn, args);
+                this.execute(fn, args); // Note that args is always supplied, though it might be empty.
             }
             else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + TSOS.Utils.rot13(cmd) + "]") >= 0) {
+                if (this.curses.indexOf("[" + TSOS.Utils.rot13(cmd) + "]") >= 0) { // Check for curses.
                     this.execute(this.shellCurse);
                 }
-                else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {
+                else if (this.apologies.indexOf("[" + cmd + "]") >= 0) { // Check for apologies.
                     this.execute(this.shellApology);
                 }
-                else {
+                else { // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
                 }
             }
         };
-        // Note: args is an option parameter, ergo the ? which allows TypeScript to understand that.
+        // Note: args is an optional parameter, ergo the ? which allows TypeScript to understand that.
         Shell.prototype.execute = function (fn, args) {
             // We just got a command, so advance the line...
             _StdOut.advanceLine();
@@ -122,7 +118,7 @@ var TSOS;
             // 3. Separate on spaces so we can determine the command and command-line args, if any.
             var tempList = buffer.split(" ");
             // 4. Take the first (zeroth) element and use that as the command.
-            var cmd = tempList.shift(); // Yes, you can do that to an array in JavaScript.  See the Queue class.
+            var cmd = tempList.shift(); // Yes, you can do that to an array in JavaScript. See the Queue class.
             // 4.1 Remove any left-over spaces.
             cmd = TSOS.Utils.trim(cmd);
             // 4.2 Record it in the return value.
@@ -137,7 +133,7 @@ var TSOS;
             return retVal;
         };
         //
-        // Shell Command Functions.  Kinda not part of Shell() class exactly, but
+        // Shell Command Functions. Kinda not part of Shell() class exactly, but
         // called from here, so kept here to avoid violating the law of least astonishment.
         //
         Shell.prototype.shellInvalidCommand = function () {
@@ -168,6 +164,8 @@ var TSOS;
                 _StdOut.putText("For what?");
             }
         };
+        // Although args is unused in some of these functions, it is always provided in the 
+        // actual parameter list when this function is called, so I feel like we need it.
         Shell.prototype.shellVer = function (args) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         };
@@ -182,7 +180,7 @@ var TSOS;
             _StdOut.putText("Shutting down...");
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+            // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         };
         Shell.prototype.shellCls = function (args) {
             _StdOut.clearScreen();

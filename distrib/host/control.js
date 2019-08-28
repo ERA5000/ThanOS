@@ -1,9 +1,5 @@
-///<reference path="../globals.ts" />
-///<reference path="../os/canvastext.ts" />
 /* ------------
      Control.ts
-
-     Requires globals.ts.
 
      Routines for the hardware simulation, NOT for our client OS itself.
      These are static because we are never going to instantiate them, because they represent the hardware.

@@ -13,9 +13,13 @@
  *
  * Port to TypeScript by Bob Nisco in 2014.
  *
- * Note: You could theoretically make up your own letters and symbols for your OS.
- *       That might be fun.
- * ----------------- */
+ * Note #1: You could theoretically make up your own letters and symbols for your OS.
+ *          That might be fun.
+ *
+ * Note #2: The current version on the HTML5 canvas object has text routines that are
+ *          probably far better than this. But I like the brutal low-level-ness of this,
+ *
+ *  * ----------------- */
 var TSOS;
 (function (TSOS) {
     var CanvasTextFunctions = /** @class */ (function () {

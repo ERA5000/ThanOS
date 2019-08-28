@@ -4,7 +4,7 @@
    Global CONSTANTS and _Variables.
    (Global over both the OS and Hardware Simulation / Host.)
 
-   This code references page numbers in the text book:
+   This code references page numbers in our text book:
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 //
@@ -31,22 +31,22 @@ var _FontHeightMargin = 4; // Additional space added to font size when advancing
 var _Trace = true; // Default the OS trace to be on.
 // The OS Kernel and its queues.
 var _Kernel;
-var _KernelInterruptQueue; // Initializing this to null (which I would normally do) would then require us to specify the 'any' type, as below.
-var _KernelInputQueue = null; // Is this better? I don't like uninitialized variables. But I also don't like using the type specifier 'any'
-var _KernelBuffers = null; // when clearly 'any' is not what we want. There is likely a better way, but what is it?
+var _KernelInterruptQueue = null;
+var _KernelInputQueue = null;
+var _KernelBuffers = null;
 // Standard input and output
-var _StdIn; // Same "to null or not to null" issue as above.
-var _StdOut;
+var _StdIn = null;
+var _StdOut = null;
 // UI
 var _Console;
 var _OsShell;
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
 // Global Device Driver Objects - page 12
-var _krnKeyboardDriver; //  = null;
+var _krnKeyboardDriver = null;
 var _hardwareClockID = null;
 // For testing (and enrichment)...
-var Glados = null; // This is the function Glados() in glados.js on Labouseur.com.
+var Glados = null; // This is the function Glados() in glados-ip*.js http://alanclasses.github.io/TSOS/test/ .
 var _GLaDOS = null; // If the above is linked in, this is the instantiated instance of Glados.
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();

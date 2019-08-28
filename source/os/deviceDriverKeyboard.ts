@@ -1,10 +1,5 @@
-///<reference path="../globals.ts" />
-///<reference path="deviceDriver.ts" />
-
 /* ----------------------------------
    DeviceDriverKeyboard.ts
-
-   Requires deviceDriver.ts
 
    The Kernel Keyboard Device Driver.
    ---------------------------------- */
@@ -19,7 +14,8 @@ module TSOS {
 
             // The code below cannot run because "this" can only be
             // accessed after calling super.
-            //super(this.krnKbdDriverEntry, this.krnKbdDispatchKeyPress);
+            // super(this.krnKbdDriverEntry, this.krnKbdDispatchKeyPress);
+            // So instead...
             super();
             this.driverEntry = this.krnKbdDriverEntry;
             this.isr = this.krnKbdDispatchKeyPress;
@@ -32,7 +28,7 @@ module TSOS {
         }
 
         public krnKbdDispatchKeyPress(params) {
-            // Parse the params.    TODO: Check that the params are valid and osTrapError if not.
+            // Parse the params.  TODO: Check that the params are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
