@@ -73,6 +73,24 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            //date
+            sc = new ShellCommand(this.shellDate, 
+                                    "date",
+                                    "- Displays the current date and time.");
+            this.commandList[this.commandList.length] = sc;
+
+            //whereami
+            sc = new ShellCommand(this.shellWhereAmI,
+                                    "whereami",
+                                    "- Displays your current location.");
+            this.commandList[this.commandList.length] = sc;
+
+            //snap
+            sc = new ShellCommand(this.shellSnap,
+                                    "snap",
+                                    "- Deletes half of the command prompt's display. [Nonfunctional ATM]");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -255,6 +273,15 @@ module TSOS {
                     case "prompt":
                         _StdOut.putText("Sets a default prompt to the CLI for the session.");
                         break;
+                    case "date":
+                        _StdOut.putText("Displays the current date and time.");
+                        break;
+                    case "whereami":
+                        _StdOut.putText("Displays the user's current location.");
+                        break;
+                    case "snap":
+                        _StdOut.putText("Wipes half of the command prompt's display and resets the cursor.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -280,7 +307,7 @@ module TSOS {
                         _StdOut.putText("Trace OFF");
                         break;
                     default:
-                        _StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        _StdOut.putText("Invalid arguement. Usage: trace <on | off>.");
                 }
             } else {
                 _StdOut.putText("Usage: trace <on | off>");
@@ -292,7 +319,7 @@ module TSOS {
                 // Requires Utils.ts for rot13() function.
                 _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
             } else {
-                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
+                _StdOut.putText("Usage: rot13 <string>. Please supply a string.");
             }
         }
 
@@ -300,8 +327,21 @@ module TSOS {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
-                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+                _StdOut.putText("Usage: prompt <string>. Please supply a string.");
             }
+        }
+
+        public shellDate(args: string[]){
+            _StdOut.putText("Going on half past a quarter of.");
+        }
+
+        public shellWhereAmI(args: string[]){
+            _StdOut.putText("Titan.");
+        }
+
+        //Will add functionality to this later once I learn more about how to fiddle with the canvas ;)
+        public shellSnap(args: string[]){
+            _StdOut.putText("I am ... inevitable.");
         }
 
     }
