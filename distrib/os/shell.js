@@ -22,10 +22,10 @@ var TSOS;
             //
             // Load the command list.
             // ver
-            sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
+            sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version of the OS.");
             this.commandList[this.commandList.length] = sc;
             // help
-            sc = new TSOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
+            sc = new TSOS.ShellCommand(this.shellHelp, "help", "- Displays the list of available commands.");
             this.commandList[this.commandList.length] = sc;
             // shutdown
             sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
@@ -100,7 +100,7 @@ var TSOS;
         execute(fn, args) {
             // We just got a command, so advance the line...
             _StdOut.advanceLine();
-            // ... call the command function passing in the args with some über-cool functional programming ...
+            // ... call the command function passing in the args ...
             fn(args);
             // Check to see if we need to advance the line again
             if (_StdOut.currentXPosition > 0) {
@@ -180,7 +180,6 @@ var TSOS;
             _StdOut.putText("Shutting down...");
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         }
         shellCls(args) {
             _StdOut.clearScreen();
@@ -190,16 +189,37 @@ var TSOS;
             if (args.length > 0) {
                 var topic = args[0];
                 switch (topic) {
-                    case "help":
-                        _StdOut.putText("Help displays a list of (hopefully) valid commands.");
+                    case "ver":
+                        _StdOut.putText("Ver lists the running version of the OS.");
                         break;
-                    // TODO: Make descriptive MANual page entries for the the rest of the shell commands here.
+                    case "help":
+                        _StdOut.putText("Help displays a list of valid commands.");
+                        break;
+                    case "shutdown":
+                        _StdOut.putText("Disables user input but keeps the underlying software running.");
+                        break;
+                    case "cls":
+                        _StdOut.putText("Clears the screen of all text and resets the cursor's position back to the beginning.");
+                        break;
+                    case "man":
+                        _StdOut.putText("Given a topic, the relevant description will be displayed."); //Make recursive?
+                        break;
+                    case "trace":
+                        _StdOut.putText("Disable/Enable tracing. Tracing is the act of outputting the OS's activities to the Host Log.");
+                        break;
+                    case "rot13":
+                        _StdOut.putText(`Obfuscate text using the ROTation13 cipher. Take a letter's position in the alphabet, add 13 to it, 
+                        and that becomes the new letter.`);
+                        break;
+                    case "prompt":
+                        _StdOut.putText("Sets a default prompt to the CLI for the session.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
             }
             else {
-                _StdOut.putText("Usage: man <topic>  Please supply a topic.");
+                _StdOut.putText("Usage: man <topic>. Please supply a topic.");
             }
         }
         shellTrace(args) {
