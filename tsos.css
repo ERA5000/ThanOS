@@ -32,7 +32,7 @@ h3 {
 
 #display {
   background-color:#DFDBC3;
-  border: 2px solid red;
+  border: 2px solid blue;
   cursor: default;
 }
 
@@ -47,8 +47,14 @@ h3 {
   text-align: center;
 }
 
-#statusBar{
+#taskBar{
   height: 75px;
   border: 2px dashed red;
   background-color: rgba(175, 175, 175, .55);
+}
+
+#status{
+  position: relative;
+  bottom: 50px;
+  left: 150px;
 }

@@ -16,6 +16,7 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
+        public status = "";
 
         constructor() {
         }
@@ -91,11 +92,21 @@ module TSOS {
                                     "- Deletes half of the command prompt's display. [Nonfunctional ATM]");
             this.commandList[this.commandList.length] = sc;
 
+            //status
+            sc = new ShellCommand(this.shellStatus,
+                                    "status",
+                                    " - Sets a new status.");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
             // Display the initial prompt.
             this.putPrompt();
+        }
+
+        public printStatus(){
+            return "Status: " + this.status;
         }
 
         public putPrompt() {
@@ -282,6 +293,9 @@ module TSOS {
                     case "snap":
                         _StdOut.putText("Wipes half of the command prompt's display and resets the cursor.");
                         break;
+                    case "status":
+                        _StdOut.putText("Sets a new status to the status bar.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -344,5 +358,19 @@ module TSOS {
             _StdOut.putText("I am ... inevitable.");
         }
 
+        public shellStatus(args: string[]){
+            if(args.length > 0){
+                status = args[0];
+                if(status.length > 20){
+                    _StdOut.putText("Status messages cannot be longer than 20 chars.");
+                    return;
+                }
+                _StdOut.putText("New status: " + status);
+                document.getElementById("status").innerHTML = "Status: " + status;
+            }
+            else{
+                _StdOut.putText("Usage: status: <string>. Please supply a string.");
+            }
+        }
     }
 }

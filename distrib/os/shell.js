@@ -16,6 +16,7 @@ var TSOS;
             this.commandList = [];
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
+            this.status = "";
         }
         init() {
             var sc;
@@ -54,10 +55,16 @@ var TSOS;
             //snap
             sc = new TSOS.ShellCommand(this.shellSnap, "snap", "- Deletes half of the command prompt's display. [Nonfunctional ATM]");
             this.commandList[this.commandList.length] = sc;
+            //status
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", " - Sets a new status.");
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
             this.putPrompt();
+        }
+        printStatus() {
+            return "Status: " + this.status;
         }
         putPrompt() {
             _StdOut.putText(this.promptStr);
@@ -232,6 +239,9 @@ var TSOS;
                     case "snap":
                         _StdOut.putText("Wipes half of the command prompt's display and resets the cursor.");
                         break;
+                    case "status":
+                        _StdOut.putText("Sets a new status to the status bar.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -291,6 +301,20 @@ var TSOS;
         //Will add functionality to this later once I learn more about how to fiddle with the canvas ;)
         shellSnap(args) {
             _StdOut.putText("I am ... inevitable.");
+        }
+        shellStatus(args) {
+            if (args.length > 0) {
+                status = args[0];
+                if (status.length > 20) {
+                    _StdOut.putText("Status messages cannot be longer than 20 chars.");
+                    return;
+                }
+                _StdOut.putText("New status: " + status);
+                document.getElementById("status").innerHTML = "Status: " + status;
+            }
+            else {
+                _StdOut.putText("Usage: status: <string>. Please supply a string.");
+            }
         }
     }
     TSOS.Shell = Shell;
