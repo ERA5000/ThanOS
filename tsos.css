@@ -46,3 +46,9 @@ h3 {
   font-size: 8pt;
   text-align: center;
 }
+
+#statusBar{
+  height: 75px;
+  border: 2px dashed red;
+  background-color: rgba(175, 175, 175, .55);
+}
