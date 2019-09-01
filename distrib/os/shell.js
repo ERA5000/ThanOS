@@ -206,10 +206,10 @@ var TSOS;
                 var topic = args[0];
                 switch (topic) {
                     case "ver":
-                        _StdOut.putText("Ver lists the running version of the OS.");
+                        _StdOut.putText("Lists the running version of the OS.");
                         break;
                     case "help":
-                        _StdOut.putText("Help displays a list of valid commands.");
+                        _StdOut.putText("Displays a list of valid commands.");
                         break;
                     case "shutdown":
                         _StdOut.putText("Disables user input but keeps the underlying software running.");

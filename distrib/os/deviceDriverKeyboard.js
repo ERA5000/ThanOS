@@ -39,18 +39,51 @@ var TSOS;
                 // TODO: Check for caps-lock and handle as shifted if so.
                 _KernelInputQueue.enqueue(chr);
             }
-            else if (((keyCode >= 48) && (keyCode <= 57)) || // digits
-                (keyCode == 32) || // space
-                (keyCode == 13)) { // enter
+            else if (keyCode >= 48 && keyCode <= 57) { // numbers
+                if (isShifted === true) {
+                    switch (keyCode) {
+                        case 49:
+                            chr = String.fromCharCode(33); // !
+                            break;
+                        case 50:
+                            chr = String.fromCharCode(64); // @
+                            break;
+                        case 51:
+                            chr = String.fromCharCode(35); // #
+                            break;
+                        case 52:
+                            chr = String.fromCharCode(36); // $
+                            break;
+                        case 53:
+                            chr = String.fromCharCode(37); // %
+                            break;
+                        case 54:
+                            chr = String.fromCharCode(94); // ^
+                            break;
+                        case 55:
+                            chr = String.fromCharCode(38); // &
+                            break;
+                        case 56:
+                            chr = String.fromCharCode(42); // *
+                            break;
+                        case 57:
+                            chr = String.fromCharCode(40); // (
+                            break;
+                        case 48:
+                            chr = String.fromCharCode(41); // )
+                            break;
+                    }
+                }
+                else
+                    chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
+            }
+            else if (keyCode == 32 || keyCode == 13) { // enter + space, respectively
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
             else if (keyCode >= 96 && keyCode <= 105) { // numpad
                 chr = String.fromCharCode(keyCode - 48);
-                _KernelInputQueue.enqueue(chr);
-            }
-            else if (keyCode >= 33 && keyCode >= 47 || keyCode >= 58 && keyCode <= 64) {
-                chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
         }
