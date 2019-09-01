@@ -207,7 +207,7 @@ module TSOS {
                 _StdOut.advanceLine();
                 _StdOut.putText("must be the pride of [subject hometown here].");
             } else {
-                _StdOut.putText("Type 'help' for, well... help.");
+                _StdOut.putText("Type 'help' for a list of commands.");
             }
         }
 
