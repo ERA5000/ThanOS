@@ -160,7 +160,6 @@ module TSOS {
             ctx.strokeStyle = "black";
 
             for (var i = 0; i < len; i++) {
-                console.log("Character printed: " + str);
                 var c = CanvasTextFunctions.letter(str.charAt(i));
                 if (!c) {
                     continue;

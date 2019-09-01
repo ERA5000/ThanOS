@@ -25,7 +25,6 @@ var TSOS;
         krnKbdDispatchKeyPress(params) {
             // Parse the params.  TODO: Check that the params are valid and osTrapError if not.
             var keyCode = params[0];
-            console.log("This is the keyCode of the pressed key: " + keyCode);
             var isShifted = params[1];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
@@ -132,6 +131,11 @@ var TSOS;
                         case 222:
                             chr = String.fromCharCode(39); // '
                             break;
+                        /*Backspace, while not implemented ATM, currently triggers this behavior, which is not desired. Disabling for now.
+                        default:                           //Pressed some extraneous button. Inform user of inadequate behavior.
+                            _StdOut.putText("No.");
+                            _StdOut.advanceLine();
+                            _StdOut.putText(">");*/
                     }
                 }
                 else {

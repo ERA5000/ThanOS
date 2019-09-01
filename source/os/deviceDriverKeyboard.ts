@@ -30,7 +30,6 @@ module TSOS {
         public krnKbdDispatchKeyPress(params) {
             // Parse the params.  TODO: Check that the params are valid and osTrapError if not.
             var keyCode = params[0];
-            console.log("This is the keyCode of the pressed key: " + keyCode);
             var isShifted = params[1];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
@@ -81,12 +80,10 @@ module TSOS {
                 }
                 else chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-            } 
-            else if (keyCode == 32 || keyCode == 13){          // enter + space, respectively
+            } else if (keyCode == 32 || keyCode == 13){          // enter + space, respectively
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-            }
-            else if (keyCode >= 96 && keyCode <= 105){         // numpad numbers
+            } else if (keyCode >= 96 && keyCode <= 105){         // numpad numbers
                 chr = String.fromCharCode(keyCode - 48);
                 _KernelInputQueue.enqueue(chr);
             } else {
@@ -134,6 +131,11 @@ module TSOS {
                         case 222:
                             chr = String.fromCharCode(39); // '
                             break;
+                        /*Backspace, while not implemented ATM, currently triggers this behavior, which is not desired. Disabling for now.
+                        default:                           //Pressed some extraneous button. Inform user of inadequate behavior.
+                            _StdOut.putText("No.");
+                            _StdOut.advanceLine();
+                            _StdOut.putText(">");*/
                     }
                 }
                 else {
@@ -175,6 +177,7 @@ module TSOS {
                 }
                 _KernelInputQueue.enqueue(chr);
             }
+
         }
     }
 }
