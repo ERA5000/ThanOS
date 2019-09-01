@@ -47,6 +47,12 @@ module TSOS {
                         (keyCode == 13)) {                       // enter
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
+            } else if (keyCode >= 96 && keyCode <= 105){         // numpad
+                chr = String.fromCharCode(keyCode - 48);
+                _KernelInputQueue.enqueue(chr);
+            } else if (keyCode >= 33 && keyCode >= 47 || keyCode >= 58 && keyCode <= 64){
+                chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
             }
         }
     }
