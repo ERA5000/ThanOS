@@ -139,11 +139,22 @@ var TSOS;
             cmd = TSOS.Utils.trim(cmd);
             // 4.2 Record it in the return value.
             retVal.command = cmd;
+            // 4.3 Make an exception for the Status command so it can contain spaces
+            /*
+                example: status I hate everyone (i.e. buffer = status I hate everyone)
+                retVal.command = status
+                The string "status " is 7 characters, so ignore those, and grab the rest of the string -> That's the new status
+            */
+            if (retVal.command === "status") {
+                retVal.args[0] = buffer.substr(7, buffer.length);
+            }
             // 5. Now create the args array from what's left.
-            for (var i in tempList) {
-                var arg = TSOS.Utils.trim(tempList[i]);
-                if (arg != "") {
-                    retVal.args[retVal.args.length] = tempList[i];
+            else {
+                for (var i in tempList) {
+                    var arg = TSOS.Utils.trim(tempList[i]);
+                    if (arg != "") {
+                        retVal.args[retVal.args.length] = tempList[i];
+                    }
                 }
             }
             return retVal;

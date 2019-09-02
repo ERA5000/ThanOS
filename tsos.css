@@ -55,6 +55,11 @@ h3 {
 
 #status{
   position: relative;
-  bottom: 50px;
-  left: 150px;
+  text-align: center;
+  bottom: 67px;
+}
+
+#date, #time {
+  position: relative;
+  left: 5px;
 }
