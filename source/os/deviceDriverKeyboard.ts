@@ -34,7 +34,7 @@ module TSOS {
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
             // Check to see if we even want to deal with the key that was pressed.
-            if ((keyCode >= 65) && (keyCode <= 90)) { // letter
+            if (keyCode >= 65 && keyCode <= 90) { // letter
                 if (isShifted === true) { 
                     chr = String.fromCharCode(keyCode); // Uppercase A-Z
                 } else {
@@ -80,7 +80,7 @@ module TSOS {
                 }
                 else chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-            } else if (keyCode == 32 || keyCode == 13){          // enter + space, respectively
+            } else if (keyCode == 32 || keyCode == 13 || keyCode == 8){          // enter, space, and delete respectively
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             } else if (keyCode >= 96 && keyCode <= 105){         // numpad numbers

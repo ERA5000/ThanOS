@@ -29,8 +29,11 @@ var TSOS;
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
+                if (chr === String.fromCharCode(8)) {
+                    this.eraseText(this.buffer);
+                }
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-                if (chr === String.fromCharCode(13)) { // the Enter key
+                else if (chr === String.fromCharCode(13)) { // the Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
@@ -62,6 +65,20 @@ var TSOS;
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
             }
+        }
+        eraseText(text) {
+            //When a delete request comes in, we
+            //1. Grab & remove the last character of the buffer
+            //2. Go back the width of the character + offset
+            //3. Draw a rectangle the same color as the background
+            let letterToDelete = text.substring(text.length - 1);
+            //console.log("What am I deleting? " + letterToDelete);
+            this.buffer = this.buffer.substring(0, text.length - 1);
+            let width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, letterToDelete);
+            this.currentXPosition -= width;
+            let height = this.currentFontSize + _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) + 5;
+            _DrawingContext.fillStyle = "#DFDBC3";
+            _DrawingContext.fillRect(this.currentXPosition, this.currentYPosition - _DrawingContext.fontAscent(this.currentFont, this.currentFontSize) - 2, width, height);
         }
         advanceLine() {
             this.currentXPosition = 0;
