@@ -89,13 +89,18 @@ module TSOS {
             //snap
             sc = new ShellCommand(this.shellSnap,
                                     "snap",
-                                    "- Deletes half of the command prompt's display. [Nonfunctional ATM]");
+                                    "- Reality is often disappointing. That is, it was.");
             this.commandList[this.commandList.length] = sc;
 
             //status
             sc = new ShellCommand(this.shellStatus,
                                     "status",
                                     " - Sets a new status.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellBSOD,
+                                    "crash",
+                                    " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
@@ -303,10 +308,13 @@ module TSOS {
                         _StdOut.putText("Displays the user's current location.");
                         break;
                     case "snap":
-                        _StdOut.putText("Wipes half of the command prompt's display and resets the cursor.");
+                        _StdOut.putText("Now, reality can be whatever I want.");
                         break;
                     case "status":
                         _StdOut.putText("Sets a new status to the status bar.");
+                        break;
+                    case "crash":
+                        _StdOut.putText("Purposefully crashes the OS.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -365,9 +373,14 @@ module TSOS {
             _StdOut.putText("Titan.");
         }
 
-        //Will add functionality to this later once I learn more about how to fiddle with the canvas ;)
         public shellSnap(args: string[]){
-            _StdOut.putText("I am ... inevitable.");
+            if(!document.getElementById("snapper")) {
+                _StdOut.putText("I am ... inevitable.");
+            }
+            else {
+                _StdOut.putText("Universe ending. Please hold...");
+                document.getElementById("snapper").click();
+            }
         }
 
         public shellStatus(args: string[]){
@@ -383,6 +396,11 @@ module TSOS {
             else{
                 _StdOut.putText("Usage: status: <string>. Please supply a string.");
             }
+        }
+
+        public shellBSOD(args: string[]){
+            _StdOut.putText("[ERROR] Something went wrong :(");
+            _Kernel.krnTrapError("User invoked crash.");
         }
     }
 }

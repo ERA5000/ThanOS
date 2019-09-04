@@ -36,6 +36,13 @@
 </head>
 
 <body onload="onDocumentLoad()">
+<video id="video">
+   <source src="distrib/resources/video/ThanOSnap.mp4">
+</video>
+<div id="overlay"></div>
+<img id="logo" src="distrib/resources/img/logo.png">
+<progress id="progress" value="0" max="100"></progress>
+<button id="snapper" onclick="snap()" style="display: none">Snap</button>
 <div id="taskBar">
    <p id="date"></p>
    <p id="time"></p>
@@ -112,5 +119,5 @@
 </p>
 
 </body>
-<script type="text/javascript" src="distrib/clock.js"></script>
+<script type="text/javascript" src="distrib/customFunctions.js"></script>
 </html>

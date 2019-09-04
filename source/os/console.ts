@@ -73,15 +73,7 @@ module TSOS {
          }
 
          public eraseText(text): void {
-            //When a delete request comes in, we
-            //1. Grab & remove the last character of the buffer
-            //2. Go back the width of the character + offset
-            //3. Draw a rectangle the same color as the background
-
-
             let letterToDelete = text.substring(text.length-1);
-            //console.log("What am I deleting? " + letterToDelete);
-
             this.buffer = this.buffer.substring(0, text.length-1);
             let width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, letterToDelete);
             this.currentXPosition -= width;

@@ -53,10 +53,12 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays your current location.");
             this.commandList[this.commandList.length] = sc;
             //snap
-            sc = new TSOS.ShellCommand(this.shellSnap, "snap", "- Deletes half of the command prompt's display. [Nonfunctional ATM]");
+            sc = new TSOS.ShellCommand(this.shellSnap, "snap", "- Reality is often disappointing. That is, it was.");
             this.commandList[this.commandList.length] = sc;
             //status
             sc = new TSOS.ShellCommand(this.shellStatus, "status", " - Sets a new status.");
+            this.commandList[this.commandList.length] = sc;
+            sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -248,10 +250,13 @@ var TSOS;
                         _StdOut.putText("Displays the user's current location.");
                         break;
                     case "snap":
-                        _StdOut.putText("Wipes half of the command prompt's display and resets the cursor.");
+                        _StdOut.putText("Now, reality can be whatever I want.");
                         break;
                     case "status":
                         _StdOut.putText("Sets a new status to the status bar.");
+                        break;
+                    case "crash":
+                        _StdOut.putText("Purposefully crashes the OS.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -309,9 +314,14 @@ var TSOS;
         shellWhereAmI(args) {
             _StdOut.putText("Titan.");
         }
-        //Will add functionality to this later once I learn more about how to fiddle with the canvas ;)
         shellSnap(args) {
-            _StdOut.putText("I am ... inevitable.");
+            if (!document.getElementById("snapper")) {
+                _StdOut.putText("I am ... inevitable.");
+            }
+            else {
+                _StdOut.putText("Universe ending. Please hold...");
+                document.getElementById("snapper").click();
+            }
         }
         shellStatus(args) {
             if (args.length > 0) {
@@ -326,6 +336,10 @@ var TSOS;
             else {
                 _StdOut.putText("Usage: status: <string>. Please supply a string.");
             }
+        }
+        shellBSOD(args) {
+            _StdOut.putText("[ERROR] Something went wrong :(");
+            _Kernel.krnTrapError("User invoked crash.");
         }
     }
     TSOS.Shell = Shell;
