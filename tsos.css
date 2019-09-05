@@ -31,8 +31,8 @@ h3 {
 }
 
 #display {
-  background-color:#DFDBC3;
-  border: 2px solid blue;
+  background-color: black;
+  border: 2px groove rgb(0, 0, 0);
   cursor: default;
 }
 
@@ -74,6 +74,7 @@ h3 {
   left: 50%;
   margin-top: -280px;
   margin-left: -360px;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
 
 #overlay{
@@ -88,25 +89,28 @@ h3 {
   right: 0;
   bottom: 0;
   opacity: 0;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
 
 #logo{
   position: fixed;
   display: none;
   z-index: 4;
-  top: 50%;
+  top: 55%;
   left: 50%;
   margin-top: -320px;
   margin-left: -238px;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
 
 #progress{
   position: fixed;
   display: none;
   z-index: 4;
-  top: 70%;
+  top: 80%;
   left: 50%;
   margin-left: -275px;
   width: 550px;
   height: 25px;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }

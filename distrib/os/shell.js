@@ -22,35 +22,29 @@ var TSOS;
             var sc;
             //
             // Load the command list.
-            // ver
-            sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version of the OS.");
-            this.commandList[this.commandList.length] = sc;
-            // help
-            sc = new TSOS.ShellCommand(this.shellHelp, "help", "- Displays the list of available commands.");
-            this.commandList[this.commandList.length] = sc;
-            // shutdown
-            sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
             // cls
             sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
-            // man <topic>
-            sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
-            this.commandList[this.commandList.length] = sc;
-            // trace <on | off>
-            sc = new TSOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
-            // rot13 <string>
-            sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
-            this.commandList[this.commandList.length] = sc;
-            // prompt <string>
-            sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
+            //crash
+            sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
             //date
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
-            //whereami
-            sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays your current location.");
+            // help
+            sc = new TSOS.ShellCommand(this.shellHelp, "help", "- Displays the list of available commands.");
+            this.commandList[this.commandList.length] = sc;
+            // man <topic>
+            sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
+            this.commandList[this.commandList.length] = sc;
+            // prompt <string>
+            sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
+            this.commandList[this.commandList.length] = sc;
+            // rot13 <string>
+            sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
+            this.commandList[this.commandList.length] = sc;
+            // shutdown
+            sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
             //snap
             sc = new TSOS.ShellCommand(this.shellSnap, "snap", "- Reality is often disappointing. That is, it was.");
@@ -58,7 +52,14 @@ var TSOS;
             //status
             sc = new TSOS.ShellCommand(this.shellStatus, "status", " - Sets a new status.");
             this.commandList[this.commandList.length] = sc;
-            sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
+            // trace <on | off>
+            sc = new TSOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
+            this.commandList[this.commandList.length] = sc;
+            // ver
+            sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version of the OS.");
+            this.commandList[this.commandList.length] = sc;
+            //whereami
+            sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays your current location.");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -255,9 +256,6 @@ var TSOS;
                     case "status":
                         _StdOut.putText("Sets a new status to the status bar.");
                         break;
-                    case "crash":
-                        _StdOut.putText("Purposefully crashes the OS.");
-                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -315,7 +313,9 @@ var TSOS;
             _StdOut.putText("Titan.");
         }
         shellSnap(args) {
-            if (!document.getElementById("snapper")) {
+            //Function call is tied to a button press (digitally) since that was the easiest way to tie everything together.
+            //See snap() function definition for more details
+            if (!document.getElementById("video")) {
                 _StdOut.putText("I am ... inevitable.");
             }
             else {
@@ -323,6 +323,7 @@ var TSOS;
                 document.getElementById("snapper").click();
             }
         }
+        //I limited the length of the status message just as a way to try and inhibit weird behaviors.
         shellStatus(args) {
             if (args.length > 0) {
                 status = args[0];
@@ -337,6 +338,7 @@ var TSOS;
                 _StdOut.putText("Usage: status: <string>. Please supply a string.");
             }
         }
+        //The command is crash because it is more intuitive for an end-user, but is interally referenced as BSOD for the assignment
         shellBSOD(args) {
             _StdOut.putText("[ERROR] Something went wrong :(");
             _Kernel.krnTrapError("User invoked crash.");

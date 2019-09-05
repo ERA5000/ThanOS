@@ -3,3 +3,5 @@
 *.iml
 .vscode/
 notes.txt
+clock.js
+clock.js.map
