@@ -47,6 +47,11 @@ h3 {
   text-align: center;
 }
 
+#taHostLog{
+  width: 700px;
+  resize: none;
+}
+
 #taskBar{
   height: 75px;
   border: 2px dashed red;

@@ -44,7 +44,7 @@ function pauseVideo(videoElem, dimTimerID) {
     videoElem.pause();
     video.style.display = "none";
     clearInterval(dimTimerID);
-    setTimeout(this.reboot, 3000);
+    setTimeout(this.reboot, 1750);
 }
 
 //Dims the overlay as the video plays

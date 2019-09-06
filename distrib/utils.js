@@ -42,6 +42,19 @@ var TSOS;
             }
             return retVal;
         }
+        /*A simple method to verify hex input data using RegEx
+        I think this turned into one of the those logical 'proofs' where finding the negation is easier,
+            which is why I look for *anything* that is NOT a-f, 0-9, space, newline and carriage return*/
+        static verifyInput() {
+            let text = document.getElementById("taProgramInput").value;
+            let validHex = /[^a-f0-9 \r\n]+/img;
+            if (validHex.test(text)) {
+                _StdOut.putText("Hex input is NOT valid!");
+            }
+            else {
+                _StdOut.putText("Hex input is valid!");
+            }
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

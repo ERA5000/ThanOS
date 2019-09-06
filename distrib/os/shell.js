@@ -34,6 +34,9 @@ var TSOS;
             // help
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "- Displays the list of available commands.");
             this.commandList[this.commandList.length] = sc;
+            //load
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Validates user program input.");
+            this.commandList[this.commandList.length] = sc;
             // man <topic>
             sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
@@ -256,6 +259,9 @@ var TSOS;
                     case "status":
                         _StdOut.putText("Sets a new status to the status bar.");
                         break;
+                    case "load":
+                        _StdOut.putText("Validates user program input. Hex digits (and spaces) only!");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -331,6 +337,7 @@ var TSOS;
                     _StdOut.putText("Status messages cannot be longer than 20 chars.");
                     return;
                 }
+                console.log("What was the status? " + status);
                 _StdOut.putText("New status: " + status);
                 document.getElementById("status").innerHTML = "Status: " + status;
             }
@@ -342,6 +349,10 @@ var TSOS;
         shellBSOD(args) {
             _StdOut.putText("[ERROR] Something went wrong :(");
             _Kernel.krnTrapError("User invoked crash.");
+        }
+        //Validates user input of hex digits
+        shellLoad(args) {
+            TSOS.Utils.verifyInput();
         }
     }
     TSOS.Shell = Shell;
