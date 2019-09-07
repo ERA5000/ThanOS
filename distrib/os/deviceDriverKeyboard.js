@@ -78,7 +78,8 @@ var TSOS;
                     chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
-            else if (keyCode == 32 || keyCode == 13 || keyCode == 8) { // enter, space, and delete respectively
+            else if (keyCode == 32 || keyCode == 13 || keyCode == 8 || keyCode == 9 // enter, space, delete, and tab respectively
+                || keyCode == 38 || keyCode == 40) { // up and down respectively
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }

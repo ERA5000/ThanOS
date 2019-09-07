@@ -18,6 +18,8 @@ var TSOS;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.cmdHistory = [];
+            this.cmdPointer = this.cmdHistory.length - 1;
         }
         init() {
             this.clearScreen();
@@ -34,7 +36,16 @@ var TSOS;
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
-                if (chr === String.fromCharCode(8)) {
+                if (chr === String.fromCharCode(9)) {
+                    console.log("The tab key was pressed!");
+                }
+                else if (chr === String.fromCharCode(38)) {
+                    this.recall(chr);
+                }
+                else if (chr === String.fromCharCode(40)) {
+                    this.recall(chr);
+                }
+                else if (chr === String.fromCharCode(8)) {
                     this.eraseText(this.buffer);
                 }
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
@@ -42,6 +53,10 @@ var TSOS;
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
+                    //As long as the line is not empty, add it to the command history
+                    if (this.buffer.length != 0) {
+                        this.cmdHistory[this.cmdHistory.length] = this.buffer;
+                    }
                     // ... and reset our buffer.
                     this.buffer = "";
                 }
@@ -73,8 +88,7 @@ var TSOS;
         }
         /* This function erases text
            Its default behavior is to do so character-by-character
-           However, if the second parameter is specified to be true, it will erase the whole line
-           But first, it checks to see if there is anything in the buffer at all, otherwise it erases the '>' graphically
+           However, if the second parameter is specified to be true, it will erase a specified string
 
            Thankfully the canvas does have built-in functions to determine width, height, and offsets of fonts, which makes this possible at all
            All that needs to be done is to measure the width, height, and offset (vertical and horizontal + some arbitrary visual feedback) for a letter,
@@ -82,9 +96,6 @@ var TSOS;
            I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
         */
         eraseText(text, eraseLine) {
-            if (!text) {
-                return;
-            }
             let width;
             if (eraseLine === true) {
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
@@ -124,6 +135,30 @@ var TSOS;
                 let bottomLine = topLine * -1;
                 canvas.putImageData(pixelData, 0, bottomLine);
                 this.currentYPosition += bottomLine;
+            }
+        }
+        recall(arrow) {
+            this.eraseText(this.buffer, true);
+            if (arrow === String.fromCharCode(38)) {
+                this.cmdPointer--;
+                if (this.cmdPointer < 0) {
+                    this.cmdPointer = this.cmdHistory.length - 1;
+                }
+                this.buffer = this.cmdHistory[this.cmdPointer];
+                this.currentXPosition = 12;
+                _StdOut.putText(this.buffer);
+            }
+            else if (arrow === String.fromCharCode(40)) {
+                this.cmdPointer++;
+                if (this.cmdPointer >= this.cmdHistory.length) {
+                    this.cmdPointer = 0;
+                }
+                this.buffer = this.cmdHistory[this.cmdPointer];
+                this.currentXPosition = 12;
+                _StdOut.putText(this.buffer);
+            }
+            else {
+                return;
             }
         }
     }
