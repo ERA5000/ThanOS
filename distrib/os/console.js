@@ -20,6 +20,8 @@ var TSOS;
             this.buffer = buffer;
             this.cmdHistory = [];
             this.cmdPointer = this.cmdHistory.length - 1;
+            this.tabList = [];
+            this.tabPointer = 0;
         }
         init() {
             this.clearScreen();
@@ -38,15 +40,20 @@ var TSOS;
                 var chr = _KernelInputQueue.dequeue();
                 if (chr === String.fromCharCode(9)) {
                     console.log("The tab key was pressed!");
+                    console.log("What is input here? " + this.buffer);
+                    this.complete();
                 }
                 else if (chr === String.fromCharCode(38)) {
                     this.recall(chr);
+                    this.generateTabList(this.buffer);
                 }
                 else if (chr === String.fromCharCode(40)) {
                     this.recall(chr);
+                    this.generateTabList(this.buffer);
                 }
                 else if (chr === String.fromCharCode(8)) {
                     this.eraseText(this.buffer);
+                    this.generateTabList(this.buffer);
                 }
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
                 else if (chr === String.fromCharCode(13)) { // the Enter key
@@ -66,6 +73,7 @@ var TSOS;
                     this.putText(chr);
                     // ... and add it to our buffer.
                     this.buffer += chr;
+                    this.generateTabList(this.buffer);
                 }
                 // TODO: Add a case for Ctrl-C that would allow the user to break the current program.
             }
@@ -86,30 +94,43 @@ var TSOS;
                 this.currentXPosition = this.currentXPosition + offset;
             }
         }
-        /* This function erases text
-           Its default behavior is to do so character-by-character
-           However, if the second parameter is specified to be true, it will erase a specified string
+        /* This method erases text
+           Depending on the parameter, either erases character-by-character, or can erase entire words/phrases.
 
            Thankfully the canvas does have built-in functions to determine width, height, and offsets of fonts, which makes this possible at all
            All that needs to be done is to measure the width, height, and offset (vertical and horizontal + some arbitrary visual feedback) for a letter,
                and I decided to cover it with a rectangle of the same color as the background.
            I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
         */
-        eraseText(text, eraseLine) {
+        eraseText(char, phrase) {
             let width;
-            if (eraseLine === true) {
-                width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+            if (phrase) {
+                width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
                 this.buffer = "";
             }
             else {
-                let letterToDelete = text.substring(text.length - 1);
-                this.buffer = this.buffer.substring(0, text.length - 1);
+                let letterToDelete = char.substring(char.length - 1);
+                this.buffer = this.buffer.substring(0, char.length - 1);
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, letterToDelete);
             }
             this.currentXPosition -= width;
             let height = this.currentFontSize + _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) + 5;
             _DrawingContext.fillStyle = "black";
             _DrawingContext.fillRect(this.currentXPosition, this.currentYPosition - _DrawingContext.fontAscent(this.currentFont, this.currentFontSize) - 2, width, height);
+        }
+        /* This method brute-forces a line deletion
+            Depending on the parameter, it can reset the buffer (as would usually be ideal), but I created this specifically for the Tab auto-complete,
+                which would want the line erased, but the buffer to stay the same.
+        */
+        eraseLine(resetBuffer) {
+            _DrawingContext.fillStyle = "black";
+            let height = this.currentFontSize + _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) + 5;
+            _DrawingContext.fillRect(12, this.currentYPosition - _DrawingContext.fontAscent(this.currentFont, this.currentFontSize) - 2, 488, height);
+            this.currentXPosition = 12;
+            if (resetBuffer === false)
+                return;
+            if (!resetBuffer || resetBuffer === true)
+                this.buffer = "";
         }
         advanceLine() {
             this.currentXPosition = 0;
@@ -137,8 +158,9 @@ var TSOS;
                 this.currentYPosition += bottomLine;
             }
         }
+        // Allows the user to traverse command history.
         recall(arrow) {
-            this.eraseText(this.buffer, true);
+            this.eraseLine();
             if (arrow === String.fromCharCode(38)) {
                 this.cmdPointer--;
                 if (this.cmdPointer < 0) {
@@ -160,6 +182,34 @@ var TSOS;
             else {
                 return;
             }
+        }
+        /*Regenerates the tab list every time a new input, anything but the tab key, is entered.
+            1. Compare text to list of commands
+            2. Create a new list based on the input
+        */
+        generateTabList(text) {
+            if (text.length === 0 || text == null || text === String.fromCharCode(9))
+                return;
+            this.tabList = [];
+            for (let i = 0; i < _OsShell.commandList.length; i++) {
+                if (_OsShell.commandList[i].command.substr(0, text.length) === text) {
+                    this.tabList[this.tabList.length] = _OsShell.commandList[i].command;
+                }
+            }
+        }
+        /*Actually draws the tab auto fill to the screen.
+        The complete() and generateTabList(String) methods are separate because they always happen mutually exclusively.
+            Reading the tab list should never update the buffer itself, otherwise the generated tab list would not work properly.*/
+        complete() {
+            if (this.tabList.length <= 0)
+                return;
+            this.eraseLine(false);
+            this.currentXPosition = 12;
+            this.buffer = this.tabList[this.tabPointer];
+            _StdOut.putText(this.buffer);
+            this.tabPointer++;
+            if (this.tabPointer >= this.tabList.length)
+                this.tabPointer = 0;
         }
     }
     TSOS.Console = Console;
