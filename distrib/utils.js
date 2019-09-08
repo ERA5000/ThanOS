@@ -84,7 +84,7 @@ var TSOS;
             overlay.style.display = "initial";
             var video = document.getElementById("video");
             video.style.display = "initial";
-            video.autoplay = true;
+            video.play();
             var dimTimerID = setInterval(this.dimDisplay, 100, overlay, video);
             setTimeout(this.pauseVideo, 11500, video, dimTimerID);
         }
