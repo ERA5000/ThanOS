@@ -102,18 +102,18 @@ module TSOS {
                         case 107:
                             chr = String.fromCharCode(43) // + (numpad)
                             break;
-                        case 109:                          // numpad
+                        case 109:                          // (numpad)
                         case 173:
                             chr = String.fromCharCode(45); // -
                             break;                            
                         case 188:
                             chr = String.fromCharCode(44); // ,
                             break;
-                        case 110:                          // numpad
+                        case 110:                          // (numpad)
                         case 190:
                             chr = String.fromCharCode(46); // .
                             break;
-                        case 111:                          // numpad
+                        case 111:                          // (numpad)
                         case 191:
                             chr = String.fromCharCode(47); // /
                             break;
@@ -132,11 +132,6 @@ module TSOS {
                         case 222:
                             chr = String.fromCharCode(39); // '
                             break;
-                        /*Backspace, while not implemented ATM, currently triggers this behavior, which is not desired. Disabling for now.
-                        default:                           //Pressed some extraneous button. Inform user of inadequate behavior.
-                            _StdOut.putText("No.");
-                            _StdOut.advanceLine();
-                            _StdOut.putText(">");*/
                     }
                 }
                 else {

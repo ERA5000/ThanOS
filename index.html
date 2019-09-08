@@ -37,18 +37,22 @@
 </head>
 
 <body onload="onDocumentLoad()">
+
+<!--VVVVV snap() function materials VVVVV-->
 <video id="video">
    <source src="distrib/resources/video/ThanOSnap.mp4">
 </video>
 <div id="overlay"></div>
 <img id="logo" src="distrib/resources/img/logo.png">
 <progress id="progress" value="0" max="100"></progress>
-<button id="snapper" onclick="snap()" style="display: none">Snap</button>
+<!--^^^^^ snap() function materials ^^^^^-->
+
 <div id="taskBar">
    <p id="date"></p>
    <p id="time"></p>
    <p id="status">Status: </p>
 </div>
+
 <div id="divMain" style="width:100%;">
    <div id="divButtonBar" style="margin:4px;">
       <input type="button"
@@ -121,5 +125,4 @@
 </p>
 
 </body>
-<script type="text/javascript" src="distrib/customFunctions.js"></script>
 </html>

@@ -44,20 +44,18 @@ module TSOS {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
-                if(chr === String.fromCharCode(9)) {
-                    console.log("The tab key was pressed!");
-                    console.log("What is input here? " + this.buffer);
+                if(chr === String.fromCharCode(9)) { //Tab Key
                     this.complete();
                 }
-                else if(chr === String.fromCharCode(38)) {
+                else if(chr === String.fromCharCode(38)) { //Up Arrow
                     this.recall(chr);
                     this.generateTabList(this.buffer);
                 }
-                else if(chr === String.fromCharCode(40)) {
+                else if(chr === String.fromCharCode(40)) { //Down Arrow
                     this.recall(chr);
                     this.generateTabList(this.buffer);
                 }
-                else if(chr === String.fromCharCode(8)) {
+                else if(chr === String.fromCharCode(8)) { //Delete Key
                     this.eraseText(this.buffer);
                     this.generateTabList(this.buffer);
                 }
@@ -104,11 +102,7 @@ module TSOS {
          }
 
          /* This method erases text
-            Depending on the parameter, either erases character-by-character, or can erase entire words/phrases.
-
-            Thankfully the canvas does have built-in functions to determine width, height, and offsets of fonts, which makes this possible at all
-            All that needs to be done is to measure the width, height, and offset (vertical and horizontal + some arbitrary visual feedback) for a letter, 
-                and I decided to cover it with a rectangle of the same color as the background.
+            Depending on the parameter, it either erases character-by-character, or it erases entire words/phrases.
             I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
          */
         public eraseText(char?: String, phrase?: String): void {
@@ -142,7 +136,7 @@ module TSOS {
         }
 
         public advanceLine(): void {
-            this.currentXPosition = 0;
+            this.currentXPosition = 1;
             /*
              * Font size measures from the baseline to the highest point in the font.
              * Font descent measures from the baseline to the lowest point in the font.

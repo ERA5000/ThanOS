@@ -22,6 +22,7 @@ var TSOS;
             var sc;
             //
             // Load the command list.
+            // The list is alphabetized for a. the user, b. the programmer, and c. Tab indexing
             // cls
             sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
@@ -152,7 +153,7 @@ var TSOS;
                 // 5.2 Record it in the return value.
                 retVal.command = cmd;
             }
-            // 6. Make an exception for the Status command so it can contain spaces
+            // 6. Make another exception for the Status command so it can contain spaces
             if (retVal.command === "status") {
                 retVal.args[0] = buffer.substr(7, buffer.length);
             }
@@ -264,6 +265,9 @@ var TSOS;
                     case "load":
                         _StdOut.putText("Validates user program input. Hex digits (and spaces) only!");
                         break;
+                    case "crash":
+                        _StdOut.putText("Creates a user-generated crash for the Kernel.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -321,14 +325,13 @@ var TSOS;
             _StdOut.putText("Titan.");
         }
         shellSnap(args) {
-            //Function call is tied to a button press (digitally) since that was the easiest way to tie everything together.
-            //See snap() function definition for more details
+            //Requires Utils.snap() for optimal functionality
             if (!document.getElementById("video")) {
                 _StdOut.putText("I am ... inevitable.");
             }
             else {
                 _StdOut.putText("Universe ending. Please hold...");
-                document.getElementById("snapper").click();
+                TSOS.Utils.snap();
             }
         }
         //I limited the length of the status message just as a way to try and inhibit weird behaviors.

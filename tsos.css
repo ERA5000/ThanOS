@@ -58,6 +58,7 @@ h3 {
   background-color: rgba(175, 175, 175, .55);
 }
 
+/*Fix positioning later*/
 #status{
   position: relative;
   text-align: center;
@@ -69,6 +70,7 @@ h3 {
   left: 5px;
 }
 
+/*Video element that plays when snap() is called*/
 #video{
   position: fixed;
   width: 720px;
@@ -82,6 +84,7 @@ h3 {
   cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
 
+/*Div element that dims when snap() is called*/
 #overlay{
   position: fixed;
   display: none;
@@ -97,6 +100,7 @@ h3 {
   cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
 
+/*Image element that appears when snap() is called*/
 #logo{
   position: fixed;
   display: none;
@@ -108,6 +112,7 @@ h3 {
   cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
 
+/*Progress element that loads when snap() is called*/
 #progress{
   position: fixed;
   display: none;

@@ -25,6 +25,7 @@ module TSOS {
             var sc: ShellCommand;
             //
             // Load the command list.
+            // The list is alphabetized for a. the user, b. the programmer, and c. Tab indexing
 
             // cls
             sc = new ShellCommand(this.shellCls,
@@ -209,7 +210,7 @@ module TSOS {
                 retVal.command = cmd;
             }
 
-            // 6. Make an exception for the Status command so it can contain spaces
+            // 6. Make another exception for the Status command so it can contain spaces
             if(retVal.command === "status") {
                 retVal.args[0] = buffer.substr(7, buffer.length);
             }
@@ -329,6 +330,9 @@ module TSOS {
                     case "load":
                         _StdOut.putText("Validates user program input. Hex digits (and spaces) only!");
                         break;
+                    case "crash":
+                        _StdOut.putText("Creates a user-generated crash for the Kernel.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -387,14 +391,13 @@ module TSOS {
         }
 
         public shellSnap(args: string[]){
-            //Function call is tied to a button press (digitally) since that was the easiest way to tie everything together.
-            //See snap() function definition for more details
+            //Requires Utils.snap() for optimal functionality
             if(!document.getElementById("video")) {
                 _StdOut.putText("I am ... inevitable.");
             }
             else {
                 _StdOut.putText("Universe ending. Please hold...");
-                document.getElementById("snapper").click();
+                Utils.snap();
             }
         }
 
