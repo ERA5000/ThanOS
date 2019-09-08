@@ -1,7 +1,7 @@
 /* TSOS.css */
 
 body {
-  background: #909193 url(distrib/images/linen.png) repeat;
+  background: #909193 url(distrib/resources/img/linen.png) repeat;
   font-family: Helvetica, Verdana, Arial, sans-serif;
   font-size: 12pt;
   font-weight: normal;
@@ -31,8 +31,8 @@ h3 {
 }
 
 #display {
-  background-color:#DFDBC3;
-  border: 2px solid red;
+  background-color: black;
+  border: 2px groove rgb(0, 0, 0);
   cursor: default;
 }
 
@@ -45,4 +45,82 @@ h3 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 8pt;
   text-align: center;
+}
+
+#taHostLog{
+  width: 700px;
+  resize: none;
+}
+
+#taskBar{
+  height: 75px;
+  border: 2px dashed red;
+  background-color: rgba(175, 175, 175, .55);
+}
+
+/*Fix positioning later*/
+#status{
+  position: relative;
+  text-align: center;
+  bottom: 67px;
+}
+
+#date, #time {
+  position: relative;
+  left: 5px;
+}
+
+/*Video element that plays when snap() is called*/
+#video{
+  position: fixed;
+  width: 720px;
+  height: 480px;
+  display: none;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  margin-top: -280px;
+  margin-left: -360px;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+}
+
+/*Div element that dims when snap() is called*/
+#overlay{
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgb(0,0,0);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+}
+
+/*Image element that appears when snap() is called*/
+#logo{
+  position: fixed;
+  display: none;
+  z-index: 4;
+  top: 55%;
+  left: 50%;
+  margin-top: -320px;
+  margin-left: -238px;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+}
+
+/*Progress element that loads when snap() is called*/
+#progress{
+  position: fixed;
+  display: none;
+  z-index: 4;
+  top: 80%;
+  left: 50%;
+  margin-left: -275px;
+  width: 550px;
+  height: 25px;
+  cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }

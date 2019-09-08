@@ -2,10 +2,11 @@
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-   <meta name="author"             content="Alan G. Labouseur" />
+   <meta name="author"             content="Robert E. Liskin" />
+   <link rel="shortcut icon" type="image/png" href="/distrib/resources/img/favicon5.ico"/>
    <link rel="stylesheet" href="tsos.css" type="text/css" media="screen" />
    <title>
-      TSOS - a browser-based virtual Operating System in TypeScript
+      ThanOS - Typscript OS
    </title>
 
    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
@@ -37,8 +38,22 @@
 
 <body onload="onDocumentLoad()">
 
-<div id="divMain" style="width:100%;">
+<!--VVVVV snap() function materials VVVVV-->
+<video id="video">
+   <source src="distrib/resources/video/ThanOSnap.mp4">
+</video>
+<div id="overlay"></div>
+<img id="logo" src="distrib/resources/img/logo.png">
+<progress id="progress" value="0" max="100"></progress>
+<!--^^^^^ snap() function materials ^^^^^-->
 
+<div id="taskBar">
+   <p id="date"></p>
+   <p id="time"></p>
+   <p id="status">Status: </p>
+</div>
+
+<div id="divMain" style="width:100%;">
    <div id="divButtonBar" style="margin:4px;">
       <input type="button"
              id = "btnStartOS"
@@ -83,6 +98,7 @@
                    id  ="taHostLog"
                    rows="26"
                    cols="48"
+                   readonly
          ></textarea>
       </label>
    </div>

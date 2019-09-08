@@ -16,6 +16,7 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
+        public status = "";
 
         constructor() {
         }
@@ -24,29 +25,36 @@ module TSOS {
             var sc: ShellCommand;
             //
             // Load the command list.
-
-            // ver
-            sc = new ShellCommand(this.shellVer,
-                                  "ver",
-                                  "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
-
-            // help
-            sc = new ShellCommand(this.shellHelp,
-                                  "help",
-                                  "- This is the help command. Seek help.");
-            this.commandList[this.commandList.length] = sc;
-
-            // shutdown
-            sc = new ShellCommand(this.shellShutdown,
-                                  "shutdown",
-                                  "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
+            // The list is alphabetized for a. the user, b. the programmer, and c. Tab indexing
 
             // cls
             sc = new ShellCommand(this.shellCls,
                                   "cls",
                                   "- Clears the screen and resets the cursor position.");
+            this.commandList[this.commandList.length] = sc;
+
+            //crash
+            sc = new ShellCommand(this.shellBSOD,
+                                  "crash",
+                                  " - Crashes the system.");
+            this.commandList[this.commandList.length] = sc;
+
+            //date
+            sc = new ShellCommand(this.shellDate, 
+                                  "date",
+                                  "- Displays the current date and time.");
+            this.commandList[this.commandList.length] = sc;
+            
+            // help
+            sc = new ShellCommand(this.shellHelp,
+                                  "help",
+                                  "- Displays the list of available commands.");
+            this.commandList[this.commandList.length] = sc;
+
+            //load
+            sc = new ShellCommand(this.shellLoad,
+                                    "load",
+                                    "- Validates user program input.");
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
@@ -55,10 +63,10 @@ module TSOS {
                                   "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
 
-            // trace <on | off>
-            sc = new ShellCommand(this.shellTrace,
-                                  "trace",
-                                  "<on | off> - Turns the OS trace on or off.");
+            // prompt <string>
+            sc = new ShellCommand(this.shellPrompt,
+                                  "prompt",
+                                  "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
@@ -67,17 +75,51 @@ module TSOS {
                                   "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
 
-            // prompt <string>
-            sc = new ShellCommand(this.shellPrompt,
-                                  "prompt",
-                                  "<string> - Sets the prompt.");
+            // shutdown
+            sc = new ShellCommand(this.shellShutdown,
+                                  "shutdown",
+                                  "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
+            //snap
+            sc = new ShellCommand(this.shellSnap,
+                                    "snap",
+                                    "- Reality is often disappointing. That is, it was.");
+            this.commandList[this.commandList.length] = sc;
+
+            //status
+            sc = new ShellCommand(this.shellStatus,
+                                    "status",
+                                    " - Sets a new status.");
+            this.commandList[this.commandList.length] = sc;
+
+            // trace <on | off>
+            sc = new ShellCommand(this.shellTrace,
+                                  "trace",
+                                  "<on | off> - Turns the OS trace on or off.");
+            this.commandList[this.commandList.length] = sc;
+
+            // ver
+            sc = new ShellCommand(this.shellVer,
+                                  "ver",
+                                  "- Displays the current version of the OS.");
+            this.commandList[this.commandList.length] = sc;
+
+            //whereami
+            sc = new ShellCommand(this.shellWhereAmI,
+                                    "whereami",
+                                    "- Displays your current location.");
+            this.commandList[this.commandList.length] = sc;
+            
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
             // Display the initial prompt.
             this.putPrompt();
+        }
+
+        public printStatus(){
+            return "Status: " + this.status;
         }
 
         public putPrompt() {
@@ -128,7 +170,7 @@ module TSOS {
         public execute(fn, args?) {
             // We just got a command, so advance the line...
             _StdOut.advanceLine();
-            // ... call the command function passing in the args with some über-cool functional programming ...
+            // ... call the command function passing in the args ...
             fn(args);
             // Check to see if we need to advance the line again
             if (_StdOut.currentXPosition > 0) {
@@ -144,24 +186,42 @@ module TSOS {
             // 1. Remove leading and trailing spaces.
             buffer = Utils.trim(buffer);
 
-            // 2. Lower-case it.
-            buffer = buffer.toLowerCase();
 
-            // 3. Separate on spaces so we can determine the command and command-line args, if any.
+            //2. Split up the input by spaces
             var tempList = buffer.split(" ");
 
-            // 4. Take the first (zeroth) element and use that as the command.
-            var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript. See the Queue class.
-            // 4.1 Remove any left-over spaces.
-            cmd = Utils.trim(cmd);
-            // 4.2 Record it in the return value.
-            retVal.command = cmd;
+            //2.5 If the command is status, make an exception so the status itself can contain caps
+            if(tempList[0] === "status") {
+                retVal.command = Utils.trim(tempList.shift()).toLowerCase();
+            }
+            else {
+                // 3. Lower-case it.
+                buffer = buffer.toLowerCase();
 
-            // 5. Now create the args array from what's left.
-            for (var i in tempList) {
+                // 4. Separate on spaces so we can determine the command and command-line args, if any.
+
+                // 5. Take the first (zeroth) element and use that as the command.
+                var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript. See the Queue class.
+
+                // 5.1 Remove any left-over spaces.
+                cmd = Utils.trim(cmd);
+
+                // 5.2 Record it in the return value.
+                retVal.command = cmd;
+            }
+
+            // 6. Make another exception for the Status command so it can contain spaces
+            if(retVal.command === "status") {
+                retVal.args[0] = buffer.substr(7, buffer.length);
+            }
+
+            // 7. Now create the args array from what's left.
+            else {
+                for (var i in tempList) {
                 var arg = Utils.trim(tempList[i]);
-                if (arg != "") {
-                    retVal.args[retVal.args.length] = tempList[i];
+                    if (arg != "") {
+                        retVal.args[retVal.args.length] = tempList[i];
+                    }
                 }
             }
             return retVal;
@@ -178,7 +238,7 @@ module TSOS {
                 _StdOut.advanceLine();
                 _StdOut.putText("must be the pride of [subject hometown here].");
             } else {
-                _StdOut.putText("Type 'help' for, well... help.");
+                _StdOut.putText("Type 'help' for a list of commands.");
             }
         }
 
@@ -204,7 +264,7 @@ module TSOS {
         // actual parameter list when this function is called, so I feel like we need it.
 
         public shellVer(args: string[]) {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.putText(APP_NAME + " v" + APP_VERSION);
         }
 
         public shellHelp(args: string[]) {
@@ -219,7 +279,6 @@ module TSOS {
              _StdOut.putText("Shutting down...");
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         }
 
         public shellCls(args: string[]) {         
@@ -231,15 +290,54 @@ module TSOS {
             if (args.length > 0) {
                 var topic = args[0];
                 switch (topic) {
-                    case "help":
-                        _StdOut.putText("Help displays a list of (hopefully) valid commands.");
+                    case "ver":
+                        _StdOut.putText("Lists the running version of the OS.");
                         break;
-                    // TODO: Make descriptive MANual page entries for the the rest of the shell commands here.
+                    case "help":
+                        _StdOut.putText("Displays a list of valid commands.");
+                        break;
+                    case "shutdown":
+                        _StdOut.putText("Disables user input but keeps the underlying software running.");
+                        break;
+                    case "cls":
+                        _StdOut.putText("Clears the screen of all text and resets the cursor's position back to the beginning.");
+                        break;
+                    case "man":
+                        _StdOut.putText("Given a topic, the relevant description will be displayed."); //Make recursive?
+                        break;
+                    case "trace":
+                        _StdOut.putText("Disable/Enable tracing. Tracing is the act of outputting the OS's activities to the Host Log.");
+                        break;
+                    case "rot13":
+                        _StdOut.putText(`Obfuscate text using the ROTation13 cipher. Take a letter's position in the alphabet, add 13 to it, 
+                        and that becomes the new letter.`);
+                        break;
+                    case "prompt":
+                        _StdOut.putText("Sets a default prompt to the CLI for the session.");
+                        break;
+                    case "date":
+                        _StdOut.putText("Displays the current date and time.");
+                        break;
+                    case "whereami":
+                        _StdOut.putText("Displays the user's current location.");
+                        break;
+                    case "snap":
+                        _StdOut.putText("Now, reality can be whatever I want.");
+                        break;
+                    case "status":
+                        _StdOut.putText("Sets a new status to the status bar.");
+                        break;
+                    case "load":
+                        _StdOut.putText("Validates user program input. Hex digits (and spaces) only!");
+                        break;
+                    case "crash":
+                        _StdOut.putText("Creates a user-generated crash for the Kernel.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
             } else {
-                _StdOut.putText("Usage: man <topic>  Please supply a topic.");
+                _StdOut.putText("Usage: man <topic>. Please supply a topic.");
             }
         }
 
@@ -260,7 +358,7 @@ module TSOS {
                         _StdOut.putText("Trace OFF");
                         break;
                     default:
-                        _StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        _StdOut.putText("Invalid arguement. Usage: trace <on | off>.");
                 }
             } else {
                 _StdOut.putText("Usage: trace <on | off>");
@@ -272,7 +370,7 @@ module TSOS {
                 // Requires Utils.ts for rot13() function.
                 _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
             } else {
-                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
+                _StdOut.putText("Usage: rot13 <string>. Please supply a string.");
             }
         }
 
@@ -280,9 +378,54 @@ module TSOS {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
-                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+                _StdOut.putText("Usage: prompt <string>. Please supply a string.");
             }
         }
 
+        public shellDate(args: string[]){
+            _StdOut.putText("Going on half past a quarter of.");
+        }
+
+        public shellWhereAmI(args: string[]){
+            _StdOut.putText("Titan.");
+        }
+
+        public shellSnap(args: string[]){
+            //Requires Utils.snap() for optimal functionality
+            if(!document.getElementById("video")) {
+                _StdOut.putText("I am ... inevitable.");
+            }
+            else {
+                _StdOut.putText("Universe ending. Please hold...");
+                Utils.snap();
+            }
+        }
+
+        //I limited the length of the status message just as a way to try and inhibit weird behaviors.
+        public shellStatus(args: string[]){
+            if(args.length > 0){
+                status = args[0];
+                if(status.length > 20){
+                    _StdOut.putText("Status messages cannot be longer than 20 chars.");
+                    return;
+                }
+                _StdOut.putText("New status: " + status);
+                document.getElementById("status").innerHTML = "Status: " + status;
+            }
+            else{
+                _StdOut.putText("Usage: status: <string>. Please supply a string.");
+            }
+        }
+
+        //The command is crash because it is more intuitive for an end-user, but is interally referenced as BSOD for the assignment
+        public shellBSOD(args: string[]){
+            _StdOut.putText("[ERROR] Something went wrong :(");
+            _Kernel.krnTrapError("User invoked crash.");
+        }
+
+        //Validates user input of hex digits
+        public shellLoad(args: string[]){
+            Utils.verifyInput();
+        }
     }
 }
