@@ -61,7 +61,7 @@ module TSOS {
         /*A simple clock function
         toLocaleDateString formats the date and time
         */
-        public static clock = function () {
+        public static clock () {
             var dateObject = new Date();
             var date = dateObject.toLocaleDateString("en-US");
             var time = dateObject.toLocaleTimeString("en-US");

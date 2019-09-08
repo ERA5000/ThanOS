@@ -66,5 +66,6 @@ var Glados: any = null;  // This is the function Glados() in glados-ip*.js http:
 var _GLaDOS: any = null; // If the above is linked in, this is the instantiated instance of Glados.
 
 var onDocumentLoad = function() {
-	TSOS.Control.hostInit();
+    TSOS.Control.hostInit();
+    TSOS.Utils.clock();
 };
