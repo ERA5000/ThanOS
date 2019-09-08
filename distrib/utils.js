@@ -120,6 +120,17 @@ var TSOS;
             location.reload();
         }
     }
+    /*A simple clock function
+    toLocaleDateString formats the date and time
+    */
+    Utils.clock = function () {
+        var dateObject = new Date();
+        var date = dateObject.toLocaleDateString("en-US");
+        var time = dateObject.toLocaleTimeString("en-US");
+        document.getElementById("date").innerHTML = date + "";
+        document.getElementById("time").innerHTML = time + "";
+        window.setTimeout(Utils.clock, 1000);
+    };
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));
 //# sourceMappingURL=utils.js.map
