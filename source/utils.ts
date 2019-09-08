@@ -58,22 +58,6 @@ module TSOS {
             }
         }
 
-
-        /*
-        Just a simple clock function.
-        It calls itself every second and updates its respective <p> elements, one for the date and the other for time.
-        toLocaleDateString() formats it, so need to get gross and weird with substrings or whatever
-        Its function call lies in onDocumentLoad()
-        */
-        public static clock() {
-            var dateObject = new Date();
-            var date = dateObject.toLocaleDateString("en-US");
-            var time = dateObject.toLocaleTimeString("en-US");
-            document.getElementById("date").innerHTML = date + "";
-            document.getElementById("time").innerHTML = time + "";
-            window.setTimeout(Utils.clock, 1000);
-        }
-
         /* The Crème de la crème of ThanOS, the snap function.
         This introduced me to the setTimeout and setInterval functions which are really useful for timing events very precisely and in a quantifiable manner.
         Both the overlay and the progress bar needed 'real-time updating,' so being able to call them using setInterval made things significantly easier.

@@ -66,6 +66,14 @@ var Glados: any = null;  // This is the function Glados() in glados-ip*.js http:
 var _GLaDOS: any = null; // If the above is linked in, this is the instantiated instance of Glados.
 
 var onDocumentLoad = function() {
-    TSOS.Utils.clock();
 	TSOS.Control.hostInit();
 };
+
+var clock = function() {
+    var dateObject = new Date();
+    var date = dateObject.toLocaleDateString("en-US");
+    var time = dateObject.toLocaleTimeString("en-US");
+    document.getElementById("date").innerHTML = date + "";
+    document.getElementById("time").innerHTML = time + "";
+    window.setTimeout(this.clock, 1000);
+}
