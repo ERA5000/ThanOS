@@ -422,19 +422,7 @@ module TSOS {
 
         //The command is crash because it is more intuitive for an end-user, but is interally referenced as BSOD for the assignment
         public shellBSOD(args: string[]){
-            //_StdOut.putText("[ERROR] Something went wrong :(");
-            //_Kernel.krnTrapError("User invoked crash.");
-
-            let crash = new Audio("../../distrib/resources/audio/crash.mp3");
-            crash.play();
-            let img = (<CanvasImageSource>document.getElementById("bsod"));
-            (<HTMLCanvasElement>document.getElementById("display")).getContext("2d").drawImage(img, 0, 0, 500, 510);
-            hasCrashed = true;
-            _Kernel.krnTrapError("User invoked crash.");
-            (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value = "";
-            (<HTMLTextAreaElement>document.getElementById("taProgramInput")).disabled = true;
-            (<HTMLTextAreaElement>document.getElementById("taHostLog")).value = "";
-            (<HTMLTextAreaElement>document.getElementById("taHostLog")).disabled = true;
+            Utils.crash();
         }
 
         //Validates user input of hex digits
