@@ -48,7 +48,7 @@ var TSOS;
         static verifyInput() {
             let text = document.getElementById("taProgramInput").value;
             let validHex = /[^a-f0-9 \r\n]+/img;
-            if (validHex.test(text)) {
+            if (validHex.test(text) || text == "") {
                 _StdOut.putText("Hex input is NOT valid!");
             }
             else {
