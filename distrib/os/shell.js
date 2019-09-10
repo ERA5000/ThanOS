@@ -361,6 +361,10 @@ var TSOS;
             document.getElementById("display").getContext("2d").drawImage(img, 0, 0, 500, 510);
             hasCrashed = true;
             _Kernel.krnTrapError("User invoked crash.");
+            document.getElementById("taProgramInput").value = "";
+            document.getElementById("taProgramInput").disabled = true;
+            document.getElementById("taHostLog").value = "";
+            document.getElementById("taHostLog").disabled = true;
         }
         //Validates user input of hex digits
         shellLoad(args) {

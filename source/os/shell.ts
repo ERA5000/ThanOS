@@ -431,7 +431,10 @@ module TSOS {
             (<HTMLCanvasElement>document.getElementById("display")).getContext("2d").drawImage(img, 0, 0, 500, 510);
             hasCrashed = true;
             _Kernel.krnTrapError("User invoked crash.");
-
+            (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value = "";
+            (<HTMLTextAreaElement>document.getElementById("taProgramInput")).disabled = true;
+            (<HTMLTextAreaElement>document.getElementById("taHostLog")).value = "";
+            (<HTMLTextAreaElement>document.getElementById("taHostLog")).disabled = true;
         }
 
         //Validates user input of hex digits

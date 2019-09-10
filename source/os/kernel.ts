@@ -151,6 +151,8 @@ module TSOS {
         // OS Utility Routines
         //
         public krnTrace(msg: string) {
+            // If the crash command has been issued, stop outputting anything to the Host Log
+            if(hasCrashed) return;
              // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
              if (_Trace) {
                 if (msg === "Idle") {

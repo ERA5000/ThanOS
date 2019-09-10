@@ -132,6 +132,8 @@ var TSOS;
         // OS Utility Routines
         //
         krnTrace(msg) {
+            if (hasCrashed)
+                return;
             // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
             if (_Trace) {
                 if (msg === "Idle") {
