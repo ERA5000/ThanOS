@@ -153,7 +153,7 @@ module TSOS {
                 3. Create the line where the user will continue to type
                 4. Put the raw pixel data back onto the canvas, accounting for the user line to type
             */
-            if(this.currentYPosition >= _Canvas.height){
+            if(this.currentYPosition >= _Canvas.height && !hasCrashed){
                 let canvas = _Canvas.getContext("2d");
                 let pixelData = canvas.getImageData(0, 0, _Canvas.width, this.currentYPosition);
                 this.clearScreen();

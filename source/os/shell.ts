@@ -225,7 +225,6 @@ module TSOS {
                     }
                 }
             }
-            console.log("What is it drawing to the canvas? " + retVal.command);
             return retVal;
         }
 
@@ -423,8 +422,16 @@ module TSOS {
 
         //The command is crash because it is more intuitive for an end-user, but is interally referenced as BSOD for the assignment
         public shellBSOD(args: string[]){
-            _StdOut.putText("[ERROR] Something went wrong :(");
+            //_StdOut.putText("[ERROR] Something went wrong :(");
+            //_Kernel.krnTrapError("User invoked crash.");
+
+            let crash = new Audio("../../distrib/resources/audio/crash.mp3");
+            crash.play();
+            let img = (<CanvasImageSource>document.getElementById("bsod"));
+            (<HTMLCanvasElement>document.getElementById("display")).getContext("2d").drawImage(img, 0, 0, 500, 510);
+            hasCrashed = true;
             _Kernel.krnTrapError("User invoked crash.");
+
         }
 
         //Validates user input of hex digits

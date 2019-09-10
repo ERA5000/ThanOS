@@ -52,4 +52,5 @@ var onDocumentLoad = function () {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();
 };
+var hasCrashed = false;
 //# sourceMappingURL=globals.js.map

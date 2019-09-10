@@ -124,3 +124,7 @@ h3 {
   height: 25px;
   cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
+
+#bsod{
+  display: none;
+}
