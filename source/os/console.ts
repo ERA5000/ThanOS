@@ -135,9 +135,10 @@ module TSOS {
                 }
                 //Line Wrap (Manual)
                 else if(this.currentXPosition >= 495) {
-                    this.currentXPosition = 0;
                     this.advanceLine();
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                    this.currentXPosition = this.currentXPosition + offset;
                 }
                 //Normal typing
                 else {
