@@ -190,32 +190,33 @@ module TSOS {
             //2. Split up the input by spaces
             var tempList = buffer.split(" ");
 
-            //2.5 If the command is status, make an exception so the status itself can contain caps
+            //2.1 Lowercase the command as an added measure
+            tempList[0] = tempList[0].toLowerCase();
+
+            //2.2 If the command is status, make an exception so the status itself can contain caps
             if(tempList[0] === "status") {
                 retVal.command = Utils.trim(tempList.shift()).toLowerCase();
             }
             else {
-                // 3. Lower-case it.
-                buffer = buffer.toLowerCase();
 
-                // 4. Separate on spaces so we can determine the command and command-line args, if any.
+                // 3. Separate on spaces so we can determine the command and command-line args, if any.
 
-                // 5. Take the first (zeroth) element and use that as the command.
+                // 4. Take the first (zeroth) element and use that as the command.
                 var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript. See the Queue class.
 
-                // 5.1 Remove any left-over spaces.
+                // 4.1 Remove any left-over spaces.
                 cmd = Utils.trim(cmd);
 
-                // 5.2 Record it in the return value.
+                // 4.2 Record it in the return value.
                 retVal.command = cmd;
             }
 
-            // 6. Make another exception for the Status command so it can contain spaces
+            // 5. Make another exception for the Status command so it can contain spaces
             if(retVal.command === "status") {
                 retVal.args[0] = buffer.substr(7, buffer.length);
             }
 
-            // 7. Now create the args array from what's left.
+            // 6. Now create the args array from what's left.
             else {
                 for (var i in tempList) {
                 var arg = Utils.trim(tempList[i]);
@@ -383,7 +384,9 @@ module TSOS {
         }
 
         public shellDate(args: string[]){
-            _StdOut.putText("Going on half past a quarter of.");
+            //_StdOut.putText("Going on half past a quarter of.");
+            let temp = new Date();
+            _StdOut.putText(temp.getTime() + " aka " + temp.toLocaleDateString("en-US"))
         }
 
         public shellWhereAmI(args: string[]){
@@ -419,8 +422,7 @@ module TSOS {
 
         //The command is crash because it is more intuitive for an end-user, but is interally referenced as BSOD for the assignment
         public shellBSOD(args: string[]){
-            _StdOut.putText("[ERROR] Something went wrong :(");
-            _Kernel.krnTrapError("User invoked crash.");
+            Utils.crash();
         }
 
         //Validates user input of hex digits

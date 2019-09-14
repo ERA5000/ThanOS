@@ -22,6 +22,7 @@ var TSOS;
             this.cmdPointer = this.cmdHistory.length - 1;
             this.tabList = [];
             this.tabPointer = 0;
+            this.previousLinePosition = [];
         }
         init() {
             this.clearScreen();
@@ -41,11 +42,11 @@ var TSOS;
                 if (chr === String.fromCharCode(9)) { //Tab Key
                     this.complete();
                 }
-                else if (chr === String.fromCharCode(38)) { //Up Arrow
+                else if (chr === "↑") { //Up Arrow
                     this.recall(chr);
                     this.generateTabList(this.buffer);
                 }
-                else if (chr === String.fromCharCode(40)) { //Down Arrow
+                else if (chr === "↓") { //Down Arrow
                     this.recall(chr);
                     this.generateTabList(this.buffer);
                 }
@@ -59,7 +60,7 @@ var TSOS;
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
                     //As long as the line is not empty, add it to the command history
-                    if (this.buffer.length != 0) {
+                    if (this.buffer.length != 0 && this.previousLinePosition.length == 0) {
                         this.cmdHistory[this.cmdHistory.length] = this.buffer;
                     }
                     // ... and reset our buffer.
@@ -76,29 +77,86 @@ var TSOS;
                 // TODO: Add a case for Ctrl-C that would allow the user to break the current program.
             }
         }
+        /* How my implementation of Line Wrap works
+            I first wanted to just be like "if the cursor >= 500 (canvas width), copy image data of whatever went over, advance the line,
+                draw that info there, and continue..."
+            Unfortunately, I could not get this work.
+
+            Now at first glance, you see a while loop inside of a for loop and think... Doesn't that break the Geneva Convention or something?
+            Yes yes, I know, but allow me to explain how it still miraculously manages to work (or at least the idea behind it because,
+                as you said, "i CaN sEe YoUr CoDe, I kNoW hOw It WoRkS" (Where I am from, we call these 'famous last words.')!
+
+            Anyway,
+                1. Measure the width of the text
+                2. If it is >= canvas.width (500 in this case. I use 495 to ensure no clipping), then start looping
+                    a. The for loop's upper limit is the amount of lines needed to be drawn (x / 495)
+                    b. The while loop then incrementally calculates how many words can fit on a line before jumping to the next one
+                    c. If there are no more words left, (i.e. counter >= words.length) we're done "early" (but draw the final word)
+                3. Otherwise, if the x position >= 495, then just advance the line and reset the X position
+
+            Now this begs the question, why separate these? Is this not redundant? To answer this, I have to explain the use-cases I thought of:
+            There are essentially two forms of input: manual (typing character-by-character) and automatic (Glados or large strings stuck together given at once)
+                a. Manual input is really straight-forward. If X position >= canvas width, advance the line and continue on.
+                b. Automatic input, however, was significantly more involved. Because not all letters are the same width, you don't know when to draw the new line.
+                    Therefore, it has to be done this tediously. Again, the thought-process is pretty intuitive,
+                    but the implementation is a nightmare (I was considering recursion at one point (⊙＿⊙') )
+        */
         putText(text) {
-            /*  My first inclination here was to write two functions: putChar() and putString().
-                Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-                between the two. (Although TypeScript would. But we're compiling to JavaScipt anyway.)
-                So rather than be like PHP and write two (or more) functions that
-                do the same thing, thereby encouraging confusion and decreasing readability, I
-                decided to write one function and use the term "text" to connote string or char.
-            */
             if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
-                // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                //Line Wrap (Automatic)
+                if (_DrawingContext.measureText(this.currentFont, this.currentFontSize, text) >= 495) {
+                    let words = text.split(" ");
+                    let newLine = "";
+                    let counter = 0;
+                    let done = false;
+                    for (let i = 0; i < Math.ceil(_DrawingContext.measureText(this.currentFont, this.currentFontSize, text)) / 495; i++) {
+                        while (_DrawingContext.measureText(this.currentFont, this.currentFontSize, newLine) +
+                            _DrawingContext.measureText(this.currentFont, this.currentFontSize, words[counter]) <= 495) {
+                            newLine += words[counter] + " ";
+                            counter++;
+                            if (counter >= words.length) {
+                                done = true;
+                                break;
+                            }
+                        }
+                        _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, newLine);
+                        if (done)
+                            return;
+                        this.advanceLine();
+                        newLine = "";
+                    }
+                }
+                //Line Wrap (Manual)
+                else if (this.currentXPosition >= 495) {
+                    this.previousLinePosition[this.previousLinePosition.length] = this.currentXPosition;
+                    this.advanceLine();
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                    this.currentXPosition = this.currentXPosition + offset;
+                }
+                //Normal typing
+                else {
+                    // Draw the text at the current X and Y coordinates.
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                    // Move the current X position.
+                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                    this.currentXPosition = this.currentXPosition + offset;
+                }
             }
         }
         /* This method erases text
-           Depending on the parameter, it either erases character-by-character, or it erases entire words/phrases.
+           By default, it deletes character-by-character. However, if specified, it can delete an entire word/phrase
            I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
         */
-        eraseText(char, phrase) {
+        eraseText(char, isPhrase) {
+            if (this.currentXPosition < 5) {
+                this.currentXPosition = this.previousLinePosition.pop();
+                this.currentYPosition = this.currentYPosition - (_DefaultFontSize +
+                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                    _FontHeightMargin);
+            }
             let width;
-            if (phrase) {
+            if (isPhrase) {
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
                 this.buffer = "";
             }
@@ -123,7 +181,7 @@ var TSOS;
             this.currentXPosition = 12;
             if (resetBuffer === false)
                 return;
-            if (!resetBuffer || resetBuffer === true)
+            else
                 this.buffer = "";
         }
         advanceLine() {
@@ -142,7 +200,7 @@ var TSOS;
                 3. Create the line where the user will continue to type
                 4. Put the raw pixel data back onto the canvas, accounting for the user line to type
             */
-            if (this.currentYPosition >= _Canvas.height) {
+            if (this.currentYPosition >= _Canvas.height && !hasCrashed) {
                 let canvas = _Canvas.getContext("2d");
                 let pixelData = canvas.getImageData(0, 0, _Canvas.width, this.currentYPosition);
                 this.clearScreen();
@@ -155,7 +213,7 @@ var TSOS;
         // Allows the user to traverse command history.
         recall(arrow) {
             this.eraseLine();
-            if (arrow === String.fromCharCode(38)) {
+            if (arrow === "↑") {
                 this.cmdPointer--;
                 if (this.cmdPointer < 0) {
                     this.cmdPointer = this.cmdHistory.length - 1;
@@ -164,7 +222,7 @@ var TSOS;
                 this.currentXPosition = 12;
                 _StdOut.putText(this.buffer);
             }
-            else if (arrow === String.fromCharCode(40)) {
+            else if (arrow === "↓") {
                 this.cmdPointer++;
                 if (this.cmdPointer >= this.cmdHistory.length) {
                     this.cmdPointer = 0;

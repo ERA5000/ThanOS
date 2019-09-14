@@ -124,3 +124,8 @@ h3 {
   height: 25px;
   cursor: url("/distrib/resources/img/cursor.cur"), auto;
 }
+
+/*BSOD image drawn to canvas when crash command is typed*/
+#bsod{
+  display: none;
+}

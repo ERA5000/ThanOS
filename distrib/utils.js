@@ -42,13 +42,28 @@ var TSOS;
             }
             return retVal;
         }
+        /*This is executed when the crash command is typed.
+        A boolean hasCrashed was created to stop other behaviors (like the Host Log output) to make it more unsettling.
+        */
+        static crash() {
+            let crash = new Audio("../../distrib/resources/audio/crash.mp3");
+            crash.play();
+            let img = document.getElementById("bsod");
+            document.getElementById("display").getContext("2d").drawImage(img, 0, 0, 500, 510);
+            hasCrashed = true;
+            _Kernel.krnTrapError("User invoked crash.");
+            document.getElementById("taProgramInput").value = "";
+            document.getElementById("taProgramInput").disabled = true;
+            document.getElementById("taHostLog").value = "";
+            document.getElementById("taHostLog").disabled = true;
+        }
         /*A simple method to verify hex input data using RegEx
         I think this turned into one of the those logical 'proofs' where finding the negation is easier,
             which is why I look for *anything* that is NOT a-f, 0-9, space, newline and carriage return*/
         static verifyInput() {
             let text = document.getElementById("taProgramInput").value;
             let validHex = /[^a-f0-9 \r\n]+/img;
-            if (validHex.test(text)) {
+            if (validHex.test(text) || text == "") {
                 _StdOut.putText("Hex input is NOT valid!");
             }
             else {
