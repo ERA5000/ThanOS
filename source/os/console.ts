@@ -45,14 +45,15 @@ module TSOS {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
+                console.log("What is being captured here? " + chr);
                 if(chr === String.fromCharCode(9)) { //Tab Key
                     this.complete();
                 }
-                else if(chr === String.fromCharCode(38)) { //Up Arrow
+                else if(chr === "↑") { //Up Arrow
                     this.recall(chr);
                     this.generateTabList(this.buffer);
                 }
-                else if(chr === String.fromCharCode(40)) { //Down Arrow
+                else if(chr === "↓") { //Down Arrow
                     this.recall(chr);
                     this.generateTabList(this.buffer);
                 }
@@ -227,7 +228,7 @@ module TSOS {
         // Allows the user to traverse command history.
         public recall(arrow) {
             this.eraseLine();
-            if(arrow === String.fromCharCode(38)) {
+            if(arrow === "↑") {
                 this.cmdPointer--;
                 if(this.cmdPointer < 0)
                 {
@@ -237,7 +238,7 @@ module TSOS {
                 this.currentXPosition = 12;
                 _StdOut.putText(this.buffer);
             }
-            else if(arrow === String.fromCharCode(40)) {
+            else if(arrow === "↓") {
                 this.cmdPointer++;
                 if(this.cmdPointer >= this.cmdHistory.length)
                 {

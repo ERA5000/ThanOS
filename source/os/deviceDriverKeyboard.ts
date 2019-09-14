@@ -65,13 +65,13 @@ module TSOS {
                             chr = String.fromCharCode(94); // ^
                             break;
                         case 55:
-                            chr = String.fromCharCode(38); // &
+                            chr = '&'; // &
                             break;
                         case 56:
                             chr = String.fromCharCode(42); // *
                             break;
                         case 57:
-                            chr = String.fromCharCode(40); // (
+                            chr = '('; // (
                             break;
                         case 48:
                             chr = String.fromCharCode(41); // )
@@ -80,11 +80,17 @@ module TSOS {
                 }
                 else chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-            } else if (keyCode == 32 || keyCode == 13 || keyCode == 8 || keyCode == 9           // enter, space, delete, and tab respectively
-                || keyCode == 38 || keyCode == 40){                                             // up and down respectively
+            } else if (keyCode == 32 || keyCode == 13 || keyCode == 8 || keyCode == 9){           // enter, space, delete, and tab respectively
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-            } else if (keyCode >= 96 && keyCode <= 105){         // numpad numbers
+            } else if (keyCode == 38) {                     //Up Arrow key
+                chr = "↑";
+                _KernelInputQueue.enqueue(chr);
+            } else if ( keyCode == 40) {                    //Down Arrow key
+                chr = "↓";
+                _KernelInputQueue.enqueue(chr);
+            }
+            else if (keyCode >= 96 && keyCode <= 105){         // numpad numbers
                 chr = String.fromCharCode(keyCode - 48);
                 _KernelInputQueue.enqueue(chr);
             } else {
