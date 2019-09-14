@@ -81,7 +81,7 @@ h3 {
   left: 50%;
   margin-top: -280px;
   margin-left: -360px;
-  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+  cursor: url("distrib/resources/img/cursor.cur"), auto;
 }
 
 /*Div element that dims when snap() is called*/
@@ -97,7 +97,7 @@ h3 {
   right: 0;
   bottom: 0;
   opacity: 0;
-  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+  cursor: url("distrib/resources/img/cursor.cur"), auto;
 }
 
 /*Image element that appears when snap() is called*/
@@ -109,7 +109,7 @@ h3 {
   left: 50%;
   margin-top: -320px;
   margin-left: -238px;
-  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+  cursor: url("distrib/resources/img/cursor.cur"), auto;
 }
 
 /*Progress element that loads when snap() is called*/
@@ -122,7 +122,7 @@ h3 {
   margin-left: -275px;
   width: 550px;
   height: 25px;
-  cursor: url("/distrib/resources/img/cursor.cur"), auto;
+  cursor: url("distrib/resources/img/cursor.cur"), auto;
 }
 
 /*BSOD image drawn to canvas when crash command is typed*/
