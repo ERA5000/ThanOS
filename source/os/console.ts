@@ -154,10 +154,10 @@ module TSOS {
          }
 
          /* This method erases text
-            Depending on the parameter, it either erases character-by-character, or it erases entire words/phrases.
+            By default, it deletes character-by-character. However, if specified, it can delete an entire word/phrase
             I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
          */
-        public eraseText(char?: String, phrase?: String): void {
+        public eraseText(char: String, isPhrase?: boolean): void {
             if(this.currentXPosition < 5) {
                 this.currentXPosition = this.previousLinePosition.pop();
                 this.currentYPosition = this.currentYPosition - (_DefaultFontSize + 
@@ -165,7 +165,7 @@ module TSOS {
                 _FontHeightMargin);
             }
             let width;
-            if(phrase) { 
+            if(isPhrase) { 
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
                 this.buffer = "";
             }
@@ -190,7 +190,7 @@ module TSOS {
             _DrawingContext.fillRect(12, this.currentYPosition - _DrawingContext.fontAscent(this.currentFont, this.currentFontSize) - 2, 488, height);
             this.currentXPosition = 12;
             if(resetBuffer === false) return;
-            if(!resetBuffer || resetBuffer === true) this.buffer = "";
+            else this.buffer = "";
         }
 
         public advanceLine(): void {

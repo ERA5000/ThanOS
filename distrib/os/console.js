@@ -145,10 +145,10 @@ var TSOS;
             }
         }
         /* This method erases text
-           Depending on the parameter, it either erases character-by-character, or it erases entire words/phrases.
+           By default, it deletes character-by-character. However, if specified, it can delete an entire word/phrase
            I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
         */
-        eraseText(char, phrase) {
+        eraseText(char, isPhrase) {
             if (this.currentXPosition < 5) {
                 this.currentXPosition = this.previousLinePosition.pop();
                 this.currentYPosition = this.currentYPosition - (_DefaultFontSize +
@@ -156,7 +156,7 @@ var TSOS;
                     _FontHeightMargin);
             }
             let width;
-            if (phrase) {
+            if (isPhrase) {
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
                 this.buffer = "";
             }
@@ -181,7 +181,7 @@ var TSOS;
             this.currentXPosition = 12;
             if (resetBuffer === false)
                 return;
-            if (!resetBuffer || resetBuffer === true)
+            else
                 this.buffer = "";
         }
         advanceLine() {
