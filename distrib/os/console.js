@@ -22,6 +22,7 @@ var TSOS;
             this.cmdPointer = this.cmdHistory.length - 1;
             this.tabList = [];
             this.tabPointer = 0;
+            this.previousLinePosition = [];
         }
         init() {
             this.clearScreen();
@@ -127,6 +128,9 @@ var TSOS;
                 }
                 //Line Wrap (Manual)
                 else if (this.currentXPosition >= 495) {
+                    console.log("What number forced me over the edge? " + this.currentXPosition);
+                    console.log("What is my current Y Position as I go over? " + this.currentYPosition);
+                    this.previousLinePosition[this.previousLinePosition.length] = this.currentXPosition;
                     this.advanceLine();
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                     var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
@@ -147,6 +151,12 @@ var TSOS;
            I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
         */
         eraseText(char, phrase) {
+            if (this.currentXPosition < 5) {
+                this.currentXPosition = this.previousLinePosition.pop();
+                this.currentYPosition = this.currentYPosition - (_DefaultFontSize +
+                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                    _FontHeightMargin);
+            }
             let width;
             if (phrase) {
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);

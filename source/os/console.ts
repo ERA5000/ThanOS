@@ -18,6 +18,7 @@ module TSOS {
         private cmdPointer = this.cmdHistory.length-1;
         private tabList = [];
         private tabPointer = 0;
+        private previousLinePosition = [];
 
         constructor(public currentFont = _DefaultFontFamily,
                     public currentFontSize = _DefaultFontSize,
@@ -135,6 +136,9 @@ module TSOS {
                 }
                 //Line Wrap (Manual)
                 else if(this.currentXPosition >= 495) {
+                    console.log("What number forced me over the edge? " + this.currentXPosition);
+                    console.log("What is my current Y Position as I go over? " + this.currentYPosition);
+                    this.previousLinePosition[this.previousLinePosition.length] = this.currentXPosition;
                     this.advanceLine();
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                     var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
@@ -156,6 +160,12 @@ module TSOS {
             I hard-coded the color because when I try to pull the canvas' background color, it claimed there was not one, even though there is :/
          */
         public eraseText(char?: String, phrase?: String): void {
+            if(this.currentXPosition < 5) {
+                this.currentXPosition = this.previousLinePosition.pop();
+                this.currentYPosition = this.currentYPosition - (_DefaultFontSize + 
+                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                _FontHeightMargin);
+            }
             let width;
             if(phrase) { 
                 width = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
