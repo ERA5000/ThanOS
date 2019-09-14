@@ -45,7 +45,6 @@ module TSOS {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
-                console.log("What is being captured here? " + chr);
                 if(chr === String.fromCharCode(9)) { //Tab Key
                     this.complete();
                 }
@@ -68,7 +67,7 @@ module TSOS {
                     _OsShell.handleInput(this.buffer);
                     
                     //As long as the line is not empty, add it to the command history
-                    if(this.buffer.length != 0) {
+                    if(this.buffer.length != 0 && this.previousLinePosition.length == 0) {
                         this.cmdHistory[this.cmdHistory.length] = this.buffer;
                     }
 
@@ -137,8 +136,6 @@ module TSOS {
                 }
                 //Line Wrap (Manual)
                 else if(this.currentXPosition >= 495) {
-                    console.log("What number forced me over the edge? " + this.currentXPosition);
-                    console.log("What is my current Y Position as I go over? " + this.currentYPosition);
                     this.previousLinePosition[this.previousLinePosition.length] = this.currentXPosition;
                     this.advanceLine();
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
