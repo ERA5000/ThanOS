@@ -129,7 +129,9 @@ var TSOS;
             if (_StdOut.currentXPosition > 0) {
                 _StdOut.advanceLine();
             }
-            // ... and finally write the prompt again.
+            // ... and finally write the prompt again if the shell has not crashed.
+            if (hasCrashed)
+                return;
             this.putPrompt();
         }
         parseInput(buffer) {
