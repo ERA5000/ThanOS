@@ -177,7 +177,7 @@ module TSOS {
                 _StdOut.advanceLine();
             }
             // ... and finally write the prompt again if the shell has not crashed.
-            if(hasCrashed) return;
+            if(_HasCrashed) return;
             this.putPrompt();
         }
 

@@ -52,7 +52,7 @@ module TSOS {
             crash.play();
             let img = (<CanvasImageSource>document.getElementById("bsod"));
             (<HTMLCanvasElement>document.getElementById("display")).getContext("2d").drawImage(img, 0, 0, 500, 510);
-            hasCrashed = true;
+            _HasCrashed = true;
             _Kernel.krnTrapError("User invoked crash.");
             (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value = "";
             (<HTMLTextAreaElement>document.getElementById("taProgramInput")).disabled = true;

@@ -21,6 +21,8 @@ const KEYBOARD_IRQ = 1;
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var _CPU; // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
+var _Memory;
+var _MemoryAccessor;
 var _OSclock = 0; // Page 23.
 var _Mode = 0; // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
 var _Canvas; // Initialized in Control.hostInit().
@@ -52,5 +54,6 @@ var onDocumentLoad = function () {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();
 };
-var hasCrashed = false;
+var _HasCrashed = false;
+var _PID = 0;
 //# sourceMappingURL=globals.js.map

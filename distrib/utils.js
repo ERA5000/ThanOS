@@ -50,7 +50,7 @@ var TSOS;
             crash.play();
             let img = document.getElementById("bsod");
             document.getElementById("display").getContext("2d").drawImage(img, 0, 0, 500, 510);
-            hasCrashed = true;
+            _HasCrashed = true;
             _Kernel.krnTrapError("User invoked crash.");
             document.getElementById("taProgramInput").value = "";
             document.getElementById("taProgramInput").disabled = true;

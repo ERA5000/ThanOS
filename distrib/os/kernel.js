@@ -133,7 +133,7 @@ var TSOS;
         //
         krnTrace(msg) {
             // If the crash command has been issued, stop outputting anything to the Host Log
-            if (hasCrashed)
+            if (_HasCrashed)
                 return;
             // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
             if (_Trace) {
