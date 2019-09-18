@@ -26,8 +26,6 @@ const KEYBOARD_IRQ: number = 1;
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
-var _Memory: TSOS.Memory;
-var _MemoryAccessor: TSOS.MemoryAccessor;
 
 var _OSclock: number = 0;  // Page 23.
 
@@ -45,7 +43,8 @@ var _Trace: boolean = true;              // Default the OS trace to be on.
 var _Kernel: TSOS.Kernel;
 var _KernelInterruptQueue: TSOS.Queue = null;
 var _KernelInputQueue: TSOS.Queue = null; 
-var _KernelBuffers = null; 
+var _KernelBuffers = null;
+var _HasCrashed = false;
 
 // Standard input and output
 var _StdIn:  TSOS.Console = null; 
@@ -67,10 +66,14 @@ var _hardwareClockID: number = null;
 var Glados: any = null;  // This is the function Glados() in glados-ip*.js http://alanclasses.github.io/TSOS/test/ .
 var _GLaDOS: any = null; // If the above is linked in, this is the instantiated instance of Glados.
 
+//Memory
+var _Memory: TSOS.Memory;
+var _MemoryAccessor: TSOS.MemoryAccessor;
+var _MemoryManager: any = null;
+var _PID = 0;
+var _NextAvailSeg = 0; //0, 1, 2 map to 1, 2, 3
+
 var onDocumentLoad = function() {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();
 };
-
-var _HasCrashed = false;
-var _PID = 0;

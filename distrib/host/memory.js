@@ -1,30 +1,19 @@
 var TSOS;
 (function (TSOS) {
     class Memory {
-        constructor(memoryArray = new Array(256)) {
-            this.memoryArray = memoryArray;
+        constructor(memSeg1 = new Array(256), memSeg2 = new Array(256), memSeg3 = new Array(256)) {
+            this.memSeg1 = memSeg1;
+            this.memSeg2 = memSeg2;
+            this.memSeg3 = memSeg3;
             this.init();
         }
         init() {
-            for (let i = 0; i < this.memoryArray.length; i++) {
-                this.memoryArray[i] = "00";
+            for (let i = 0; i < 256; i++) {
+                this.memSeg1[i] = "00";
+                this.memSeg2[i] = "00";
+                this.memSeg3[i] = "00";
             }
-        }
-        read(address) {
-            if (address < 0 || address > 255) {
-                _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
-                return;
-            }
-            else
-                return this.memoryArray[address];
-        }
-        write(address, data) {
-            if (address < 0 || address > 255) {
-                _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
-                return;
-            }
-            else
-                this.memoryArray[address] = data;
+            this.memoryContainer = [this.memSeg1, this.memSeg2, this.memSeg3];
         }
     }
     TSOS.Memory = Memory;

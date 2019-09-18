@@ -211,7 +211,7 @@ module TSOS {
                 3. Create the line where the user will continue to type
                 4. Put the raw pixel data back onto the canvas, accounting for the user line to type
             */
-            if(this.currentYPosition >= _Canvas.height && !hasCrashed){
+            if(this.currentYPosition >= _Canvas.height && !_HasCrashed){
                 let canvas = _Canvas.getContext("2d");
                 let pixelData = canvas.getImageData(0, 0, _Canvas.width, this.currentYPosition);
                 this.clearScreen();
@@ -227,27 +227,19 @@ module TSOS {
             this.eraseLine();
             if(arrow === "↑") {
                 this.cmdPointer--;
-                if(this.cmdPointer < 0)
-                {
-                    this.cmdPointer = this.cmdHistory.length-1;
-                }
+                if(this.cmdPointer < 0) this.cmdPointer = this.cmdHistory.length-1;
                 this.buffer = this.cmdHistory[this.cmdPointer];
                 this.currentXPosition = 12;
                 _StdOut.putText(this.buffer);
             }
             else if(arrow === "↓") {
                 this.cmdPointer++;
-                if(this.cmdPointer >= this.cmdHistory.length)
-                {
-                    this.cmdPointer = 0;
-                }
+                if(this.cmdPointer >= this.cmdHistory.length) this.cmdPointer = 0;
                 this.buffer = this.cmdHistory[this.cmdPointer];
                 this.currentXPosition = 12;
                 _StdOut.putText(this.buffer);
             }
-            else{
-                return;
-            }
+            else return;
         }
 
         /*Regenerates the tab list every time a new input, anything but the tab key, is entered.

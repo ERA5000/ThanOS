@@ -2,32 +2,21 @@ module TSOS {
 
     export class Memory {
 
-        constructor(
-                    public memoryArray = new Array(256)
-        ){
-            this.init();
+        public memoryContainer;
+
+        constructor(public memSeg1 = new Array(256),
+                    public memSeg2 = new Array(256),
+                    public memSeg3 = new Array(256)){
+                this.init();
         }
 
         public init(): void {
-            for(let i = 0; i < this.memoryArray.length; i++) {
-                this.memoryArray[i] = "00";
+            for(let i = 0; i < 256; i++) {
+                this.memSeg1[i] = "00";
+                this.memSeg2[i] = "00";
+                this.memSeg3[i] = "00";
             }
-        }
-
-        public read(address): String {
-            if(address < 0 || address > 255) {
-                _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
-                return;
-            }
-            else return this.memoryArray[address];
-        }
-
-        public write(address, data) {
-            if(address < 0 || address > 255) {
-                _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
-                return;
-            }
-            else this.memoryArray[address] = data;
+            this.memoryContainer = [this.memSeg1, this.memSeg2, this.memSeg3];
         }
     }
 }
