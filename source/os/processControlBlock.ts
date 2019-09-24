@@ -22,13 +22,22 @@ module TSOS {
             _NextAvailSeg++;
         }
 
-        //Takes a 'snapshot' of the CPU's current context if (when) execeution needs to be paused
+        //Takes a 'snapshot' of the CPU's current execution context if (when) the currently running program needs to be paused
         public snapshot(): void{
             this.PC = _CPU.PC;
             this.Acc = _CPU.Acc;
             this.Xreg = _CPU.Xreg;
             this.Yreg = _CPU.Yreg;
             this.Zflag = _CPU.Zflag;
+        }
+
+        //Reinstates the program context's values back onto the CPU when execution continues
+        public reinstate(): void{ 
+            _CPU.PC = this.PC;
+            _CPU.Acc = this.Acc;
+            _CPU.Xreg = this.Xreg;
+            _CPU.Yreg = this.Yreg;
+            _CPU.Zflag = this.Zflag;
         }
     }
 }

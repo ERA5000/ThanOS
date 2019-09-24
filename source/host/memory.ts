@@ -6,7 +6,10 @@ module TSOS {
 
         constructor(public memSeg1 = new Array(256),
                     public memSeg2 = new Array(256),
-                    public memSeg3 = new Array(256)){
+                    public memSeg3 = new Array(256),
+                    public seg1Avail = true,
+                    public seg2Avail = true,
+                    public seg3Avail = true){
                 this.init();
         }
 
