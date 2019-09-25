@@ -364,10 +364,13 @@ var TSOS;
                     _Kernel.krnTrapError("Segmentation Fault. Illegal Access.");
                 else {
                     let pcb = new TSOS.ProcessControlBlock();
+                    console.log("What is the current _NextAvailSeg's value? " + _NextAvailSeg);
                     pcb.segment = _NextAvailSeg;
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
                     _NextAvailSeg++;
-                    _MemoryAccessor.print();
+                    console.log("What is the new _NextAvailSeg's value? " + _NextAvailSeg);
+                    _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
+                    //_MemoryAccessor.print();
                 }
             }
         }

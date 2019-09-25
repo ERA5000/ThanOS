@@ -21,7 +21,7 @@ module TSOS {
 
         //Reads two bytes of memory.
         public read(segment: number, address: number): string {
-            if(segment > 0 || segment <= 2 && address < 0 || address > 255) {
+            if(segment < 0 || segment > 2 && address > 0 || address > 255) {
                 _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
             }
             else return _Memory.memoryContainer[segment][address];
@@ -31,14 +31,14 @@ module TSOS {
             The 'stream of code' is 512 characters long, containing 256 2-byte segments.
         */
         public write(segment: number, data: string, address?: number): void {
-            if(segment > 0 || segment <= 2 && address < 0 || address > 255 && data.length > 255) {
+            if(segment < 0 || segment > 2 && address < 0 || address > 255 && data.length > 255) {
                 _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
             }
             else {
                 let wordCounter = 0;
                 for(let i = 0; i < data.length / 2; i++) {
-                    console.log("What is the length of the data? " + data.length);
-                    console.log("What is the data being written? " + data.substr(wordCounter, wordCounter+2));
+                    //console.log("What is the length of the data? " + data.length);
+                    //console.log("What is the data being written? " + data.substr(wordCounter, wordCounter+2));
                     _Memory.memoryContainer[segment][i] = data.substr(wordCounter, wordCounter+2);
                     wordCounter += 2;
                 }

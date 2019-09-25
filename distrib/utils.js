@@ -63,19 +63,20 @@ var TSOS;
         static verifyInput() {
             let text = document.getElementById("taProgramInput").value.trim();
             let validHex = /[^a-f0-9 \r\n]+/img;
-            if (validHex.test(text) || text == "") {
+            if (validHex.test(text)) {
                 _StdOut.putText("Hex input is NOT valid! Illegal characters found.");
                 return false;
             }
-            //Improve this functionality later - currently broken VVV
+            else if (text == "") {
+                _StdOut.putText("Hex input is NOT valid! No code found.");
+                return false;
+            }
             else if (this.standardizeInput().length % 2 != 0) {
                 _StdOut.putText("Hex input is NOT valid! Odd number of characters found.");
                 return false;
             }
-            else {
-                _StdOut.putText("Hex input is valid!");
+            else
                 return true;
-            }
         }
         /*A method to grab and standardized input. Removes all spaces and capitalizes all letters so that the code is one contiguous string.
         */
