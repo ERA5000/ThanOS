@@ -18,8 +18,6 @@ module TSOS {
             this.Zflag = 0;
             this.pid = _PID;
             _PID++;
-            this.segment = _NextAvailSeg;
-            _NextAvailSeg++;
         }
 
         //Takes a 'snapshot' of the CPU's current execution context if (when) the currently running program needs to be paused

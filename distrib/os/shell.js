@@ -359,7 +359,17 @@ var TSOS;
         }
         //Validates user input of hex digits
         shellLoad(args) {
-            TSOS.Utils.verifyInput();
+            if (TSOS.Utils.verifyInput()) {
+                if (_NextAvailSeg > 2)
+                    _Kernel.krnTrapError("Segmentation Fault. Illegal Access.");
+                else {
+                    let pcb = new TSOS.ProcessControlBlock();
+                    pcb.segment = _NextAvailSeg;
+                    _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
+                    _NextAvailSeg++;
+                    _MemoryAccessor.print();
+                }
+            }
         }
     }
     TSOS.Shell = Shell;

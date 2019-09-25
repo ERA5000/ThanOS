@@ -48,6 +48,9 @@ module TSOS {
             _OsShell = new Shell();
             _OsShell.init();
 
+            //Initializes the Memory Manager
+            _MemoryManager = new MemoryManager();
+
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();

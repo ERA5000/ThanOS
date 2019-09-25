@@ -2,6 +2,10 @@ module TSOS {
 
     export class MemoryManager{
 
+
+        constructor(){
+        }
+
         //Returns which first segment is available
         public getAvailableMemory(): number {
             if(_Memory.seg1Avail) return 0;

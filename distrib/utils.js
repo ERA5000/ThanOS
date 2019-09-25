@@ -61,14 +61,29 @@ var TSOS;
         I think this turned into one of the those logical 'proofs' where finding the negation is easier,
             which is why I look for *anything* that is NOT a-f, 0-9, space, newline and carriage return*/
         static verifyInput() {
-            let text = document.getElementById("taProgramInput").value;
+            let text = document.getElementById("taProgramInput").value.trim();
             let validHex = /[^a-f0-9 \r\n]+/img;
             if (validHex.test(text) || text == "") {
-                _StdOut.putText("Hex input is NOT valid!");
+                _StdOut.putText("Hex input is NOT valid! Illegal characters found.");
+                return false;
+            }
+            //Improve this functionality later - currently broken VVV
+            else if (this.standardizeInput().length % 2 != 0) {
+                _StdOut.putText("Hex input is NOT valid! Odd number of characters found.");
+                return false;
             }
             else {
                 _StdOut.putText("Hex input is valid!");
+                return true;
             }
+        }
+        /*A method to grab and standardized input. Removes all spaces and capitalizes all letters so that the code is one contiguous string.
+        */
+        static standardizeInput() {
+            let input = document.getElementById("taProgramInput").value.trim().toUpperCase();
+            input = input.replace(/\s/g, "");
+            console.log("What is the input of standardization? " + input);
+            return input;
         }
         /*A simple clock function
         toLocaleDateString formats the date and time

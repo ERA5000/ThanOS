@@ -9,16 +9,22 @@ var TSOS;
             this.Zflag = 0;
             this.pid = _PID;
             _PID++;
-            this.segment = _NextAvailSeg;
-            _NextAvailSeg++;
         }
-        //Takes a 'snapshot' of the CPU's current context if (when) execeution needs to be paused
+        //Takes a 'snapshot' of the CPU's current execution context if (when) the currently running program needs to be paused
         snapshot() {
             this.PC = _CPU.PC;
             this.Acc = _CPU.Acc;
             this.Xreg = _CPU.Xreg;
             this.Yreg = _CPU.Yreg;
             this.Zflag = _CPU.Zflag;
+        }
+        //Reinstates the program context's values back onto the CPU when execution continues
+        reinstate() {
+            _CPU.PC = this.PC;
+            _CPU.Acc = this.Acc;
+            _CPU.Xreg = this.Xreg;
+            _CPU.Yreg = this.Yreg;
+            _CPU.Zflag = this.Zflag;
         }
     }
     TSOS.ProcessControlBlock = ProcessControlBlock;

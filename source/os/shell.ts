@@ -428,7 +428,16 @@ module TSOS {
 
         //Validates user input of hex digits
         public shellLoad(args: string[]){
-            Utils.verifyInput();
+            if(Utils.verifyInput()){
+                if(_NextAvailSeg > 2) _Kernel.krnTrapError("Segmentation Fault. Illegal Access.");
+                else {
+                    let pcb: ProcessControlBlock = new ProcessControlBlock();
+                    pcb.segment = _NextAvailSeg;
+                    _MemoryAccessor.write(pcb.segment, Utils.standardizeInput());
+                    _NextAvailSeg++;
+                    _MemoryAccessor.print();
+                }
+            }
         }
     }
 }
