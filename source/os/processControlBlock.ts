@@ -9,6 +9,9 @@ module TSOS {
         Zflag: number;
         pid: number;
         segment: number;
+        priority: number;
+        state: string;
+        location: string;
 
         constructor(){
             this.PC = 0;
@@ -18,6 +21,8 @@ module TSOS {
             this.Zflag = 0;
             this.pid = _PID;
             _PID++;
+            this.state = "Ready";
+            this.priority = 7;
         }
 
         //Takes a 'snapshot' of the CPU's current execution context if (when) the currently running program needs to be paused
@@ -29,7 +34,7 @@ module TSOS {
             this.Zflag = _CPU.Zflag;
         }
 
-        //Reinstates the program context's values back onto the CPU when execution continues
+        //Reinstates the program context's values back onto the CPU if (when) execution continues
         public reinstate(): void{ 
             _CPU.PC = this.PC;
             _CPU.Acc = this.Acc;

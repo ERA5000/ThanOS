@@ -357,11 +357,11 @@ var TSOS;
         shellBSOD(args) {
             TSOS.Utils.crash();
         }
-        //Validates user input of hex digits
+        //Loads a program into memory for execution
         shellLoad(args) {
             if (TSOS.Utils.verifyInput()) {
-                if (_NextAvailSeg > 2)
-                    _Kernel.krnTrapError("Segmentation Fault. Illegal Access.");
+                if (_NextAvailSeg > 0)
+                    _Kernel.krnTrapError("Segmentation Fault. Illegal Access."); //For now this breaks at 1+ since iProject2 only requires 1 program.
                 else {
                     let pcb = new TSOS.ProcessControlBlock();
                     console.log("What is the current _NextAvailSeg's value? " + _NextAvailSeg);
@@ -371,6 +371,7 @@ var TSOS;
                     console.log("What is the new _NextAvailSeg's value? " + _NextAvailSeg);
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
+                    _Memory.drawMemory();
                 }
             }
         }
