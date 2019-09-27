@@ -42,13 +42,21 @@ module TSOS {
         }
 
         public execute(pcb: ProcessControlBlock) {
+            pcb.state = "Running";
             let command = _MemoryAccessor.read(pcb.segment, this.PC);
 
             switch (command) {
                 case "A9":
                     this.loadAccConst();
                     break;
+                case "00":
+                    this.isExecuting = false;
+                    pcb.state = "Complete";
+                    break;
             }
+            Utils.updateCPUDisplay();
+            pcb.snapshot();
+            Utils.updatePCBRow(pcb);
         }
 
         public loadAccConst() {

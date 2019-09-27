@@ -36,12 +36,20 @@ var TSOS;
             this.execute(_CurrentPCB);
         }
         execute(pcb) {
+            pcb.state = "Running";
             let command = _MemoryAccessor.read(pcb.segment, this.PC);
             switch (command) {
                 case "A9":
                     this.loadAccConst();
                     break;
+                case "00":
+                    this.isExecuting = false;
+                    pcb.state = "Complete";
+                    break;
             }
+            TSOS.Utils.updateCPUDisplay();
+            pcb.snapshot();
+            TSOS.Utils.updatePCBRow(pcb);
         }
         loadAccConst() {
             this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);

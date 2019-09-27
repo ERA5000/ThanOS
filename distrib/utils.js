@@ -163,17 +163,33 @@ var TSOS;
             location.reload();
         }
         //# sourceMappingURL=customFunctions.js.map
-        static updatePCBDisplay() {
+        static addPCBRow() {
             if (_CurrentPCB === null)
                 return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
             else {
-                let newRow = `<tr> <td>${_CurrentPCB.pid}</td> <td>${_CurrentPCB.priority}</td>
+                let newRow = `<tr id='pcb${_CurrentPCB.pid}'> <td>${_CurrentPCB.pid}</td> <td>${_CurrentPCB.priority}</td>
                 <td>${_CurrentPCB.state}</td> <td>${_CurrentPCB.PC}</td> 
                 <td>${_CurrentPCB.Acc}</td> <td>${_CurrentPCB.Xreg}</td>
                 <td>${_CurrentPCB.Yreg}</td> <td>${_CurrentPCB.Zflag}</td>
                 <td>${_CurrentPCB.location}</td></tr>`;
                 document.getElementById("PCBTable").innerHTML += newRow;
             }
+        }
+        static updatePCBRow(pcbInUse) {
+            let rowToUpdate = document.getElementById("pcb" + pcbInUse.pid);
+            rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
+            rowToUpdate.cells[3].innerHTML = pcbInUse.PC + "";
+            rowToUpdate.cells[4].innerHTML = pcbInUse.Acc + "";
+            rowToUpdate.cells[5].innerHTML = pcbInUse.Xreg + "";
+            rowToUpdate.cells[6].innerHTML = pcbInUse.Yreg + "";
+            rowToUpdate.cells[7].innerHTML = pcbInUse.Zflag + "";
+        }
+        static updateCPUDisplay() {
+            document.getElementById("CPUPC").innerHTML = _CPU.PC + "";
+            document.getElementById("CPUAcc").innerHTML = _CPU.Acc + "";
+            document.getElementById("CPUX").innerHTML = _CPU.Xreg + "";
+            document.getElementById("CPUY").innerHTML = _CPU.Yreg + "";
+            document.getElementById("CPUZ").innerHTML = _CPU.Zflag + "";
         }
     }
     TSOS.Utils = Utils;

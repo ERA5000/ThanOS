@@ -384,12 +384,20 @@ var TSOS;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
                     _Memory.drawMemory();
-                    TSOS.Utils.updatePCBDisplay();
+                    TSOS.Utils.addPCBRow();
                 }
             }
         }
         shellRun(args) {
             if (args.length > 0) {
+                for (let i = 0; i < _PCBManager.length; i++) {
+                    if (parseInt(args[i]) == _PCBManager[i].pid) {
+                        _CurrentPCB = _PCBManager[i];
+                        _CPU.isExecuting = true;
+                        return;
+                    }
+                }
+                _StdOut.putText(`No Program with PID ${args[0]} exists.`);
             }
             else {
                 _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
