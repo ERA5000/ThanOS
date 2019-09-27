@@ -75,6 +75,12 @@ module TSOS {
                                   "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
 
+            // run <pid>
+            sc = new ShellCommand(this.shellRun,
+                                  "run",
+                                  "<pid> - Executes a program in memory.");
+            this.commandList[this.commandList.length] = sc;
+
             // shutdown
             sc = new ShellCommand(this.shellShutdown,
                                   "shutdown",
@@ -335,6 +341,9 @@ module TSOS {
                     case "crash":
                         _StdOut.putText("Creates a user-generated crash for the Kernel.");
                         break;
+                    case "run":
+                        _StdOut.putText("Executes a user-input program from the load command specified by the PID.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -449,6 +458,15 @@ module TSOS {
                     _Memory.drawMemory();
                     Utils.updatePCBDisplay();
                 }
+            }
+        }
+
+        public shellRun(args: string[]){
+            if(args.length > 0){
+
+            }
+            else {
+                _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
             }
         }
     }

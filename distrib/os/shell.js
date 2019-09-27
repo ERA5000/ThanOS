@@ -47,6 +47,9 @@ var TSOS;
             // rot13 <string>
             sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
+            // run <pid>
+            sc = new TSOS.ShellCommand(this.shellRun, "run", "<pid> - Executes a program in memory.");
+            this.commandList[this.commandList.length] = sc;
             // shutdown
             sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
@@ -270,6 +273,9 @@ var TSOS;
                     case "crash":
                         _StdOut.putText("Creates a user-generated crash for the Kernel.");
                         break;
+                    case "run":
+                        _StdOut.putText("Executes a user-input program from the load command specified by the PID.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -380,6 +386,13 @@ var TSOS;
                     _Memory.drawMemory();
                     TSOS.Utils.updatePCBDisplay();
                 }
+            }
+        }
+        shellRun(args) {
+            if (args.length > 0) {
+            }
+            else {
+                _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
             }
         }
     }
