@@ -163,6 +163,7 @@ var TSOS;
             location.reload();
         }
         //# sourceMappingURL=customFunctions.js.map
+        //Adds a new PCB row to the display whenever a new process is created
         static addPCBRow() {
             if (_CurrentPCB === null)
                 return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
@@ -175,6 +176,7 @@ var TSOS;
                 document.getElementById("PCBTable").innerHTML += newRow;
             }
         }
+        //Updates the appropriate PCB row when its respective process is in execution
         static updatePCBRow(pcbInUse) {
             let rowToUpdate = document.getElementById("pcb" + pcbInUse.pid);
             rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
@@ -184,6 +186,7 @@ var TSOS;
             rowToUpdate.cells[6].innerHTML = pcbInUse.Yreg + "";
             rowToUpdate.cells[7].innerHTML = pcbInUse.Zflag + "";
         }
+        //Updates the CPU display as it is executing a program
         static updateCPUDisplay() {
             document.getElementById("CPUPC").innerHTML = _CPU.PC + "";
             document.getElementById("CPUAcc").innerHTML = _CPU.Acc + "";

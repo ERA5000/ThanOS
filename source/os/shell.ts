@@ -438,21 +438,18 @@ module TSOS {
         //Loads a program into memory for execution
         public shellLoad(args: string[]){
             if(Utils.verifyInput()){
-                if(_MemoryManager.getAvailableMemory() > 0){//_NextAvailSeg > 0) {
+                if(_MemoryManager.getAvailableMemory() > 0){
                     _Kernel.krnTrapError("Segmentation Fault. Illegal Access."); //For now this breaks at 1+ since iProject2 only requires 1 program.
                     _HasCrashed = true;
                 }
                 else {
                     let pcb = new ProcessControlBlock();
-                    //console.log("What is the current _NextAvailSeg's value? " + _NextAvailSeg);
-                    pcb.segment = _MemoryManager.getAvailableMemory(); //_NextAvailSeg;
+                    pcb.segment = _MemoryManager.getAvailableMemory();
                     pcb.location = "Memory";
                     _MemoryManager.setMemoryStatus(_MemoryManager.getAvailableMemory());
                     _MemoryAccessor.write(pcb.segment, Utils.standardizeInput());
-                    //_NextAvailSeg++;
                     _CurrentPCB = pcb;
                     _PCBManager[_PCBManager.length] = pcb;
-                    //console.log("What is the new _NextAvailSeg's value? " + _NextAvailSeg);
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
                     _Memory.drawMemory();

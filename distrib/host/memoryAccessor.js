@@ -34,14 +34,12 @@ var TSOS;
             else {
                 let wordCounter = 0;
                 for (let i = 0; i < data.length / 2; i++) {
-                    //console.log("What is the length of the data? " + data.length);
-                    //console.log("What is the data being written? " + data.substr(wordCounter, wordCounter+2));
-                    _Memory.memoryContainer[segment][i] = data.substr(wordCounter, wordCounter + 2);
+                    _Memory.memoryContainer[segment][i] = data.substring(wordCounter, wordCounter + 2);
                     wordCounter += 2;
                 }
             }
-            //else _Memory.memoryContainer[segment][address] = data;
         }
+        //Debugging purposes - Prints the contents of memory to the console
         print() {
             let seg1 = "";
             let seg2 = "";
