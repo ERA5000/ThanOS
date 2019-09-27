@@ -26,16 +26,17 @@ var TSOS;
                 The 256 * i acts as an offset for the segments so it keeps adding rather than restarting at 0x000.
             I also recognize that it is redundant to have the back-to-back if statements as they are, but when I changed them it broke... so I'll come back to that*
         */
+        //TO DO: Remove this GUI Logic and put it somewhere else! (Utils? MemoryAccessor?)
         drawMemory() {
             let table = "<table>";
             let justCreated = false;
             for (let i = 0; i < this.memoryContainer.length; i++) {
                 for (let j = 0; j < this.memoryContainer[i].length; j++) {
                     if (j == 0) {
-                        table += "<tr><td>" + "0x" + ((j + (256 * i)).toString(16).toUpperCase()).padStart(3, "0") + "</td>";
+                        table += "<tr><td><b>" + "0x" + ((j + (256 * i)).toString(16).toUpperCase()).padStart(3, "0") + "</b></td>";
                     }
                     if (j % 8 == 0 && j != 0) {
-                        table += "</tr><tr><td>" + "0x" + (j + (256 * i)).toString(16).toUpperCase().padStart(3, "0") + "</td>";
+                        table += "</tr><tr><td><b>" + "0x" + (j + (256 * i)).toString(16).toUpperCase().padStart(3, "0") + "</b></td>";
                         justCreated = true;
                     }
                     else {

@@ -54,7 +54,7 @@ var _Memory;
 var _MemoryAccessor;
 var _MemoryManager = null;
 var _PID = 0;
-var _NextAvailSeg = 0; //0, 1, 2 map to 1, 2, 3
+//var _NextAvailSeg = 0; //0, 1, 2 map to 1, 2, 3
 var _PCBManager = [];
 var _CurrentPCB;
 var onDocumentLoad = function () {

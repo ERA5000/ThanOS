@@ -36,7 +36,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "- Displays the list of available commands.");
             this.commandList[this.commandList.length] = sc;
             //load
-            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Validates user program input.");
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads user program into memory for execution.");
             this.commandList[this.commandList.length] = sc;
             // man <topic>
             sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
@@ -246,8 +246,8 @@ var TSOS;
                         _StdOut.putText("Disable/Enable tracing. Tracing is the act of outputting the OS's activities to the Host Log.");
                         break;
                     case "rot13":
-                        _StdOut.putText(`Obfuscate text using the ROTation13 cipher. Take a letter's position in the alphabet, add 13 to it, 
-                        and that becomes the new letter.`);
+                        _StdOut.putText("Obfuscate text using the ROTation13 cipher. Take a letter's position in the alphabet, add 13 to it, "
+                            + "and that becomes the new letter.");
                         break;
                     case "prompt":
                         _StdOut.putText("Sets a default prompt to the CLI for the session.");
@@ -265,7 +265,7 @@ var TSOS;
                         _StdOut.putText("Sets a new status to the status bar.");
                         break;
                     case "load":
-                        _StdOut.putText("Validates user program input. Hex digits (and spaces) only!");
+                        _StdOut.putText("Validates user input and loads it into memory for execution. Code is written in Hex.");
                         break;
                     case "crash":
                         _StdOut.putText("Creates a user-generated crash for the Kernel.");
@@ -360,18 +360,25 @@ var TSOS;
         //Loads a program into memory for execution
         shellLoad(args) {
             if (TSOS.Utils.verifyInput()) {
-                if (_NextAvailSeg > 0)
+                if (_MemoryManager.getAvailableMemory() > 0) { //_NextAvailSeg > 0) {
                     _Kernel.krnTrapError("Segmentation Fault. Illegal Access."); //For now this breaks at 1+ since iProject2 only requires 1 program.
+                    _HasCrashed = true;
+                }
                 else {
                     let pcb = new TSOS.ProcessControlBlock();
-                    console.log("What is the current _NextAvailSeg's value? " + _NextAvailSeg);
-                    pcb.segment = _NextAvailSeg;
+                    //console.log("What is the current _NextAvailSeg's value? " + _NextAvailSeg);
+                    pcb.segment = _MemoryManager.getAvailableMemory(); //_NextAvailSeg;
+                    pcb.location = "Memory";
+                    _MemoryManager.setMemoryStatus(_MemoryManager.getAvailableMemory());
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
-                    _NextAvailSeg++;
-                    console.log("What is the new _NextAvailSeg's value? " + _NextAvailSeg);
+                    //_NextAvailSeg++;
+                    _CurrentPCB = pcb;
+                    _PCBManager[_PCBManager.length] = pcb;
+                    //console.log("What is the new _NextAvailSeg's value? " + _NextAvailSeg);
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
                     _Memory.drawMemory();
+                    TSOS.Utils.updatePCBDisplay();
                 }
             }
         }

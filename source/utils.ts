@@ -173,5 +173,17 @@ module TSOS {
             location.reload();
         }
         //# sourceMappingURL=customFunctions.js.map
+
+        public static updatePCBDisplay() {
+            if(_CurrentPCB === null) return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
+            else {
+                let newRow = `<tr> <td>${_CurrentPCB.pid}</td> <td>${_CurrentPCB.priority}</td>
+                <td>${_CurrentPCB.state}</td> <td>${_CurrentPCB.PC}</td> 
+                <td>${_CurrentPCB.Acc}</td> <td>${_CurrentPCB.Xreg}</td>
+                <td>${_CurrentPCB.Yreg}</td> <td>${_CurrentPCB.Zflag}</td>
+                <td>${_CurrentPCB.location}</td></tr>`;
+                document.getElementById("PCBTable").innerHTML += newRow;
+            }
+        }
     }
 }
