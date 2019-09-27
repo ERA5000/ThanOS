@@ -52,18 +52,25 @@ module TSOS {
                     this.loadAccConst();
                     break;
                 case "AD":
+                    this.loadAccMem();
                     break;
                 case "8D":
+                    this.storeInMem();
                     break;
                 case "6D":
+                    this.addWCarry();
                     break;
                 case "A2":
+                    this.loadXConst();
                     break;
                 case "AE":
+                    this.loadXMem();
                     break;
                 case "A0":
+                    this.loadYConst();
                     break;
                 case "AC":
+                    this.loadYMem();
                     break;
                 case "EA":
                     this.PC++;
@@ -73,8 +80,10 @@ module TSOS {
                     pcb.state = "Complete";
                     break;
                 case "EC":
+                    this.compXMem();
                     break;
                 case "D0":
+                    this.branchOnZ();
                     break;
                 case "EE":
                     break;
@@ -83,8 +92,10 @@ module TSOS {
                 default:
                     _Kernel.krnTrapError("Invalid Op Code. Terminating execution.");
                     this.isExecuting = false;
+                    pcb.state = "Error";
                     break;
             }
+            console.log("What instruction did I just execute? " + command);
             Utils.updateCPUDisplay();
             pcb.snapshot();
             Utils.updatePCBRow(pcb);
@@ -93,6 +104,69 @@ module TSOS {
         public loadAccConst() {
             this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.PC += 2;
+        }
+
+        public loadAccMem() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+            this.PC += 2;
+        }
+
+        public storeInMem() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), locationOfValue);
+            _Memory.drawMemory();
+            this.PC += 2;
+        }
+
+        public addWCarry() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            let toAdd = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+            this.Acc += toAdd;
+            if(this.Acc >= 256) this.Acc %= 256;
+            this.PC += 2;
+
+        }
+
+        public loadXConst() {
+            this.Xreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            this.PC += 2;
+        }
+
+        public loadXMem() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            this.Xreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+            this.PC += 2;
+        }
+
+        public loadYConst() {
+            this.Yreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            this.PC += 2;
+        }
+
+        public loadYMem() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            this.Yreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+            this.PC += 2;
+        }
+
+        public compXMem() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            let toCompare = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+            if(this.Xreg == toCompare) this.Zflag = 1;
+            else this.Zflag = 0;
+            this.PC += 2;
+        }
+
+        public branchOnZ() {
+            console.log("What is the value of the Zflag? " + this.Zflag);
+            if(this.Zflag == 0) {
+                let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+                console.log("Where am I going? " + locationOfValue);
+                this.PC = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+                console.log("Where am I branching? " + this.PC);
+            }
+            else this.PC += 2;
         }
     }
 }

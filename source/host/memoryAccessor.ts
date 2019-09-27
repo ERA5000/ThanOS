@@ -34,7 +34,11 @@ module TSOS {
             if(segment < 0 || segment > 2 && address < 0 || address > 255 && data.length > 255) {
                 _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
             }
+            else if(address){
+                _Memory.memoryContainer[segment][address] = data;
+            }
             else {
+                console.log("What data is being written? " + data);
                 let wordCounter = 0;
                 for(let i = 0; i < data.length / 2; i++) {
                     _Memory.memoryContainer[segment][i] = data.substring(wordCounter, wordCounter+2);
