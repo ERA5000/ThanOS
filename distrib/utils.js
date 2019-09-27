@@ -71,6 +71,9 @@ var TSOS;
                 _StdOut.putText("Hex input is NOT valid! No code found.");
                 return false;
             }
+            else if (this.standardizeInput(text).length > 512) {
+                _StdOut.putText("Hex input is NOT valid! Program too large.");
+            }
             else if (this.standardizeInput().length % 2 != 0) {
                 _StdOut.putText("Hex input is NOT valid! Odd number of characters found.");
                 return false;
@@ -80,10 +83,13 @@ var TSOS;
         }
         /*A method to grab and standardized input. Removes all spaces and capitalizes all letters so that the code is one contiguous string.
         */
-        static standardizeInput() {
-            let input = document.getElementById("taProgramInput").value.trim().toUpperCase();
+        static standardizeInput(text) {
+            let input;
+            if (text)
+                input = text;
+            else
+                input = document.getElementById("taProgramInput").value.trim().toUpperCase();
             input = input.replace(/\s/g, "");
-            console.log("What is the input of standardization? " + input);
             return input;
         }
         /*A simple clock function

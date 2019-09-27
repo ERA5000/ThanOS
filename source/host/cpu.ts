@@ -43,15 +43,46 @@ module TSOS {
 
         public execute(pcb: ProcessControlBlock) {
             pcb.state = "Running";
-            let command = _MemoryAccessor.read(pcb.segment, this.PC);
+            let command:string;
+            if(this.PC >= 255) command = "00";
+            else command = _MemoryAccessor.read(pcb.segment, this.PC);
 
             switch (command) {
                 case "A9":
                     this.loadAccConst();
                     break;
+                case "AD":
+                    break;
+                case "8D":
+                    break;
+                case "6D":
+                    break;
+                case "A2":
+                    break;
+                case "AE":
+                    break;
+                case "A0":
+                    break;
+                case "AC":
+                    break;
+                case "EA":
+                    this.PC++;
+                    break;
                 case "00":
                     this.isExecuting = false;
                     pcb.state = "Complete";
+                    break;
+                case "EC":
+                    break;
+                case "D0":
+                    break;
+                case "EE":
+                    break;
+                case "FF":
+                    break;
+                default:
+                    _Kernel.krnTrapError("Invalid Op Code. Terminating execution.");
+                    this.isExecuting = false;
                     break;
             }
             Utils.updateCPUDisplay();
