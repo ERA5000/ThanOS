@@ -44,7 +44,7 @@ var TSOS;
                             justCreated = false;
                             j--;
                         }
-                        table += "<td>" + this.memoryContainer[i][j] + "</td>";
+                        table += "<td>" + this.memoryContainer[i][j].padStart(2, 0) + "</td>";
                     }
                 }
             }

@@ -81,6 +81,7 @@ var TSOS;
                     this.branchOnZ();
                     break;
                 case "EE":
+                    this.incByte();
                     break;
                 case "FF":
                     break;
@@ -94,6 +95,7 @@ var TSOS;
             TSOS.Utils.updateCPUDisplay();
             pcb.snapshot();
             TSOS.Utils.updatePCBRow(pcb);
+            _Memory.drawMemory();
         }
         loadAccConst() {
             this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);
@@ -107,7 +109,6 @@ var TSOS;
         storeInMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);
             _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), locationOfValue);
-            _Memory.drawMemory();
             this.PC += 2;
         }
         addWCarry() {
@@ -146,15 +147,16 @@ var TSOS;
             this.PC += 2;
         }
         branchOnZ() {
-            console.log("What is the value of the Zflag? " + this.Zflag);
-            if (this.Zflag == 0) {
-                let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);
-                console.log("Where am I going? " + locationOfValue);
-                this.PC = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
-                console.log("Where am I branching? " + this.PC);
-            }
+            if (this.Zflag == 0)
+                this.PC += parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);
             else
                 this.PC += 2;
+        }
+        incByte() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);
+            let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16) + 1;
+            _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), locationOfValue);
+            this.PC += 2;
         }
     }
     TSOS.Cpu = Cpu;

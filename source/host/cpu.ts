@@ -86,6 +86,7 @@ module TSOS {
                     this.branchOnZ();
                     break;
                 case "EE":
+                    this.incByte();
                     break;
                 case "FF":
                     break;
@@ -99,6 +100,7 @@ module TSOS {
             Utils.updateCPUDisplay();
             pcb.snapshot();
             Utils.updatePCBRow(pcb);
+            _Memory.drawMemory();
         }
 
         public loadAccConst() {
@@ -115,7 +117,6 @@ module TSOS {
         public storeInMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), locationOfValue);
-            _Memory.drawMemory();
             this.PC += 2;
         }
 
@@ -159,14 +160,15 @@ module TSOS {
         }
 
         public branchOnZ() {
-            console.log("What is the value of the Zflag? " + this.Zflag);
-            if(this.Zflag == 0) {
-                let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-                console.log("Where am I going? " + locationOfValue);
-                this.PC = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
-                console.log("Where am I branching? " + this.PC);
-            }
+            if(this.Zflag == 0) this.PC += parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             else this.PC += 2;
+        }
+
+        public incByte() {
+            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16) + 1;
+            _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), locationOfValue);
+            this.PC += 2;
         }
     }
 }
