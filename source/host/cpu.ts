@@ -89,6 +89,7 @@ module TSOS {
                     this.incByte();
                     break;
                 case "FF":
+                    this.systemCall();
                     break;
                 default:
                     _Kernel.krnTrapError("Invalid Op Code. Terminating execution.");
@@ -96,30 +97,33 @@ module TSOS {
                     pcb.state = "Error";
                     break;
             }
-            console.log("What instruction did I just execute? " + command);
             Utils.updateCPUDisplay();
             pcb.snapshot();
             Utils.updatePCBRow(pcb);
             _Memory.drawMemory();
         }
 
+        //Loads the accumulator with a constant.
         public loadAccConst() {
             this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.PC += 2;
         }
 
+        //Loads the accumulator with a value from memory.
         public loadAccMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
             this.PC += 2;
         }
 
+        //Stores the accumulator's value in memory.
         public storeInMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), locationOfValue);
             this.PC += 2;
         }
 
+        //Adds a value to the accumulator. If the value is greater than 255, it 'rolls over' to 0 + remainder.
         public addWCarry() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             let toAdd = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
@@ -129,28 +133,33 @@ module TSOS {
 
         }
 
+        //Loads the X register with a constant.
         public loadXConst() {
             this.Xreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.PC += 2;
         }
 
+        //Loads the X register from memory.
         public loadXMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.Xreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
             this.PC += 2;
         }
 
+        //Loads the Y register with a constant.
         public loadYConst() {
             this.Yreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.PC += 2;
         }
 
+        //Loads the Y register from memory.
         public loadYMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             this.Yreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
             this.PC += 2;
         }
 
+        //Compares a value in memory with the X register. If it's true, set the Zflag.
         public compXMem() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             let toCompare = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
@@ -159,16 +168,50 @@ module TSOS {
             this.PC += 2;
         }
 
+        //Branches to a value in memory if the Zflag is false (0).
         public branchOnZ() {
             if(this.Zflag == 0) this.PC += parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             else this.PC += 2;
         }
 
+        //Increment the value of in memory by 1.
         public incByte() {
             let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
             let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16) + 1;
             _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), locationOfValue);
             this.PC += 2;
+        }
+
+        /*Prints the Y register if X is 1.
+          Dumps the Y register's address' values until it encounters either 00 or the end of memory if X is 2.
+          The toPrint variable has spaces because A) it makes it easier to read, but also B) it does not print properly if all of memory
+            is one contiguous string (which is something I will look into later).
+        */
+        public systemCall() {
+            if(this.Xreg == 1) {
+                _StdOut.putText(`Value of Y Register: ${this.Yreg}`);
+                _StdOut.advanceLine();
+                _StdOut.putText(_OsShell.promptStr);
+            }
+            else if(this.Xreg == 2) {
+                let toPrint = "";
+                let temp = "";
+                let locationToStart = this.Yreg;
+                for(let i = locationToStart; i < 256; i++) {
+                    temp = _MemoryAccessor.read(_CurrentPCB.segment, i);
+                    if(temp === "00") {
+                        toPrint +=  " " + temp;
+                        break;
+                    }
+                    else {
+                        toPrint += " " + temp;
+                    }
+                }
+                _StdOut.putText(`Value of 00-terminated string starting at Y Register: ${toPrint}`);
+                _StdOut.advanceLine();
+                _StdOut.putText(_OsShell.promptStr);
+            }
+            this.PC++;
         }
     }
 }
