@@ -49,12 +49,19 @@ module TSOS {
                             justCreated = false;
                             j--;
                         }
-                        table += "<td>" + this.memoryContainer[i][j].padStart(2, 0) + "</td>";
+                        table += "<td " + `id=mem${j + 256 * i}>` + this.memoryContainer[i][j].padStart(2, 0) + "</td>";
                     }
                 }
             }
             table += "</table>";
             document.getElementById("MemoryTable").innerHTML = table;
+        }
+
+        public highlight(pc: number, instrucAmount?: number){
+            document.getElementById("mem"+pc).style.backgroundColor = "#05aefc";
+            for(let i = 0; i < instrucAmount; i++) {
+                document.getElementById("mem"+(pc+instrucAmount)).style.backgroundColor = "red";
+            }
         }
     }
 }

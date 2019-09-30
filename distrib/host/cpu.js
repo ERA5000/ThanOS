@@ -38,12 +38,14 @@ var TSOS;
         execute(pcb) {
             pcb.state = "Running";
             let command;
+            let instrucAmount = 0;
             if (this.PC >= 255)
                 command = "00";
             else
                 command = _MemoryAccessor.read(pcb.segment, this.PC);
             switch (command) {
                 case "A9":
+                    instrucAmount = 1;
                     this.loadAccConst();
                     break;
                 case "AD":
@@ -93,9 +95,10 @@ var TSOS;
                     break;
             }
             TSOS.Utils.updateCPUDisplay();
-            pcb.snapshot();
             TSOS.Utils.updatePCBRow(pcb);
             _Memory.drawMemory();
+            _Memory.highlight(pcb.PC, instrucAmount);
+            pcb.snapshot();
         }
         //Loads the accumulator with a constant.
         loadAccConst() {
