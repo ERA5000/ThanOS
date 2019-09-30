@@ -43,7 +43,7 @@ module TSOS {
 
         public execute(pcb: ProcessControlBlock) {
             pcb.state = "Running";
-            let command:string;
+            let command: string;
             let instrucAmount = 0;
             if(this.PC >= 255) command = "00";
             else command = _MemoryAccessor.read(pcb.segment, this.PC);
@@ -79,7 +79,8 @@ module TSOS {
                     break;
                 case "00":
                     this.isExecuting = false;
-                    pcb.state = "Complete";
+                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    pcb.state = "Terminated";
                     break;
                 case "EC":
                     this.compXMem();

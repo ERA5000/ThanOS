@@ -74,7 +74,8 @@ var TSOS;
                     break;
                 case "00":
                     this.isExecuting = false;
-                    pcb.state = "Complete";
+                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    pcb.state = "Terminated";
                     break;
                 case "EC":
                     this.compXMem();

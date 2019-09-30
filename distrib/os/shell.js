@@ -366,22 +366,40 @@ var TSOS;
         //Loads a program into memory for execution
         shellLoad(args) {
             if (TSOS.Utils.verifyInput()) {
-                if (_MemoryManager.getAvailableMemory() > 0) {
-                    _Kernel.krnTrapError("Segmentation Fault. Illegal Access."); //For now this breaks at 1+ since iProject2 only requires 1 program.
+                let availableMemory = _MemoryManager.getMemoryStatus();
+                if (!availableMemory) {
+                    _Kernel.krnTrapError("Segmentation Fault. No available memory.");
                     _HasCrashed = true;
                 }
                 else {
+                    let overritten = false;
                     let pcb = new TSOS.ProcessControlBlock();
-                    pcb.segment = _MemoryManager.getAvailableMemory();
-                    pcb.location = "Memory";
-                    _MemoryManager.setMemoryStatus(_MemoryManager.getAvailableMemory());
+                    pcb.segment = _MemoryManager.getAvailableMemory(availableMemory);
+                    if (pcb.segment > 0) { //For now it only writes to memory segment 0 (the first segment) for iProject2
+                        _Kernel.krnTrapError("Segmentation Fault. Only segment 0 for iProject2.");
+                        return;
+                    }
+                    pcb.location = "Memory"; //Will be set more dynamically when more segments/HDD come online
+                    //_MemoryManager.setMemoryStatus(pcb.segment); - Ignored to always write to memory segment 0
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
                     _CurrentPCB = pcb;
-                    _PCBManager[_PCBManager.length] = pcb;
+                    //Make an attempt to clean old/unused PCBs
+                    if (_PCBManager.length > 0) {
+                        for (let i = 0; i < _PCBManager.length; i++) {
+                            if (_PCBManager[i].state === "Resident" || _PCBManager[i].state === "Terminated") {
+                                _PCBManager[i] = _CurrentPCB;
+                                overritten = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!overritten)
+                        _PCBManager[_PCBManager.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
                     _Memory.drawMemory();
                     TSOS.Utils.addPCBRow();
+                    _CurrentPCB.reinstate();
                 }
             }
         }
@@ -390,15 +408,25 @@ var TSOS;
                 for (let i = 0; i < _PCBManager.length; i++) {
                     if (parseInt(args[i]) == _PCBManager[i].pid) {
                         _CurrentPCB = _PCBManager[i];
-                        _CPU.isExecuting = true;
+                        if (_CurrentPCB.state === "Terminated")
+                            _StdOut.putText("Execution of that program has since completed.");
+                        else if (_CurrentPCB.state === "Running")
+                            _StdOut.putText("The specified program is currently running.");
+                        else {
+                            _CPU.isExecuting = true;
+                            _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                            _StdOut.putText(`Execution of Program ${_CurrentPCB.pid} has begun.`);
+                        }
                         return;
                     }
                 }
-                _StdOut.putText(`No Program with PID ${args[0]} exists.`);
+                if (parseInt(args[0]) < _PID)
+                    _StdOut.putText("Execution of that program has since completed.");
+                else
+                    _StdOut.putText(`No Program with PID ${args[0]} exists.`);
             }
-            else {
+            else
                 _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
-            }
         }
     }
     TSOS.Shell = Shell;

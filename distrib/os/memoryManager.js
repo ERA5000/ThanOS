@@ -16,8 +16,8 @@ var TSOS;
         }
         //Creates an available segment
         setAvailableMemory(segment) {
-            if (segment > 0 || segment <= 2) {
-                _Kernel.krnTrapError("Segmentation Fault. Illegal Access.");
+            if (segment < 0 || segment > 2) {
+                _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }
             else {
                 for (let i = 0; i < 256; i++) {
@@ -35,7 +35,17 @@ var TSOS;
             else if (segment === 2)
                 _Memory.seg3Avail = !_Memory.seg3Avail;
             else
-                _Kernel.krnTrapError("Segmentation Fault. Illegal Access.");
+                _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+        }
+        getMemoryStatus() {
+            if (_Memory.seg1Avail)
+                return _Memory.seg1Avail;
+            else if (_Memory.seg2Avail)
+                return _Memory.seg2Avail;
+            else if (_Memory.seg3Avail)
+                return _Memory.seg3Avail;
+            else
+                _Kernel.krnTrace("Error! No available memory."); //krnTrapError("Segmentation Fault. Illegal Access.");
         }
     }
     TSOS.MemoryManager = MemoryManager;

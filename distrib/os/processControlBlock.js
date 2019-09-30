@@ -9,7 +9,7 @@ var TSOS;
             this.Zflag = 0;
             this.pid = _PID;
             _PID++;
-            this.state = "Ready";
+            this.state = "Resident";
             this.priority = 7;
         }
         //Takes a 'snapshot' of the CPU's current execution context if (when) the currently running program needs to be paused

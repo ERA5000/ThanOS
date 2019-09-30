@@ -21,7 +21,7 @@ module TSOS {
             this.Zflag = 0;
             this.pid = _PID;
             _PID++;
-            this.state = "Ready";
+            this.state = "Resident";
             this.priority = 7;
         }
 
