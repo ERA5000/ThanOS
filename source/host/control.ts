@@ -117,5 +117,15 @@ module TSOS {
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
+
+        public static hostBtnSingleStep_click(btn): void{
+            _SingleStep = !_SingleStep;
+            (<HTMLButtonElement>document.getElementById("btnNextStep")).disabled = !_SingleStep;
+            console.log("What is the value of _SingleStep? " + _SingleStep);
+        }
+
+        public static hostBtnNextStep_click(btn): void{
+            _CPU.isExecuting = true;
+        }
     }
 }

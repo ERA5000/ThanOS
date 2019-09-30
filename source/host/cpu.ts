@@ -53,25 +53,25 @@ module TSOS {
                     instrucAmount = 1;
                     this.loadAccConst();
                     break;
-                case "AD":
+                case "AD": //Little Endian
                     this.loadAccMem();
                     break;
-                case "8D":
+                case "8D": //Little Endian
                     this.storeInMem();
                     break;
-                case "6D":
+                case "6D": //Little Endian
                     this.addWCarry();
                     break;
                 case "A2":
                     this.loadXConst();
                     break;
-                case "AE":
+                case "AE": //Little Endian
                     this.loadXMem();
                     break;
                 case "A0":
                     this.loadYConst();
                     break;
-                case "AC":
+                case "AC": //Little Endian
                     this.loadYMem();
                     break;
                 case "EA":
@@ -82,13 +82,13 @@ module TSOS {
                     _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                     pcb.state = "Terminated";
                     break;
-                case "EC":
+                case "EC": //Little Endian
                     this.compXMem();
                     break;
                 case "D0":
                     this.branchOnZ();
                     break;
-                case "EE":
+                case "EE": //Little Endian
                     this.incByte();
                     break;
                 case "FF":
@@ -105,6 +105,7 @@ module TSOS {
             _Memory.drawMemory();
             _Memory.highlight(pcb.PC, instrucAmount);
             pcb.snapshot();
+            if(_SingleStep) this.isExecuting = false;
         }
 
         //Loads the accumulator with a constant.
@@ -114,26 +115,32 @@ module TSOS {
         }
 
         //Loads the accumulator with a value from memory.
-        public loadAccMem() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
-            this.PC += 2;
+        public loadAccMem() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            this.Acc = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16);
+            this.PC += 3;
         }
 
         //Stores the accumulator's value in memory.
-        public storeInMem() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), locationOfValue);
-            this.PC += 2;
+        public storeInMem() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), newValue);
+            this.PC += 3;
         }
 
         //Adds a value to the accumulator. If the value is greater than 255, it 'rolls over' to 0 + remainder.
-        public addWCarry() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            let toAdd = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+        public addWCarry() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            let toAdd = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16);
             this.Acc += toAdd;
             if(this.Acc >= 256) this.Acc %= 256;
-            this.PC += 2;
+            this.PC += 3;
 
         }
 
@@ -144,10 +151,12 @@ module TSOS {
         }
 
         //Loads the X register from memory.
-        public loadXMem() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            this.Xreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
-            this.PC += 2;
+        public loadXMem() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            this.Xreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16);
+            this.PC += 3;
         }
 
         //Loads the Y register with a constant.
@@ -157,33 +166,46 @@ module TSOS {
         }
 
         //Loads the Y register from memory.
-        public loadYMem() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            this.Yreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
-            this.PC += 2;
+        public loadYMem() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            this.Yreg = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16);
+            this.PC += 3;
         }
 
         //Compares a value in memory with the X register. If it's true, set the Zflag.
-        public compXMem() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            let toCompare = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16);
+        public compXMem() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            let toCompare = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16);
             if(this.Xreg == toCompare) this.Zflag = 1;
             else this.Zflag = 0;
-            this.PC += 2;
+            this.PC += 3;
         }
 
         //Branches to a value in memory if the Zflag is false (0).
         public branchOnZ() {
-            if(this.Zflag == 0) this.PC += parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+            console.log("What is the PC before branching? " + this.PC);
+            console.log("What is getting added to the PC? " + parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1)) % 255, 16);
+            if(this.Zflag == 0) {
+                this.PC += parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
+                this.PC += 2;
+                this.PC %= 255;
+                console.log("What is the PC after branching? " + this.PC);
+            }
             else this.PC += 2;
         }
 
         //Increment the value of in memory by 1.
-        public incByte() {
-            let locationOfValue = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC+1), 16);
-            let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, locationOfValue), 16) + 1;
-            _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), locationOfValue);
-            this.PC += 2;
+        public incByte() { //Little Endian
+            let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
+            let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
+            let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
+            let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16) + 1;
+            _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), newValue);
+            this.PC += 3;
         }
 
         /*Prints the Y register if X is 1.

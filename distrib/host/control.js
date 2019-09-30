@@ -95,6 +95,14 @@ var TSOS;
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
+        static hostBtnSingleStep_click(btn) {
+            _SingleStep = !_SingleStep;
+            document.getElementById("btnNextStep").disabled = !_SingleStep;
+            console.log("What is the value of _SingleStep? " + _SingleStep);
+        }
+        static hostBtnNextStep_click(btn) {
+            _CPU.isExecuting = true;
+        }
     }
     TSOS.Control = Control;
 })(TSOS || (TSOS = {}));

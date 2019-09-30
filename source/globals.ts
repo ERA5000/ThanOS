@@ -71,9 +71,9 @@ var _Memory: TSOS.Memory;
 var _MemoryAccessor: TSOS.MemoryAccessor;
 var _MemoryManager: any = null;
 var _PID = 0;
-//var _NextAvailSeg = 0; //0, 1, 2 map to 1, 2, 3
 var _PCBManager: TSOS.ProcessControlBlock[] = [];
 var _CurrentPCB: TSOS.ProcessControlBlock;
+var _SingleStep = false;
 
 var onDocumentLoad = function() {
     TSOS.Control.hostInit();

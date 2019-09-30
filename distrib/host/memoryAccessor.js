@@ -35,7 +35,7 @@ var TSOS;
                 _Memory.memoryContainer[segment][address] = data;
             }
             else {
-                console.log("What data is being written? " + data);
+                //console.log("What data is being written? " + data);
                 let wordCounter = 0;
                 for (let i = 0; i < data.length / 2; i++) {
                     _Memory.memoryContainer[segment][i] = data.substring(wordCounter, wordCounter + 2);
