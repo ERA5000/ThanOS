@@ -166,7 +166,7 @@ var TSOS;
         }
         //Refreshes the page to complete the process
         static refresh() {
-            location.reload();
+            location.reload(true);
         }
         //# sourceMappingURL=customFunctions.js.map
         //Adds a new PCB row to the display whenever a new process is created
@@ -185,20 +185,20 @@ var TSOS;
         //Updates the appropriate PCB row when its respective process is in execution
         static updatePCBRow(pcbInUse) {
             let rowToUpdate = document.getElementById("pcb" + pcbInUse.pid);
+            rowToUpdate.cells[3].innerHTML = pcbInUse.PC.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
-            rowToUpdate.cells[3].innerHTML = pcbInUse.PC + "";
-            rowToUpdate.cells[4].innerHTML = pcbInUse.Acc + "";
-            rowToUpdate.cells[5].innerHTML = pcbInUse.Xreg + "";
-            rowToUpdate.cells[6].innerHTML = pcbInUse.Yreg + "";
-            rowToUpdate.cells[7].innerHTML = pcbInUse.Zflag + "";
+            rowToUpdate.cells[4].innerHTML = pcbInUse.Acc.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[5].innerHTML = pcbInUse.Xreg.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[6].innerHTML = pcbInUse.Yreg.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[7].innerHTML = pcbInUse.Zflag.toString(16).toUpperCase().padStart(2, "0");
         }
         //Updates the CPU display as it is executing a program
         static updateCPUDisplay() {
-            document.getElementById("CPUPC").innerHTML = _CPU.PC + "";
-            document.getElementById("CPUAcc").innerHTML = _CPU.Acc + "";
-            document.getElementById("CPUX").innerHTML = _CPU.Xreg + "";
-            document.getElementById("CPUY").innerHTML = _CPU.Yreg + "";
-            document.getElementById("CPUZ").innerHTML = _CPU.Zflag + "";
+            document.getElementById("CPUPC").innerHTML = _CPU.PC.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUAcc").innerHTML = _CPU.Acc.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUX").innerHTML = _CPU.Xreg.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUY").innerHTML = _CPU.Yreg.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUZ").innerHTML = _CPU.Zflag.toString(16).toUpperCase().padStart(2, "0");
         }
     }
     TSOS.Utils = Utils;

@@ -53,8 +53,8 @@ var TSOS;
         }
         highlight(pc, instrucAmount) {
             document.getElementById("mem" + pc).style.backgroundColor = "#05aefc";
-            for (let i = 0; i < instrucAmount; i++) {
-                document.getElementById("mem" + (pc + instrucAmount)).style.backgroundColor = "red";
+            for (let i = 1; i <= instrucAmount; i++) {
+                document.getElementById("mem" + (pc + i)).style.backgroundColor = "red";
             }
         }
     }

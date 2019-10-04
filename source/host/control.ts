@@ -80,6 +80,7 @@ module TSOS {
             // .. enable the Halt and Reset buttons ...
             (<HTMLButtonElement>document.getElementById("btnHaltOS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
+            (<HTMLButtonElement>document.getElementById("btnSingleStep")).disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -120,12 +121,13 @@ module TSOS {
 
         public static hostBtnSingleStep_click(btn): void{
             _SingleStep = !_SingleStep;
+            if(_CPU.hasExecutionStarted) _CPU.isExecuting = !_CPU.isExecuting;
             (<HTMLButtonElement>document.getElementById("btnNextStep")).disabled = !_SingleStep;
-            console.log("What is the value of _SingleStep? " + _SingleStep);
         }
 
         public static hostBtnNextStep_click(btn): void{
-            _CPU.isExecuting = true;
+            if(!_CPU.hasExecutionStarted) return;
+            else _CPU.isExecuting = true;
         }
     }
 }

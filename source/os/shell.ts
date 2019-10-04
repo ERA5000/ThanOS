@@ -400,7 +400,7 @@ module TSOS {
         }
 
         public shellWhereAmI(args: string[]){
-            _StdOut.putText("Titan.");
+            _StdOut.putText("Titan");
         }
 
         public shellSnap(args: string[]){
@@ -418,8 +418,8 @@ module TSOS {
         public shellStatus(args: string[]){
             if(args.length > 0){
                 status = args[0];
-                if(status.length > 20){
-                    _StdOut.putText("Status messages cannot be longer than 20 chars.");
+                if(status.length > 100){
+                    _StdOut.putText("Status messages cannot be longer than 100 chars.");
                     return;
                 }
                 _StdOut.putText("New status: " + status);

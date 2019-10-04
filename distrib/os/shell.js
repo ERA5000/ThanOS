@@ -332,7 +332,7 @@ var TSOS;
             _StdOut.putText(temp.getTime() + " aka " + temp.toLocaleDateString("en-US"));
         }
         shellWhereAmI(args) {
-            _StdOut.putText("Titan.");
+            _StdOut.putText("Titan");
         }
         shellSnap(args) {
             //Requires Utils.snap() for optimal functionality
@@ -348,8 +348,8 @@ var TSOS;
         shellStatus(args) {
             if (args.length > 0) {
                 status = args[0];
-                if (status.length > 20) {
-                    _StdOut.putText("Status messages cannot be longer than 20 chars.");
+                if (status.length > 100) {
+                    _StdOut.putText("Status messages cannot be longer than 100 chars.");
                     return;
                 }
                 _StdOut.putText("New status: " + status);

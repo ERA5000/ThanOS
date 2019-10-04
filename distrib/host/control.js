@@ -64,6 +64,7 @@ var TSOS;
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            document.getElementById("btnSingleStep").disabled = false;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -97,11 +98,15 @@ var TSOS;
         }
         static hostBtnSingleStep_click(btn) {
             _SingleStep = !_SingleStep;
+            if (_CPU.hasExecutionStarted)
+                _CPU.isExecuting = !_CPU.isExecuting;
             document.getElementById("btnNextStep").disabled = !_SingleStep;
-            console.log("What is the value of _SingleStep? " + _SingleStep);
         }
         static hostBtnNextStep_click(btn) {
-            _CPU.isExecuting = true;
+            if (!_CPU.hasExecutionStarted)
+                return;
+            else
+                _CPU.isExecuting = true;
         }
     }
     TSOS.Control = Control;

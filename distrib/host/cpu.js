@@ -13,13 +13,14 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        constructor(PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
+        constructor(PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false, hasExecutionStarted = false) {
             this.PC = PC;
             this.Acc = Acc;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
             this.isExecuting = isExecuting;
+            this.hasExecutionStarted = hasExecutionStarted;
         }
         init() {
             this.PC = 0;
@@ -36,6 +37,7 @@ var TSOS;
             this.execute(_CurrentPCB);
         }
         execute(pcb) {
+            this.hasExecutionStarted = true;
             pcb.state = "Running";
             let command;
             let instrucAmount = 0;
@@ -49,24 +51,31 @@ var TSOS;
                     this.loadAccConst();
                     break;
                 case "AD": //Little Endian
+                    instrucAmount = 2;
                     this.loadAccMem();
                     break;
                 case "8D": //Little Endian
+                    instrucAmount = 2;
                     this.storeInMem();
                     break;
                 case "6D": //Little Endian
+                    instrucAmount = 2;
                     this.addWCarry();
                     break;
                 case "A2":
+                    instrucAmount = 1;
                     this.loadXConst();
                     break;
                 case "AE": //Little Endian
+                    instrucAmount = 2;
                     this.loadXMem();
                     break;
                 case "A0":
+                    instrucAmount = 1;
                     this.loadYConst();
                     break;
                 case "AC": //Little Endian
+                    instrucAmount = 2;
                     this.loadYMem();
                     break;
                 case "EA":
@@ -76,14 +85,18 @@ var TSOS;
                     this.isExecuting = false;
                     _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                     pcb.state = "Terminated";
+                    this.hasExecutionStarted = false;
                     break;
                 case "EC": //Little Endian
+                    instrucAmount = 2;
                     this.compXMem();
                     break;
                 case "D0":
+                    instrucAmount = 1;
                     this.branchOnZ();
                     break;
                 case "EE": //Little Endian
+                    instrucAmount = 2;
                     this.incByte();
                     break;
                 case "FF":
@@ -175,13 +188,10 @@ var TSOS;
         }
         //Branches to a value in memory if the Zflag is false (0).
         branchOnZ() {
-            console.log("What is the PC before branching? " + this.PC);
-            console.log("What is getting added to the PC? " + parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1)) % 255, 16);
             if (this.Zflag == 0) {
                 this.PC += parseInt(_MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1), 16);
                 this.PC += 2;
-                this.PC %= 255;
-                console.log("What is the PC after branching? " + this.PC);
+                this.PC %= 256;
             }
             else
                 this.PC += 2;
@@ -202,25 +212,29 @@ var TSOS;
         */
         systemCall() {
             if (this.Xreg == 1) {
-                _StdOut.putText(`Value of Y Register: ${this.Yreg}`);
+                console.log("What is this value? " + parseInt(this.Yreg + "", 16));
+                _StdOut.putText(this.Yreg.toString(16));
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
             }
             else if (this.Xreg == 2) {
                 let toPrint = "";
-                let temp = "";
+                let temp = 0;
                 let locationToStart = this.Yreg;
                 for (let i = locationToStart; i < 256; i++) {
-                    temp = _MemoryAccessor.read(_CurrentPCB.segment, i);
-                    if (temp === "00") {
-                        toPrint += " " + temp;
-                        break;
+                    temp = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, i), 16);
+                    console.log("What is the value of temp? " + temp);
+                    if (temp >= 1 && temp <= 9) {
+                        console.log("What is being added here? " + temp);
+                        toPrint += temp;
                     }
+                    else if (temp == 0)
+                        break;
                     else {
-                        toPrint += " " + temp;
+                        toPrint += String.fromCharCode(temp);
                     }
                 }
-                _StdOut.putText(`Value of 00-terminated string starting at Y Register: ${toPrint}`);
+                _StdOut.putText(toPrint);
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
             }
