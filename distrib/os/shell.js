@@ -383,6 +383,7 @@ var TSOS;
                     }
                     pcb.location = "Memory"; //Will be set more dynamically when more segments/HDD come online
                     //_MemoryManager.setMemoryStatus(pcb.segment); - Ignored to always write to memory segment 0
+                    _MemoryAccessor.init();
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
                     _CurrentPCB = pcb;
                     //Make an attempt to clean old/unused PCBs

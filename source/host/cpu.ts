@@ -91,7 +91,13 @@ module TSOS {
                     _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                     pcb.state = "Terminated";
                     this.hasExecutionStarted = false;
-                    return;
+                    if(this.PC >= 255) {
+                        Utils.updateCPUDisplay();
+                        Utils.drawMemory();
+                        Utils.updatePCBRow(pcb);
+                        return;
+                    }
+                    break;
                 case "EC": //Little Endian
                     instrucAmount = 2;
                     this.compXMem();

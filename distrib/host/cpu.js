@@ -86,7 +86,13 @@ var TSOS;
                     _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                     pcb.state = "Terminated";
                     this.hasExecutionStarted = false;
-                    return;
+                    if (this.PC >= 255) {
+                        TSOS.Utils.updateCPUDisplay();
+                        TSOS.Utils.drawMemory();
+                        TSOS.Utils.updatePCBRow(pcb);
+                        return;
+                    }
+                    break;
                 case "EC": //Little Endian
                     instrucAmount = 2;
                     this.compXMem();
