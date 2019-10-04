@@ -397,7 +397,7 @@ var TSOS;
                         _PCBManager[_PCBManager.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
-                    _Memory.drawMemory();
+                    TSOS.Utils.drawMemory();
                     TSOS.Utils.addPCBRow();
                     _CurrentPCB.reinstate();
                 }

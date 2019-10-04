@@ -115,8 +115,8 @@ module TSOS {
             }
             Utils.updateCPUDisplay();
             Utils.updatePCBRow(pcb);
-            _Memory.drawMemory();
-            _Memory.highlight(pcb.PC, instrucAmount);
+            Utils.drawMemory();
+            Utils.highlight(pcb.PC, instrucAmount);
             pcb.snapshot();
             if(_SingleStep) this.isExecuting = false;
         }

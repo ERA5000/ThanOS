@@ -91,7 +91,7 @@ module TSOS {
 
             _Memory = new Memory();
             _Memory.init();
-            _Memory.drawMemory();
+            Utils.drawMemory();
             _MemoryAccessor = new MemoryAccessor();
 
             // ... then set the host clock pulse ...

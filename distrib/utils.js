@@ -200,6 +200,45 @@ var TSOS;
             document.getElementById("CPUY").innerHTML = _CPU.Yreg.toString(16).toUpperCase().padStart(2, "0");
             document.getElementById("CPUZ").innerHTML = _CPU.Zflag.toString(16).toUpperCase().padStart(2, "0");
         }
+        /*Dynamically populates the <table> with the contents of memory.
+            The 'justCreated' boolean determines whether a new row was, well, justCreated. If so, create a new row and decrement the counter since it 'wasted a turn'
+                populating the row's Hex label (ie 0x028) -- See next comment.
+            The padStart() method, introduced in ES2017 (which I A. just discovered does exactly what I need and B. Is what you made the target for the project
+                to be so #Bless) buffers a string with some text to a set length. Since all displayed Hex should be 0x1234, this works beautifully.
+                The 256 * i acts as an offset for the segments so it keeps adding rather than restarting at 0x000.
+            I also recognize that it is redundant to have the back-to-back if statements as they are, but when I changed them it broke... so I'll come back to that*
+        */
+        //TO DO: Remove this GUI Logic and put it somewhere else! (Utils? MemoryAccessor?)
+        static drawMemory() {
+            let table = "<table>";
+            let justCreated = false;
+            for (let i = 0; i < _Memory.memoryContainer.length; i++) {
+                for (let j = 0; j < _Memory.memoryContainer[i].length; j++) {
+                    if (j == 0) {
+                        table += "<tr><td><b>" + "0x" + ((j + (256 * i)).toString(16).toUpperCase()).padStart(3, "0") + "</b></td>";
+                    }
+                    if (j % 8 == 0 && j != 0) {
+                        table += "</tr><tr><td><b>" + "0x" + (j + (256 * i)).toString(16).toUpperCase().padStart(3, "0") + "</b></td>";
+                        justCreated = true;
+                    }
+                    else {
+                        if (justCreated) {
+                            justCreated = false;
+                            j--;
+                        }
+                        table += "<td " + `id=mem${j + 256 * i}>` + _Memory.memoryContainer[i][j].padStart(2, 0) + "</td>";
+                    }
+                }
+            }
+            table += "</table>";
+            document.getElementById("MemoryTable").innerHTML = table;
+        }
+        static highlight(pc, instrucAmount) {
+            document.getElementById("mem" + pc).style.backgroundColor = "#05aefc";
+            for (let i = 1; i <= instrucAmount; i++) {
+                document.getElementById("mem" + (pc + i)).style.backgroundColor = "red";
+            }
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

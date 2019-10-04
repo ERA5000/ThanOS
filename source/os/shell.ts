@@ -468,7 +468,7 @@ module TSOS {
                     if(!overritten) _PCBManager[_PCBManager.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     //_MemoryAccessor.print();
-                    _Memory.drawMemory();
+                    Utils.drawMemory();
                     Utils.addPCBRow();
                     _CurrentPCB.reinstate();
                 }

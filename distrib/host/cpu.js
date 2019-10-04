@@ -110,8 +110,8 @@ var TSOS;
             }
             TSOS.Utils.updateCPUDisplay();
             TSOS.Utils.updatePCBRow(pcb);
-            _Memory.drawMemory();
-            _Memory.highlight(pcb.PC, instrucAmount);
+            TSOS.Utils.drawMemory();
+            TSOS.Utils.highlight(pcb.PC, instrucAmount);
             pcb.snapshot();
             if (_SingleStep)
                 this.isExecuting = false;
