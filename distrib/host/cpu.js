@@ -109,10 +109,10 @@ var TSOS;
                     break;
             }
             TSOS.Utils.updateCPUDisplay();
-            TSOS.Utils.updatePCBRow(pcb);
             TSOS.Utils.drawMemory();
             TSOS.Utils.highlight(pcb.PC, instrucAmount);
             pcb.snapshot();
+            TSOS.Utils.updatePCBRow(pcb);
             if (_SingleStep)
                 this.isExecuting = false;
         }
@@ -212,7 +212,6 @@ var TSOS;
         */
         systemCall() {
             if (this.Xreg == 1) {
-                console.log("What is this value? " + parseInt(this.Yreg + "", 16));
                 _StdOut.putText(this.Yreg.toString(16));
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
@@ -223,9 +222,7 @@ var TSOS;
                 let locationToStart = this.Yreg;
                 for (let i = locationToStart; i < 256; i++) {
                     temp = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, i), 16);
-                    console.log("What is the value of temp? " + temp);
                     if (temp >= 1 && temp <= 9) {
-                        console.log("What is being added here? " + temp);
                         toPrint += temp;
                     }
                     else if (temp == 0)
