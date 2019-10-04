@@ -204,11 +204,11 @@ var TSOS;
             The 'justCreated' boolean determines whether a new row was, well, justCreated. If so, create a new row and decrement the counter since it 'wasted a turn'
                 populating the row's Hex label (ie 0x028) -- See next comment.
             The padStart() method, introduced in ES2017 (which I A. just discovered does exactly what I need and B. Is what you made the target for the project
-                to be so #Bless) buffers a string with some text to a set length. Since all displayed Hex should be 0x1234, this works beautifully.
+                to be so #Bless) buffers a string with some text to a set length. Since all displayed Hex should be '0x1234', this works beautifully.
                 The 256 * i acts as an offset for the segments so it keeps adding rather than restarting at 0x000.
             I also recognize that it is redundant to have the back-to-back if statements as they are, but when I changed them it broke... so I'll come back to that*
+                *I probably... might... not.
         */
-        //TO DO: Remove this GUI Logic and put it somewhere else! (Utils? MemoryAccessor?)
         static drawMemory() {
             let table = "<table>";
             let justCreated = false;
@@ -233,10 +233,13 @@ var TSOS;
             table += "</table>";
             document.getElementById("MemoryTable").innerHTML = table;
         }
+        /*As a program is executing, it highlights the command in red. Then, as part of the command's execution, it also tells how many
+            instructions it has. It will then iterate through the table and highlight all instructions to be blue
+        */
         static highlight(pc, instrucAmount) {
-            document.getElementById("mem" + pc).style.backgroundColor = "#05aefc";
+            document.getElementById("mem" + pc).style.backgroundColor = "red";
             for (let i = 1; i <= instrucAmount; i++) {
-                document.getElementById("mem" + (pc + i)).style.backgroundColor = "red";
+                document.getElementById("mem" + (pc + i)).style.backgroundColor = "#05aefc";
             }
         }
     }

@@ -47,7 +47,7 @@ module TSOS {
             pcb.state = "Running";
             let command: string;
             let instrucAmount = 0;
-            if(this.PC >= 255) command = "00";
+            if(this.PC < 0 || this.PC >= 255) command = "00";
             else command = _MemoryAccessor.read(pcb.segment, this.PC);
 
             switch (command) {
@@ -91,7 +91,7 @@ module TSOS {
                     _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                     pcb.state = "Terminated";
                     this.hasExecutionStarted = false;
-                    break;
+                    return;
                 case "EC": //Little Endian
                     instrucAmount = 2;
                     this.compXMem();
@@ -221,7 +221,8 @@ module TSOS {
         /*Prints the Y register if X is 1.
           Dumps the Y register's address' values until it encounters either 00 or the end of memory if X is 2.
           The toPrint variable has spaces because A) it makes it easier to read, but also B) it does not print properly if all of memory
-            is one contiguous string (which is something I will look into later).
+            is one contiguous string (which is something I will look into later)*.
+            *This may or may not be true because results have been inconsistent (ie the Heisenbug) -- will still look into later.
         */
         public systemCall() {
             if(this.Xreg == 1) {

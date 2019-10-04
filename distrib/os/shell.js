@@ -376,7 +376,9 @@ var TSOS;
                     let pcb = new TSOS.ProcessControlBlock();
                     pcb.segment = _MemoryManager.getAvailableMemory(availableMemory);
                     if (pcb.segment > 0) { //For now it only writes to memory segment 0 (the first segment) for iProject2
+                        _StdOut.putText("Segmentation Fault. Only segment 0 for is available iProject2. Execution of any running program will complete.");
                         _Kernel.krnTrapError("Segmentation Fault. Only segment 0 for iProject2.");
+                        _HasCrashed = true;
                         return;
                     }
                     pcb.location = "Memory"; //Will be set more dynamically when more segments/HDD come online
@@ -387,6 +389,8 @@ var TSOS;
                     if (_PCBManager.length > 0) {
                         for (let i = 0; i < _PCBManager.length; i++) {
                             if (_PCBManager[i].state === "Resident" || _PCBManager[i].state === "Terminated") {
+                                _PCBManager[i].state = "Overwritten";
+                                TSOS.Utils.updatePCBRow(_PCBManager[i]);
                                 _PCBManager[i] = _CurrentPCB;
                                 overritten = true;
                                 break;
@@ -396,13 +400,14 @@ var TSOS;
                     if (!overritten)
                         _PCBManager[_PCBManager.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
-                    //_MemoryAccessor.print();
                     TSOS.Utils.drawMemory();
                     TSOS.Utils.addPCBRow();
+                    TSOS.Utils.updatePCBRow(_CurrentPCB);
                     _CurrentPCB.reinstate();
                 }
             }
         }
+        //Runs a program stored in memory when given a corresponding PID
         shellRun(args) {
             if (args.length > 0) {
                 for (let i = 0; i < _PCBManager.length; i++) {
@@ -420,7 +425,11 @@ var TSOS;
                         return;
                     }
                 }
-                if (parseInt(args[0]) < _PID)
+                if (parseInt(args[0]) < 0) {
+                    _StdOut.putText("It is not possible to have negative PIDs. Shutting down for OS' safety.");
+                    _HasCrashed = true;
+                }
+                else if (parseInt(args[0]) < _PID)
                     _StdOut.putText("Execution of that program has since completed.");
                 else
                     _StdOut.putText(`No Program with PID ${args[0]} exists.`);
