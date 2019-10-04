@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target"   : "es6",
+        "target"   : "ES2017",
 		"rootDir"  : "source",
 		"outDir"   : "distrib",
         "sourceMap": true

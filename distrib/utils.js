@@ -50,7 +50,7 @@ var TSOS;
             crash.play();
             let img = document.getElementById("bsod");
             document.getElementById("display").getContext("2d").drawImage(img, 0, 0, 500, 510);
-            hasCrashed = true;
+            _HasCrashed = true;
             _Kernel.krnTrapError("User invoked crash.");
             document.getElementById("taProgramInput").value = "";
             document.getElementById("taProgramInput").disabled = true;
@@ -61,14 +61,36 @@ var TSOS;
         I think this turned into one of the those logical 'proofs' where finding the negation is easier,
             which is why I look for *anything* that is NOT a-f, 0-9, space, newline and carriage return*/
         static verifyInput() {
-            let text = document.getElementById("taProgramInput").value;
+            let text = document.getElementById("taProgramInput").value.trim();
             let validHex = /[^a-f0-9 \r\n]+/img;
-            if (validHex.test(text) || text == "") {
-                _StdOut.putText("Hex input is NOT valid!");
+            if (validHex.test(text)) {
+                _StdOut.putText("Hex input is NOT valid! Illegal characters found.");
+                return false;
             }
-            else {
-                _StdOut.putText("Hex input is valid!");
+            else if (text == "") {
+                _StdOut.putText("Hex input is NOT valid! No code found.");
+                return false;
             }
+            else if (this.standardizeInput(text).length > 512) {
+                _StdOut.putText("Hex input is NOT valid! Program too large.");
+            }
+            else if (this.standardizeInput().length % 2 != 0) {
+                _StdOut.putText("Hex input is NOT valid! Odd number of characters found.");
+                return false;
+            }
+            else
+                return true;
+        }
+        /*A method to grab and standardized input. Removes all spaces and capitalizes all letters so that the code is one contiguous string.
+        */
+        static standardizeInput(text) {
+            let input;
+            if (text)
+                input = text;
+            else
+                input = document.getElementById("taProgramInput").value.trim().toUpperCase();
+            input = input.replace(/\s/g, "");
+            return input;
         }
         /*A simple clock function
         toLocaleDateString formats the date and time
@@ -144,7 +166,81 @@ var TSOS;
         }
         //Refreshes the page to complete the process
         static refresh() {
-            location.reload();
+            location.reload(true);
+        }
+        //# sourceMappingURL=customFunctions.js.map
+        //Adds a new PCB row to the display whenever a new process is created
+        static addPCBRow() {
+            if (_CurrentPCB === null)
+                return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
+            else {
+                let newRow = `<tr id='pcb${_CurrentPCB.pid}'> <td>${_CurrentPCB.pid}</td> <td>${_CurrentPCB.priority}</td>
+                <td>${_CurrentPCB.state}</td> <td>${_CurrentPCB.PC}</td> 
+                <td>${_CurrentPCB.Acc}</td> <td>${_CurrentPCB.Xreg}</td>
+                <td>${_CurrentPCB.Yreg}</td> <td>${_CurrentPCB.Zflag}</td>
+                <td>${_CurrentPCB.location}</td></tr>`;
+                document.getElementById("PCBTable").innerHTML += newRow;
+            }
+        }
+        //Updates the appropriate PCB row when its respective process is in execution
+        static updatePCBRow(pcbInUse) {
+            let rowToUpdate = document.getElementById("pcb" + pcbInUse.pid);
+            rowToUpdate.cells[3].innerHTML = pcbInUse.PC.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
+            rowToUpdate.cells[4].innerHTML = pcbInUse.Acc.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[5].innerHTML = pcbInUse.Xreg.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[6].innerHTML = pcbInUse.Yreg.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[7].innerHTML = pcbInUse.Zflag.toString(16).toUpperCase().padStart(2, "0");
+        }
+        //Updates the CPU display as it is executing a program
+        static updateCPUDisplay() {
+            document.getElementById("CPUPC").innerHTML = _CPU.PC.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUAcc").innerHTML = _CPU.Acc.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUX").innerHTML = _CPU.Xreg.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUY").innerHTML = _CPU.Yreg.toString(16).toUpperCase().padStart(2, "0");
+            document.getElementById("CPUZ").innerHTML = _CPU.Zflag.toString(16).toUpperCase().padStart(2, "0");
+        }
+        /*Dynamically populates the <table> with the contents of memory.
+            The 'justCreated' boolean determines whether a new row was, well, justCreated. If so, create a new row and decrement the counter since it 'wasted a turn'
+                populating the row's Hex label (ie 0x028) -- See next comment.
+            The padStart() method, introduced in ES2017 (which I A. just discovered does exactly what I need and B. Is what you made the target for the project
+                to be so #Bless) buffers a string with some text to a set length. Since all displayed Hex should be '0x1234', this works beautifully.
+                The 256 * i acts as an offset for the segments so it keeps adding rather than restarting at 0x000.
+            I also recognize that it is redundant to have the back-to-back if statements as they are, but when I changed them it broke... so I'll come back to that*
+                *I probably... might... not.
+        */
+        static drawMemory() {
+            let table = "<table>";
+            let justCreated = false;
+            for (let i = 0; i < _Memory.memoryContainer.length; i++) {
+                for (let j = 0; j < _Memory.memoryContainer[i].length; j++) {
+                    if (j == 0) {
+                        table += "<tr><td><b>" + "0x" + ((j + (256 * i)).toString(16).toUpperCase()).padStart(3, "0") + "</b></td>";
+                    }
+                    if (j % 8 == 0 && j != 0) {
+                        table += "</tr><tr><td><b>" + "0x" + (j + (256 * i)).toString(16).toUpperCase().padStart(3, "0") + "</b></td>";
+                        justCreated = true;
+                    }
+                    else {
+                        if (justCreated) {
+                            justCreated = false;
+                            j--;
+                        }
+                        table += "<td " + `id=mem${j + 256 * i}>` + _Memory.memoryContainer[i][j].padStart(2, 0) + "</td>";
+                    }
+                }
+            }
+            table += "</table>";
+            document.getElementById("MemoryTable").innerHTML = table;
+        }
+        /*As a program is executing, it highlights the command in red. Then, as part of the command's execution, it also tells how many
+            instructions it has. It will then iterate through the table and highlight all instructions to be blue
+        */
+        static highlight(pc, instrucAmount) {
+            document.getElementById("mem" + pc).style.backgroundColor = "red";
+            for (let i = 1; i <= instrucAmount; i++) {
+                document.getElementById("mem" + (pc + i)).style.backgroundColor = "#05aefc";
+            }
         }
     }
     TSOS.Utils = Utils;

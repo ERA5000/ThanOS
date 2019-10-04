@@ -80,6 +80,7 @@ module TSOS {
             // .. enable the Halt and Reset buttons ...
             (<HTMLButtonElement>document.getElementById("btnHaltOS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
+            (<HTMLButtonElement>document.getElementById("btnSingleStep")).disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -87,6 +88,11 @@ module TSOS {
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
             _CPU = new Cpu();  // Note: We could simulate multi-core systems by instantiating more than one instance of the CPU here.
             _CPU.init();       //       There's more to do, like dealing with scheduling and such, but this would be a start. Pretty cool.
+
+            _Memory = new Memory();
+            _Memory.init();
+            Utils.drawMemory();
+            _MemoryAccessor = new MemoryAccessor();
 
             // ... then set the host clock pulse ...
             _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
@@ -111,6 +117,17 @@ module TSOS {
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        }
+
+        public static hostBtnSingleStep_click(btn): void{
+            _SingleStep = !_SingleStep;
+            if(_CPU.hasExecutionStarted) _CPU.isExecuting = !_CPU.isExecuting;
+            (<HTMLButtonElement>document.getElementById("btnNextStep")).disabled = !_SingleStep;
+        }
+
+        public static hostBtnNextStep_click(btn): void{
+            if(!_CPU.hasExecutionStarted) return;
+            else _CPU.isExecuting = true;
         }
     }
 }

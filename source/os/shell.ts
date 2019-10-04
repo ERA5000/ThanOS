@@ -54,7 +54,7 @@ module TSOS {
             //load
             sc = new ShellCommand(this.shellLoad,
                                     "load",
-                                    "- Validates user program input.");
+                                    "- Loads user program into memory for execution.");
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
@@ -73,6 +73,12 @@ module TSOS {
             sc = new ShellCommand(this.shellRot13,
                                   "rot13",
                                   "<string> - Does rot13 obfuscation on <string>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // run <pid>
+            sc = new ShellCommand(this.shellRun,
+                                  "run",
+                                  "<pid> - Executes a program in memory.");
             this.commandList[this.commandList.length] = sc;
 
             // shutdown
@@ -176,7 +182,8 @@ module TSOS {
             if (_StdOut.currentXPosition > 0) {
                 _StdOut.advanceLine();
             }
-            // ... and finally write the prompt again.
+            // ... and finally write the prompt again if the shell has not crashed.
+            if(_HasCrashed) return;
             this.putPrompt();
         }
 
@@ -310,8 +317,8 @@ module TSOS {
                         _StdOut.putText("Disable/Enable tracing. Tracing is the act of outputting the OS's activities to the Host Log.");
                         break;
                     case "rot13":
-                        _StdOut.putText(`Obfuscate text using the ROTation13 cipher. Take a letter's position in the alphabet, add 13 to it, 
-                        and that becomes the new letter.`);
+                        _StdOut.putText("Obfuscate text using the ROTation13 cipher. Take a letter's position in the alphabet, add 13 to it, "
+                        + "and that becomes the new letter.");
                         break;
                     case "prompt":
                         _StdOut.putText("Sets a default prompt to the CLI for the session.");
@@ -329,10 +336,13 @@ module TSOS {
                         _StdOut.putText("Sets a new status to the status bar.");
                         break;
                     case "load":
-                        _StdOut.putText("Validates user program input. Hex digits (and spaces) only!");
+                        _StdOut.putText("Validates user input and loads it into memory for execution. Code is written in Hex.");
                         break;
                     case "crash":
                         _StdOut.putText("Creates a user-generated crash for the Kernel.");
+                        break;
+                    case "run":
+                        _StdOut.putText("Executes a user-input program from the load command specified by the PID.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -390,7 +400,7 @@ module TSOS {
         }
 
         public shellWhereAmI(args: string[]){
-            _StdOut.putText("Titan.");
+            _StdOut.putText("Titan");
         }
 
         public shellSnap(args: string[]){
@@ -408,8 +418,8 @@ module TSOS {
         public shellStatus(args: string[]){
             if(args.length > 0){
                 status = args[0];
-                if(status.length > 20){
-                    _StdOut.putText("Status messages cannot be longer than 20 chars.");
+                if(status.length > 100){
+                    _StdOut.putText("Status messages cannot be longer than 100 chars.");
                     return;
                 }
                 _StdOut.putText("New status: " + status);
@@ -425,9 +435,75 @@ module TSOS {
             Utils.crash();
         }
 
-        //Validates user input of hex digits
-        public shellLoad(args: string[]){
-            Utils.verifyInput();
+        //Loads a program into memory for execution
+        public shellLoad(args: string[]) {
+            if(Utils.verifyInput()){
+                let availableMemory = _MemoryManager.getMemoryStatus();
+                if(!availableMemory) {
+                    _Kernel.krnTrapError("Segmentation Fault. No available memory.");
+                    _HasCrashed = true;
+                }
+                else {
+                    let overritten = false;
+                    let pcb = new ProcessControlBlock();
+                    pcb.segment = _MemoryManager.getAvailableMemory(availableMemory);
+                    if(pcb.segment > 0) {  //For now it only writes to memory segment 0 (the first segment) for iProject2
+                        _StdOut.putText("Segmentation Fault. Only segment 0 for is available iProject2. Execution of any running program will complete.");
+                        _Kernel.krnTrapError("Segmentation Fault. Only segment 0 for iProject2.");
+                        _HasCrashed = true;
+                        return;
+                    }
+                    pcb.location = "Memory"; //Will be set more dynamically when more segments/HDD come online
+                    //_MemoryManager.setMemoryStatus(pcb.segment); - Ignored to always write to memory segment 0
+                    _MemoryAccessor.init();
+                    _MemoryAccessor.write(pcb.segment, Utils.standardizeInput());
+                    _CurrentPCB = pcb;
+                    //Make an attempt to clean old/unused PCBs
+                    if(_PCBManager.length > 0) {
+                        for(let i = 0; i < _PCBManager.length; i++){
+                            if(_PCBManager[i].state === "Resident" || _PCBManager[i].state === "Terminated"){
+                                _PCBManager[i].state = "Overwritten";
+                                Utils.updatePCBRow(_PCBManager[i]);
+                                _PCBManager[i] = _CurrentPCB;
+                                overritten = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(!overritten) _PCBManager[_PCBManager.length] = pcb;
+                    _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
+                    Utils.drawMemory();
+                    Utils.addPCBRow();
+                    Utils.updatePCBRow(_CurrentPCB);
+                    _CurrentPCB.reinstate();
+                }
+            }
+        }
+
+        //Runs a program stored in memory when given a corresponding PID
+        public shellRun(args: string[]){
+            if(args.length > 0){
+                for(let i = 0; i < _PCBManager.length; i++){
+                    if(parseInt(args[i]) == _PCBManager[i].pid){
+                        _CurrentPCB = _PCBManager[i];
+                        if(_CurrentPCB.state === "Terminated") _StdOut.putText("Execution of that program has since completed.");
+                        else if(_CurrentPCB.state === "Running")  _StdOut.putText("The specified program is currently running.");
+                        else {
+                            _CPU.isExecuting = true;
+                            _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                            _StdOut.putText(`Execution of Program ${_CurrentPCB.pid} has begun.`);
+                        }
+                        return;
+                    }
+                }
+                if(parseInt(args[0]) < 0) {
+                    _StdOut.putText("It is not possible to have negative PIDs. Shutting down for OS' safety.");
+                    _HasCrashed = true;
+                }
+                else if(parseInt(args[0]) < _PID) _StdOut.putText("Execution of that program has since completed.");
+                else _StdOut.putText(`No Program with PID ${args[0]} exists.`);
+            }
+            else _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
         }
     }
 }

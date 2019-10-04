@@ -48,6 +48,9 @@ module TSOS {
             _OsShell = new Shell();
             _OsShell.init();
 
+            //Initializes the Memory Manager
+            _MemoryManager = new MemoryManager();
+
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();
@@ -152,7 +155,7 @@ module TSOS {
         //
         public krnTrace(msg: string) {
             // If the crash command has been issued, stop outputting anything to the Host Log
-            if(hasCrashed) return;
+            if(_HasCrashed) return;
              // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
              if (_Trace) {
                 if (msg === "Idle") {

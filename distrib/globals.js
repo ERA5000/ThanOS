@@ -11,7 +11,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME = "ThanOS";
-const APP_VERSION = "1.0.6";
+const APP_VERSION = "1.1.3";
 const CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds), so 1000 = 1 second.
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
@@ -34,6 +34,7 @@ var _Kernel;
 var _KernelInterruptQueue = null;
 var _KernelInputQueue = null;
 var _KernelBuffers = null;
+var _HasCrashed = false;
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
@@ -48,9 +49,16 @@ var _hardwareClockID = null;
 // For testing (and enrichment)...
 var Glados = null; // This is the function Glados() in glados-ip*.js http://alanclasses.github.io/TSOS/test/ .
 var _GLaDOS = null; // If the above is linked in, this is the instantiated instance of Glados.
+//Memory
+var _Memory;
+var _MemoryAccessor;
+var _MemoryManager = null;
+var _PID = 0;
+var _PCBManager = [];
+var _CurrentPCB;
+var _SingleStep = false;
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();
 };
-var hasCrashed = false;
 //# sourceMappingURL=globals.js.map

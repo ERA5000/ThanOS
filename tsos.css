@@ -30,6 +30,20 @@ h3 {
   font-style: normal;
 }
 
+table{
+  border-collapse: collapse;
+  background-color: white;
+}
+
+table, td, th{
+  border: 2px solid black;
+}
+
+td, th{
+  text-align: center;
+  width: 50px;
+}
+
 #display {
   background-color: black;
   border: 2px groove rgb(0, 0, 0);
@@ -128,4 +142,33 @@ h3 {
 /*BSOD image drawn to canvas when crash command is typed*/
 #bsod{
   display: none;
+}
+
+/*Comprises both the label and the table*/
+#MemoryDiv{
+  float: right;
+}
+
+/*Just the memory table*/
+#MemoryTable{
+  height: 156px;
+  overflow-y: scroll;
+  border: 1px solid gray;
+}
+/*Table header width to give the text room*/
+.PCBth{
+  width: 70px;
+}
+
+/*Width of the table so all of the columns fit*/
+#PCBTable{
+  width: 670px;
+}
+
+/*For some reason the PCB table/div combo is not behaving the same way as the memory table/div combo, so this kind of brute-forces it to.
+  I'd like to come back and fix this bc this is stupid.*/
+#PCBDiv{
+  max-height: 156px;
+  overflow-y: scroll;
+  width: 687px;
 }

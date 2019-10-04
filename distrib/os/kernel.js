@@ -39,6 +39,8 @@ var TSOS;
             this.krnTrace("Creating and Launching the shell.");
             _OsShell = new TSOS.Shell();
             _OsShell.init();
+            //Initializes the Memory Manager
+            _MemoryManager = new TSOS.MemoryManager();
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();
@@ -133,7 +135,7 @@ var TSOS;
         //
         krnTrace(msg) {
             // If the crash command has been issued, stop outputting anything to the Host Log
-            if (hasCrashed)
+            if (_HasCrashed)
                 return;
             // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
             if (_Trace) {
