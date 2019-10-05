@@ -179,11 +179,13 @@ module TSOS {
         //# sourceMappingURL=customFunctions.js.map
 
         //Adds a new PCB row to the display whenever a new process is created
+        //The blank row of '00' represents the IR table cell. Read the comment for 'updatePCIR()' on why it is this way.
         public static addPCBRow() {
             if(_CurrentPCB === null) return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
             else {
                 let newRow = `<tr id='pcb${_CurrentPCB.pid}'> <td>${_CurrentPCB.pid}</td> <td>${_CurrentPCB.priority}</td>
                 <td>${_CurrentPCB.state}</td> <td>${_CurrentPCB.PC}</td> 
+                <td>00</td>
                 <td>${_CurrentPCB.Acc}</td> <td>${_CurrentPCB.Xreg}</td>
                 <td>${_CurrentPCB.Yreg}</td> <td>${_CurrentPCB.Zflag}</td>
                 <td>${_CurrentPCB.location}</td></tr>`;
@@ -196,16 +198,27 @@ module TSOS {
             let rowToUpdate = <HTMLTableRowElement>document.getElementById("pcb" + pcbInUse.pid);
             rowToUpdate.cells[3].innerHTML = pcbInUse.PC.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
-            rowToUpdate.cells[4].innerHTML = pcbInUse.Acc.toString(16).toUpperCase().padStart(2, "0");
-            rowToUpdate.cells[5].innerHTML = pcbInUse.Xreg.toString(16).toUpperCase().padStart(2, "0");
-            rowToUpdate.cells[6].innerHTML = pcbInUse.Yreg.toString(16).toUpperCase().padStart(2, "0");
-            rowToUpdate.cells[7].innerHTML = pcbInUse.Zflag.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[5].innerHTML = pcbInUse.Acc.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[6].innerHTML = pcbInUse.Xreg.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[7].innerHTML = pcbInUse.Yreg.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[8].innerHTML = pcbInUse.Zflag.toString(16).toUpperCase().padStart(2, "0");
+        }
+
+        /*Independently updates the IR table cell in the PCB display.
+            The reason I had to do it this way is because we want to see the current CPU's PC's values. However, because the displays update
+            after the CPU has completed a cycle, we're really seeing *what it just did.* Therefore, if I kept these together, the PCB would update, then
+            the PCB display would update, and we would see what the CPU was going to do next. This was a discontinuity that looked bad, so I separated them.
+            They're called at effectively the same time so it's the same difference, but this nuanced nonesense bothers me to no end.
+        */
+        public static updatePCBIR(pcbInUse: ProcessControlBlock){
+            let rowToUpdate = <HTMLTableRowElement>document.getElementById("pcb" + pcbInUse.pid);
+            rowToUpdate.cells[4].innerHTML = _MemoryAccessor.read(_CurrentPCB.segment, _CurrentPCB.PC).toUpperCase().padStart(2, "0");
         }
 
         //Updates the CPU display as it is executing a program
         public static updateCPUDisplay(){
             document.getElementById("CPUPC").innerHTML = _CPU.PC.toString(16).toUpperCase().padStart(2, "0");
-            document.getElementById("CPUIR").innerHTML = _MemoryAccessor.read(_CurrentPCB.segment, _CurrentPCB.PC);
+            document.getElementById("CPUIR").innerHTML = _MemoryAccessor.read(_CurrentPCB.segment, _CurrentPCB.PC).toUpperCase().padStart(2, "0");
             document.getElementById("CPUAcc").innerHTML = _CPU.Acc.toString(16).toUpperCase().padStart(2, "0");
             document.getElementById("CPUX").innerHTML = _CPU.Xreg.toString(16).toUpperCase().padStart(2, "0");
             document.getElementById("CPUY").innerHTML = _CPU.Yreg.toString(16).toUpperCase().padStart(2, "0");
@@ -250,7 +263,7 @@ module TSOS {
         /*As a program is executing, it highlights the command in red. Then, as part of the command's execution, it also tells how many
             instructions it has. It will then iterate through the table and highlight all instructions to be blue
         */
-        public static highlight(pc: number, instrucAmount?: number){
+        public static highlightMemory(pc: number, instrucAmount?: number){
             document.getElementById("mem"+pc).style.backgroundColor = "red";
             for(let i = 1; i <= instrucAmount; i++) {
                 document.getElementById("mem"+(pc+i)).style.backgroundColor = "#05aefc";

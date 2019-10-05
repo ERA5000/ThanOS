@@ -32,6 +32,7 @@ module TSOS {
             this.Yreg = 0;
             this.Zflag = 0;
             this.isExecuting = false;
+            this.hasExecutionStarted = false;
         }
 
         public cycle(): void {
@@ -121,7 +122,8 @@ module TSOS {
             }
             Utils.updateCPUDisplay();
             Utils.drawMemory();
-            Utils.highlight(pcb.PC, instrucAmount);
+            Utils.highlightMemory(pcb.PC, instrucAmount);
+            Utils.updatePCBIR(pcb);
             pcb.snapshot();
             Utils.updatePCBRow(pcb);
             if(_SingleStep) this.isExecuting = false;

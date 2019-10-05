@@ -162,7 +162,7 @@ td, th{
 
 /*Width of the table so all of the columns fit*/
 #PCBTable{
-  width: 670px;
+  width: 685px;
 }
 
 /*For some reason the PCB table/div combo is not behaving the same way as the memory table/div combo, so this kind of brute-forces it to.
@@ -170,5 +170,5 @@ td, th{
 #PCBDiv{
   max-height: 156px;
   overflow-y: scroll;
-  width: 687px;
+  width: 702px;
 }

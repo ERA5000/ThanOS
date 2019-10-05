@@ -29,6 +29,7 @@ var TSOS;
             this.Yreg = 0;
             this.Zflag = 0;
             this.isExecuting = false;
+            this.hasExecutionStarted = false;
         }
         cycle() {
             _Kernel.krnTrace('CPU cycle');
@@ -116,7 +117,8 @@ var TSOS;
             }
             TSOS.Utils.updateCPUDisplay();
             TSOS.Utils.drawMemory();
-            TSOS.Utils.highlight(pcb.PC, instrucAmount);
+            TSOS.Utils.highlightMemory(pcb.PC, instrucAmount);
+            TSOS.Utils.updatePCBIR(pcb);
             pcb.snapshot();
             TSOS.Utils.updatePCBRow(pcb);
             if (_SingleStep)
