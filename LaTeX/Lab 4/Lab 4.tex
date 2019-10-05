@@ -15,7 +15,7 @@
 % Original author: % Frits Wenneker (http://www.howtotex.com)
 % License: CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
 % Modified by Alan G. Labouseur  - alan@labouseur.com
-% Modifier further by Robert E. Liskin - robert.liskin1@marist.edu
+% Modified further by Robert E. Liskin - robert.liskin1@marist.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %----------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@
    \normalfont \normalsize 
    \textsc{CMPT 424 - Fall 2019 - Dr. Labouseur} \\[10pt] % Header stuff.
    \horrule{0.5pt} \\[0.25cm] 	% Top horizontal rule
-   \huge Lab One  \\     	    % Assignment title
+   \huge Lab Four  \\     	    % Assignment title
    \horrule{0.5pt} \\[0.25cm] 	% Bottom horizontal rule
 }
 
@@ -83,36 +83,18 @@
 %----------------------------------------------------------------------------------------
 \section{Question One}
 
-\subsection{What are the advantages and disadvantages of using the same system call interface
-for manipulating both files and devices?}
-
-A large advantage to sharing the same system call interface is the API is significantly smaller. Since the commands are shared, there will just be less of them to be concerned with. This also means that less space is required for
-storing this information.
+\subsection{What is the relationship between a guest operating system and a host operating system in a system like VMWare? What factors need to be considered in choosing the host operating system?}
 \par
-A huge problem with sharing the same system call interface is that, because all of the calls are sharing the same resources, the system can get deadlocked pretty quickly. Devices alone, whether physical or abstract, already compete with each other for important resources such as memory, so if file usage is now also added, it only crowds to plain that much more.
+Assuming VMWare refers to VMWare Workstation, this would be considered a Type 2 hypervisor. This situation is defined by the fact that what creates the virtualization is dedicated software running on the host operating system. What software like VMWare Workstation does is it allocates resources for the guest operating system to function. From the perspective of the guest OS, it is running on its own machine with dedicated hardware. In reality, however, this OS might be one of several processes that has been sandboxed by the software and given its own environment. Resources such as memory and even clocks are isolated. All of these processes sit on the Virtual Machine Manager, VMM or hypervisor. The VMM is what directly communicates with the host operating system to see what is actually going on.
+\par
+Important factors to consider when choosing a host operating system include questions regarding memory management, CPU scheduling, and disk storage. Operating systems, be it through the use of hardware, themselves, or software manage VMs differently amongst each other, and certain implementations may be significantly more optimal. As an example, some processes may demand more CPU usage than is even physically available, let alone logically. How this is managed in terms of scheduling, task completion rate, and clock offset tuning can be crucial in how well the process runs. For some processes, a certain level of accuracy can be sacrificed while other times it is imperative to be stupendously precise.
+
 
 
 %----------------------------------------------------------------------------------------
 %   end PROBLEM ONE
 %----------------------------------------------------------------------------------------
 \pagebreak
-%----------------------------------------------------------------------------------------
-%   start PROBLEM TWO
-%----------------------------------------------------------------------------------------
-\section{Question Two}
 
-\subsection{Would it be possible for the user to develop a new command interpreter using the
-system call interface provide by the operating system? How?}
-
-Theoretically, yes, a user should be able to build a new command interpreter using the system call interface provided by the operating system.
-\par
-The idea here would be to emulate (and presumably customize) certain functionality by grouping together similar system calls to replicate specific behaviors. Taken altogether, it could create a new command interpreter.
-
-
-%----------------------------------------------------------------------------------------
-%   end PROBLEM Two
-%----------------------------------------------------------------------------------------
-
-\pagebreak
 
 \end{document}
