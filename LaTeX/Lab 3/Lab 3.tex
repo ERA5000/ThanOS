@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% CMPT 424
+% CMPT xxx
 % Spring 2019
-% Lab Two
+% Lab One
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -15,7 +15,7 @@
 % Original author: % Frits Wenneker (http://www.howtotex.com)
 % License: CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
 % Modified by Alan G. Labouseur  - alan@labouseur.com
-% Modifier further by Robert E. Liskin - robert.liskin1@marist.edu
+% Modified further by Robert E. Liskin - robert.liskin1@marist.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %----------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@
    \normalfont \normalsize 
    \textsc{CMPT 424 - Fall 2019 - Dr. Labouseur} \\[10pt] % Header stuff.
    \horrule{0.5pt} \\[0.25cm] 	% Top horizontal rule
-   \huge Lab Two  \\     	    % Assignment title
+   \huge Lab Three  \\     	    % Assignment title
    \horrule{0.5pt} \\[0.25cm] 	% Bottom horizontal rule
 }
 
@@ -83,14 +83,11 @@
 %----------------------------------------------------------------------------------------
 \section{Question One}
 
-\subsection{How is your console like the ancient TTY subsystem in Unix as described in
-https://www.linusakesson.net/programming/tty/?}
+\subsection{Explain the difference between internal and external fragmentation.}
 
-My console implements some control of line editing. Currently, the OS itself manages deletion, and other, more complex behavior over what text appears on screen, but the underlying idea of "Keep apps simple" finds itself embedded in the OS doing more of the work.
+Internal and external fragmentation are mutually-exclusive consequences of how memory is allocated. Internal fragmentation occurs when statically sized memory is assigned to a program. If the program does not use all of the memory it has been allocated, that leftover space is wasted, or 'internally fragmented.' Because it is bound by the size of the allocation, nothing can be done with it. External fragmentation, on the other hand, occurs in variably sized memory allocation.
 \par
-Another similarity involves session management. If I am typing in some hex for a user program, the console itself does not have focus, or execution context, so nothing happens to it.
-\par
-Overall, operating systems have to manage many operations simultaneously, and although mine is currently under developed, it will have to do much of the processes described into for a user to interact with it and create expected behavior.
+External fragmentation occurs when, as programs are assigned just the memory they need and subsequently finish, empty holes start to appear. A program might need X amount of memory to run, and adding the empty holes together might sum to Y memory where Y > X, but because it is not contiguous, that program cannot run. To combat this issue, many operating systems have programs that will defragment memory, usually a hard drive. While we're concerned more with 'RAM,' the same principles still apply.
 
 
 %----------------------------------------------------------------------------------------
@@ -102,9 +99,15 @@ Overall, operating systems have to manage many operations simultaneously, and al
 %----------------------------------------------------------------------------------------
 \section{Question Two}
 
-\subsection{How is your console like LaTeX?}
-
-The console also shares some similarities to LaTeX. As an example, the LaTeX document is littered with markup. Instead of being concerned with how to do it, the user inputs what to do. Similarly, when typing commands into the CLI, the user does not care how the OS completes a function. Rather, the user just wants it done swiftly and successfully. Almost all of the processing is done behind the scenes. The only real control over the operation the user has, especially in the case of LaTeX, is the content itself and how it is displayed.
+\subsection{Given five (5) memory partitions of 100KB, 500KB, 200KB, 300KB, and 600KB (in that order), how would optimal, first-fit, best-fit, and worst-fit algorithms place processes of 212KB, 417KB, 112KB, and 426KB (in that order)?}
+\par
+Assuming none of these processes complete while others are being assigned memory...
+\par
+First-Fit: The 212KB would be assigned the 500KB, the 417KB would be assigned the 600KB, the 112KB would be assigned the 200KB, and the 426KB would have to wait. It happens in this order because First-Fit grants the largest hole that is available, so a memory hole might be big enough, but if it is unavailable, as what happens to the 426KB, then it has to wait.
+\par
+Best-Fit: The 212KB would be assigned the 300KB, the 417KB would be assigned the 500KB, the 112KB would be assigned the 200KB, and the 426KB would be assigned the 600KB. It happens in this order because Best-Fit actually attempts to optimize memory allocation by proactively reducing internal fragmentation. In this instance, Best-Fit is more optimal than First-Fit.
+\par
+Worst-Fit: The 212KB would be assigned the 600KB, the 417KB would be assigned the 500KB, the 112KB would be assigned the 300KB, and the 426KB would again, have to wait. It happens in the order because Worst-Fit assigns the largest first available hole, disregarding the actual program size.
 
 
 %----------------------------------------------------------------------------------------
