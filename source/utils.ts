@@ -269,5 +269,11 @@ module TSOS {
                 document.getElementById("mem"+(pc+i)).style.backgroundColor = "#05aefc";
             }
         }
+
+        public static disableSS(){
+            _SingleStep = false;
+            (<HTMLButtonElement>document.getElementById("btnSingleStep")).disabled = true;
+            (<HTMLButtonElement>document.getElementById("btnNextStep")).disabled = true;
+        }
     }
 }

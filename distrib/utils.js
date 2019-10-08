@@ -255,6 +255,11 @@ var TSOS;
                 document.getElementById("mem" + (pc + i)).style.backgroundColor = "#05aefc";
             }
         }
+        static disableSS() {
+            _SingleStep = false;
+            document.getElementById("btnSingleStep").disabled = true;
+            document.getElementById("btnNextStep").disabled = true;
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

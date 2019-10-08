@@ -376,8 +376,10 @@ var TSOS;
                     let pcb = new TSOS.ProcessControlBlock();
                     pcb.segment = _MemoryManager.getAvailableMemory(availableMemory);
                     if (pcb.segment > 0) { //For now it only writes to memory segment 0 (the first segment) for iProject2
-                        _StdOut.putText("Segmentation Fault. Only segment 0 for is available iProject2. Execution of any running program will complete.");
+                        _StdOut.putText("Segmentation Fault. Only segment 0 is available for iProject2. Execution has stopped.");
                         _Kernel.krnTrapError("Segmentation Fault. Only segment 0 for iProject2.");
+                        _CPU.isExecuting = false;
+                        TSOS.Utils.disableSS();
                         _HasCrashed = true;
                         return;
                     }
