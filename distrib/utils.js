@@ -253,12 +253,21 @@ var TSOS;
             document.getElementById("MemoryTable").innerHTML = table;
         }
         /*As a program is executing, it highlights the command in red. Then, as part of the command's execution, it also tells how many
-            instructions it has. It will then iterate through the table and highlight all instructions to be blue
+            instructions it has. It will then iterate through the table and highlight all instructions to be blue.
+        To now account for each segment, I created an offset of (segment * 255 + segment). This ensures that it starts highlighting at the correct cell.
         */
-        static highlightMemory(pc, instrucAmount) {
-            document.getElementById("mem" + pc).style.backgroundColor = "red";
-            for (let i = 1; i <= instrucAmount; i++) {
-                document.getElementById("mem" + (pc + i)).style.backgroundColor = "#05aefc";
+        static highlightMemory(segment, pc, instrucAmount) {
+            if (segment == 0) {
+                document.getElementById("mem" + (pc + (255 * segment))).style.backgroundColor = "red";
+                for (let i = 1; i <= instrucAmount; i++) {
+                    document.getElementById("mem" + ((pc + (255 * segment)) + i)).style.backgroundColor = "#05aefc";
+                }
+            }
+            else {
+                document.getElementById("mem" + (pc + ((255 * segment) + segment))).style.backgroundColor = "red";
+                for (let i = 1; i <= instrucAmount; i++) {
+                    document.getElementById("mem" + ((pc + ((255 * segment) + segment)) + i)).style.backgroundColor = "#05aefc";
+                }
             }
         }
         static disableSS() {

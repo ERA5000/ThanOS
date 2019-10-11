@@ -35,6 +35,7 @@ var TSOS;
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
+            console.log("What is the current PCB's segment? " + _CurrentPCB.segment);
             this.execute(_CurrentPCB);
         }
         execute(pcb) {
@@ -117,7 +118,7 @@ var TSOS;
             }
             TSOS.Utils.updateCPUDisplay();
             TSOS.Utils.drawMemory();
-            TSOS.Utils.highlightMemory(pcb.PC, instrucAmount);
+            TSOS.Utils.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
             TSOS.Utils.updatePCBIR(pcb);
             pcb.snapshot();
             TSOS.Utils.updatePCBRow(pcb);

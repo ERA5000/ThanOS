@@ -40,6 +40,7 @@ module TSOS {
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
 
+            console.log("What is the current PCB's segment? " + _CurrentPCB.segment);
             this.execute(_CurrentPCB);
         }
 
@@ -122,7 +123,7 @@ module TSOS {
             }
             Utils.updateCPUDisplay();
             Utils.drawMemory();
-            Utils.highlightMemory(pcb.PC, instrucAmount);
+            Utils.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
             Utils.updatePCBIR(pcb);
             pcb.snapshot();
             Utils.updatePCBRow(pcb);

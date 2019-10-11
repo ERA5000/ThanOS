@@ -499,6 +499,7 @@ module TSOS {
                         if(_CurrentPCB.state === "Terminated") _StdOut.putText("Execution of that program has since completed.");
                         else if(_CurrentPCB.state === "Running") _StdOut.putText("The specified program is currently running.");
                         else {
+                            _CurrentPCB.reinstate();
                             _CPU.isExecuting = true;
                             _StdOut.putText(`Execution of Program ${_CurrentPCB.pid} has begun.`);
                         }
