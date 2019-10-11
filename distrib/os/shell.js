@@ -380,8 +380,7 @@ var TSOS;
                 }
                 else {
                     let overritten = false;
-                    let pcb = new TSOS.ProcessControlBlock();
-                    pcb.segment = _MemoryManager.getAvailableMemory();
+                    let pcb = new TSOS.ProcessControlBlock(_MemoryManager.getAvailableMemory());
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     if (pcb.segment > 2) {
                         _StdOut.putText("Segmentation Fault. Only memory is available for iProject3. Execution has stopped.");

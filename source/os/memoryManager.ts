@@ -2,6 +2,9 @@ module TSOS {
 
     export class MemoryManager{
 
+        public range1 = [0, 255];
+        public range2 = [256, 511];
+        public range3 = [512, 767];
 
         constructor(){
         }
@@ -35,11 +38,20 @@ module TSOS {
             else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
         }
 
+        //Returns status of the next available memory segment.
         public getMemoryStatus(): boolean {
             if(_Memory.seg1Avail) return _Memory.seg1Avail;
             else if (_Memory.seg2Avail) return _Memory.seg2Avail;
             else if (_Memory.seg3Avail) return _Memory.seg3Avail;
-            else _Kernel.krnTrace("Error! No available memory.");//krnTrapError("Segmentation Fault. Illegal Access.");
+            else _Kernel.krnTrace("Error! No available memory.");
+        }
+
+        //Translate a literal address (0-767) to an actual segment (0, 1, 2)
+        public translate(addressLiteral: number): number {
+            if(addressLiteral >= 0 && addressLiteral <= 255) return 0;
+            else if(addressLiteral >= 256 && addressLiteral <= 511) return 1;
+            else if(addressLiteral >= 512 && addressLiteral <= 767) return 2;
+            else return -1;
         }
     }
 }
