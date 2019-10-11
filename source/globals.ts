@@ -12,7 +12,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "ThanOS";
-const APP_VERSION: string = "2.1.0";
+const APP_VERSION: string = "2.1.2";
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds), so 1000 = 1 second.
 
@@ -53,6 +53,9 @@ var _StdOut: TSOS.Console = null;
 // UI
 var _Console: TSOS.Console;
 var _OsShell: TSOS.Shell;
+
+//Scheduling
+var _Quantum: number = 6;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;

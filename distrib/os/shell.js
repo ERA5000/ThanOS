@@ -44,6 +44,9 @@ var TSOS;
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
+            // quantum <number>
+            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<integer> - Set the quantum for RR scheduling.");
+            this.commandList[this.commandList.length] = sc;
             // rot13 <string>
             sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
@@ -276,6 +279,10 @@ var TSOS;
                     case "run":
                         _StdOut.putText("Executes a user-input program from the load command specified by the PID.");
                         break;
+                    case "quantum":
+                        _StdOut.putText("Specifies how many cycles a program receives in the Round Robin Scheduling scheme."
+                            + " Usable Flags: 'v' and 'd'. v: Display current value. d: Reset to default (6).");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -435,6 +442,27 @@ var TSOS;
             }
             else
                 _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
+        }
+        shellQuantum(args) {
+            let valid = /^[0-9.]+$/gm;
+            if (args.length > 0) {
+                if (args[0] == 'd') {
+                    _StdOut.putText("The quantum has been reset to its default value of 6.");
+                    _Quantum = 6;
+                    return;
+                }
+                else if (args[0] == 'v')
+                    _StdOut.putText(`The current quantum is ${_Quantum}.`);
+                else if (!valid.test(args[0]))
+                    _StdOut.putText("Invalid argument. Quanta can only be integers.");
+                else if (parseFloat(args[0]) % 1 != 0)
+                    _StdOut.putText("Input has been rounded. The new quantum is " + Math.round(parseFloat(args[0])) + ".");
+                else
+                    _StdOut.putText("The new quantum is " + Math.round(parseInt(args[0])));
+                _Quantum = Math.round(parseFloat(args[0]));
+            }
+            else
+                _StdOut.putText("Usage: quantum <integer>. Specify an appropriate quantum.");
         }
     }
     TSOS.Shell = Shell;

@@ -112,6 +112,11 @@ var TSOS;
         The function was a lot of fun to build, and I am so glad it all came together.
         Also, I loaded the audio here, as opposed to being an HTML element, because I just could not get those to work.
             As an object, I know they will function properly.
+
+        NEW: 10/11/19
+        We now have an event listener to prevent right-clicking when the video is playing so it cannot be paused. There are definitely ways around this,
+            but now at least I can say I tried...
+        Pausing the video otherwise does not (thankfully) blow up everything, but it does diminish the energy from its greatest effect.
         */
         static snap() {
             _Kernel.krnDisableInterrupts();
@@ -119,6 +124,7 @@ var TSOS;
             overlay.style.display = "initial";
             var video = document.getElementById("video");
             video.style.display = "initial";
+            video.addEventListener("contextmenu", event => event.preventDefault()); //Prevents right-clicking to pause the video
             video.play();
             var dimTimerID = setInterval(this.dimDisplay, 100, overlay, video);
             setTimeout(this.pauseVideo, 11500, video, dimTimerID);
