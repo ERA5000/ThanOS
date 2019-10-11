@@ -374,24 +374,23 @@ var TSOS;
                 else {
                     let overritten = false;
                     let pcb = new TSOS.ProcessControlBlock();
-                    pcb.segment = _MemoryManager.getAvailableMemory(availableMemory);
-                    if (pcb.segment > 0) { //For now it only writes to memory segment 0 (the first segment) for iProject2
-                        _StdOut.putText("Segmentation Fault. Only segment 0 is available for iProject2. Execution has stopped.");
-                        _Kernel.krnTrapError("Segmentation Fault. Only segment 0 for iProject2.");
+                    pcb.segment = _MemoryManager.getAvailableMemory();
+                    _MemoryManager.setMemoryStatus(pcb.segment);
+                    if (pcb.segment > 2) {
+                        _StdOut.putText("Segmentation Fault. Only memory is available for iProject3. Execution has stopped.");
+                        _Kernel.krnTrapError("Segmentation Fault. No more available memory.");
                         _CPU.isExecuting = false;
                         TSOS.Utils.disableSS();
                         _HasCrashed = true;
                         return;
                     }
-                    pcb.location = "Memory"; //Will be set more dynamically when more segments/HDD come online
-                    //_MemoryManager.setMemoryStatus(pcb.segment); - Ignored to always write to memory segment 0
-                    _MemoryAccessor.init();
+                    pcb.location = "Memory"; //Will be set more dynamically when HDD comes online
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
                     _CurrentPCB = pcb;
                     //Make an attempt to clean old/unused PCBs
                     if (_PCBManager.length > 0) {
                         for (let i = 0; i < _PCBManager.length; i++) {
-                            if (_PCBManager[i].state === "Resident" || _PCBManager[i].state === "Terminated") {
+                            if (_PCBManager[i].state === "Terminated") { //Might be able to overrite 'Ready' programs too -- check back later.
                                 _PCBManager[i].state = "Overwritten";
                                 TSOS.Utils.updatePCBRow(_PCBManager[i]);
                                 _PCBManager[i] = _CurrentPCB;
@@ -414,7 +413,7 @@ var TSOS;
         shellRun(args) {
             if (args.length > 0) {
                 for (let i = 0; i < _PCBManager.length; i++) {
-                    if (parseInt(args[i]) == _PCBManager[i].pid) {
+                    if (parseInt(args[0]) == _PCBManager[i].pid) {
                         _CurrentPCB = _PCBManager[i];
                         if (_CurrentPCB.state === "Terminated")
                             _StdOut.putText("Execution of that program has since completed.");
@@ -422,7 +421,6 @@ var TSOS;
                             _StdOut.putText("The specified program is currently running.");
                         else {
                             _CPU.isExecuting = true;
-                            _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                             _StdOut.putText(`Execution of Program ${_CurrentPCB.pid} has begun.`);
                         }
                         return;
@@ -432,8 +430,6 @@ var TSOS;
                     _StdOut.putText("It is not possible to have negative PIDs. Shutting down for OS' safety.");
                     _HasCrashed = true;
                 }
-                else if (parseInt(args[0]) < _PID)
-                    _StdOut.putText("Execution of that program has since completed.");
                 else
                     _StdOut.putText(`No Program with PID ${args[0]} exists.`);
             }

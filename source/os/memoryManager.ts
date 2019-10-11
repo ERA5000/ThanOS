@@ -29,9 +29,9 @@ module TSOS {
 
         //Sets memory status. When in use or initially written to, the memory becomes unavailable
         public setMemoryStatus(segment: number): void {
-            if(segment === 0) _Memory.seg1Avail = !_Memory.seg1Avail;
-            else if (segment === 1) _Memory.seg2Avail = !_Memory.seg2Avail;
-            else if (segment === 2) _Memory.seg3Avail = !_Memory.seg3Avail;
+            if(segment == 0) _Memory.seg1Avail = !_Memory.seg1Avail;
+            else if (segment == 1) _Memory.seg2Avail = !_Memory.seg2Avail;
+            else if (segment == 2) _Memory.seg3Avail = !_Memory.seg3Avail;
             else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
         }
 
