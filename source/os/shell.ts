@@ -75,6 +75,12 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            // ps
+            sc = new ShellCommand(this.shellPS,
+                                  "ps",
+                                "- Lists the PID and State of all available processes.");
+            this.commandList[this.commandList.length] = sc;
+
             // quantum <number>
             sc = new ShellCommand(this.shellQuantum,
                                   "quantum",
@@ -132,7 +138,7 @@ module TSOS {
             //whereami
             sc = new ShellCommand(this.shellWhereAmI,
                                     "whereami",
-                                    "- Displays your current location.");
+                                    "- Let me guess, your home?");
             this.commandList[this.commandList.length] = sc;
             
             // ps  - list the running processes and their IDs
@@ -372,6 +378,10 @@ module TSOS {
                     case "runall":
                         _StdOut.putText("Runs all programs in memory.");
                         break;
+                    case "ps":
+                        _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Ready' or 'Resident'" + 
+                            " are considered available.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -428,7 +438,7 @@ module TSOS {
         }
 
         public shellWhereAmI(args: string[]){
-            _StdOut.putText("Titan");
+            _StdOut.putText("It was. And it was beautiful. Titan was like most planets: too many mouths, not enough to go around.");
         }
 
         public shellSnap(args: string[]){
@@ -601,6 +611,22 @@ module TSOS {
                 }
                 _CPU.isExecuting = true;
                 _StdOut.putText("Now executing all programs in memory.");
+            }
+        }
+
+        public shellPS(){
+            if(_ResidentPCB.length == 0){
+                _StdOut.putText("There are currently no processes to list.");
+                return;
+            }
+            else{
+                _StdOut.putText("List of current processes:");
+                _StdOut.advanceLine();
+                for(let i = 0; i < _ResidentPCB.length; i++){
+                    _StdOut.putText(`PID: ${_ResidentPCB[i].pid} | State: ${_ResidentPCB[i].state}`);
+                    _StdOut.advanceLine();
+                }
+                _StdOut.putText("**************************");
             }
         }
     }

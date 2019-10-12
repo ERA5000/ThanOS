@@ -47,6 +47,9 @@ var TSOS;
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
+            // ps
+            sc = new TSOS.ShellCommand(this.shellPS, "ps", "- Lists the PID and State of all available processes.");
+            this.commandList[this.commandList.length] = sc;
             // quantum <number>
             sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<flag> or <integer> - Set the quantum for RR scheduling.");
             this.commandList[this.commandList.length] = sc;
@@ -75,7 +78,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version of the OS.");
             this.commandList[this.commandList.length] = sc;
             //whereami
-            sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays your current location.");
+            sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Let me guess, your home?");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -295,6 +298,10 @@ var TSOS;
                     case "runall":
                         _StdOut.putText("Runs all programs in memory.");
                         break;
+                    case "ps":
+                        _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Ready' or 'Resident'" +
+                            " are considered available.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -351,7 +358,7 @@ var TSOS;
             _StdOut.putText(temp.getTime() + " aka " + temp.toLocaleDateString("en-US"));
         }
         shellWhereAmI(args) {
-            _StdOut.putText("Titan");
+            _StdOut.putText("It was. And it was beautiful. Titan was like most planets: too many mouths, not enough to go around.");
         }
         shellSnap(args) {
             //Requires Utils.snap() for optimal functionality
@@ -520,6 +527,21 @@ var TSOS;
                 }
                 _CPU.isExecuting = true;
                 _StdOut.putText("Now executing all programs in memory.");
+            }
+        }
+        shellPS() {
+            if (_ResidentPCB.length == 0) {
+                _StdOut.putText("There are currently no processes to list.");
+                return;
+            }
+            else {
+                _StdOut.putText("List of current processes:");
+                _StdOut.advanceLine();
+                for (let i = 0; i < _ResidentPCB.length; i++) {
+                    _StdOut.putText(`PID: ${_ResidentPCB[i].pid} | State: ${_ResidentPCB[i].state}`);
+                    _StdOut.advanceLine();
+                }
+                _StdOut.putText("**************************");
             }
         }
     }
