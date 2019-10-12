@@ -56,6 +56,9 @@ var TSOS;
             // run <pid>
             sc = new TSOS.ShellCommand(this.shellRun, "run", "<pid> - Executes a program in memory.");
             this.commandList[this.commandList.length] = sc;
+            // runall
+            sc = new TSOS.ShellCommand(this.shellRunAll, "runall", "- Runs all programs in memory.");
+            this.commandList[this.commandList.length] = sc;
             // shutdown
             sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
@@ -289,6 +292,9 @@ var TSOS;
                     case "clearmem":
                         _StdOut.putText("Clears all of memory, resetting all values to 0.");
                         break;
+                    case "runall":
+                        _StdOut.putText("Runs all programs in memory.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -500,6 +506,21 @@ var TSOS;
             _CPU.init();
             TSOS.Utils.updateCPUDisplay();
             _StdOut.putText("Memory successfully cleared.");
+        }
+        shellRunAll() {
+            if (_ResidentPCB.length == 0) {
+                _StdOut.putText("There are currently no processes to run.");
+                return;
+            }
+            else {
+                for (let i = 0; i < _ResidentPCB.length; i++) {
+                    if (_ResidentPCB[i].state = "Resident") {
+                        _ReadyPCB[_ReadyPCB.length] = _ResidentPCB[i];
+                    }
+                }
+                _CPU.isExecuting = true;
+                _StdOut.putText("Now executing all programs in memory.");
+            }
         }
     }
     TSOS.Shell = Shell;
