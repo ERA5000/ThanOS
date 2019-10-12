@@ -1,5 +1,9 @@
 var TSOS;
 (function (TSOS) {
+    /*I was really conflicted in writing some of these methods since they effectively do the same thing, just in (so many) different ways.
+        However, I have found that they all seem to serve different purposes depending on context. For now, they will all stay, but I did refactor
+        a few just so it is easier to determine what they are doing since it was getting confusing (which means I am doing a bad job).
+    */
     class MemoryManager {
         constructor() {
             this.range1 = [0, 255];
@@ -7,7 +11,7 @@ var TSOS;
             this.range3 = [512, 767];
         }
         //Returns which first segment is available
-        getAvailableMemory() {
+        getAvailableSegmentByID() {
             if (_Memory.seg1Avail)
                 return 0;
             else if (_Memory.seg2Avail)
@@ -17,8 +21,8 @@ var TSOS;
             else
                 return -1;
         }
-        //Creates an available segment
-        setAvailableMemory(segment) {
+        //If a segment is specified, it will erase it. If not, all of memory will be erased.
+        setAvailableSegmentByID(segment) {
             if (segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }
@@ -36,7 +40,7 @@ var TSOS;
             }
             return;
         }
-        //Sets memory status. When in use or initially written to, the memory becomes unavailable
+        //Flips memory status. When in use or initially written to, the memory becomes unavailable
         setMemoryStatus(segment) {
             if (segment < 0 || segment > 2)
                 _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
@@ -52,7 +56,7 @@ var TSOS;
                 _Memory.seg3Avail = !_Memory.seg3Avail;
             }
         }
-        //Returns status of the next available memory segment.
+        //Returns status of the next available memory segment, if there is one.
         getMemoryStatus() {
             if (_Memory.seg1Avail)
                 return _Memory.seg1Avail;
@@ -63,7 +67,7 @@ var TSOS;
             else
                 _Kernel.krnTrace("Error! No available memory.");
         }
-        //Translate a literal address (0-767) to an actual segment (0, 1, 2)
+        //Translates a literal address (0-767) to an actual segment (0, 1, 2)
         translate(addressLiteral) {
             if (addressLiteral >= 0 && addressLiteral <= 255)
                 return 0;
@@ -74,11 +78,13 @@ var TSOS;
             else
                 return -1;
         }
+        //Makes all memory available for use.
         allAvailable() {
             _Memory.seg1Avail = true;
             _Memory.seg2Avail = true;
             _Memory.seg3Avail = true;
         }
+        //Makes a specified segment available.
         setSegmentTrue(segment) {
             if (segment == 0)
                 _Memory.seg1Avail = true;

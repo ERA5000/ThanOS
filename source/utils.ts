@@ -186,15 +186,15 @@ module TSOS {
 
         //Adds a new PCB row to the display whenever a new process is created
         //The blank row of '00' represents the IR table cell. Read the comment for 'updatePCIR()' on why it is this way.
-        public static addPCBRow() {
-            if(_CurrentPCB === null) return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
+        public static addPCBRow(pcb: ProcessControlBlock) {
+            if(pcb === null) return; //Appropriate action needs to be defined -- should never actually happen though... (famous last words)
             else {
-                let newRow = `<tr id='pcb${_CurrentPCB.pid}'> <td>${_CurrentPCB.pid}</td> <td>${_CurrentPCB.priority}</td>
-                <td>${_CurrentPCB.state}</td> <td>${_CurrentPCB.PC}</td> 
+                let newRow = `<tr id='pcb${pcb.pid}'> <td>${pcb.pid}</td> <td>${pcb.priority}</td>
+                <td>${pcb.state}</td> <td>${pcb.PC}</td> 
                 <td>00</td>
-                <td>${_CurrentPCB.Acc}</td> <td>${_CurrentPCB.Xreg}</td>
-                <td>${_CurrentPCB.Yreg}</td> <td>${_CurrentPCB.Zflag}</td>
-                <td>${_CurrentPCB.location}</td></tr>`;
+                <td>${pcb.Acc}</td> <td>${pcb.Xreg}</td>
+                <td>${pcb.Yreg}</td> <td>${pcb.Zflag}</td>
+                <td>${pcb.location}</td></tr>`;
                 document.getElementById("PCBTable").innerHTML += newRow;
             }
         }

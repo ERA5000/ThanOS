@@ -1,5 +1,10 @@
 module TSOS {
 
+    /*I was really conflicted in writing some of these methods since they effectively do the same thing, just in (so many) different ways.
+        However, I have found that they all seem to serve different purposes depending on context. For now, they will all stay, but I did refactor
+        a few just so it is easier to determine what they are doing since it was getting confusing (which means I am doing a bad job).
+    */
+
     export class MemoryManager{
 
         public range1 = [0, 255];
@@ -10,15 +15,15 @@ module TSOS {
         }
 
         //Returns which first segment is available
-        public getAvailableMemory(): number {
+        public getAvailableSegmentByID(): number {
             if(_Memory.seg1Avail) return 0;
             else if (_Memory.seg2Avail) return 1;
             else if (_Memory.seg3Avail) return 2;
             else return -1;
         }
 
-        //Creates an available segment
-        public setAvailableMemory(segment?: number): void {
+        //If a segment is specified, it will erase it. If not, all of memory will be erased.
+        public setAvailableSegmentByID(segment?: number): void {
             if(segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }
@@ -37,7 +42,7 @@ module TSOS {
             return;
         }
 
-        //Sets memory status. When in use or initially written to, the memory becomes unavailable
+        //Flips memory status. When in use or initially written to, the memory becomes unavailable
         public setMemoryStatus(segment?: number): void {
             if(segment < 0 || segment > 2) _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
             else if(segment == 0) _Memory.seg1Avail = !_Memory.seg1Avail;
@@ -50,7 +55,7 @@ module TSOS {
             }
         }
 
-        //Returns status of the next available memory segment.
+        //Returns status of the next available memory segment, if there is one.
         public getMemoryStatus(): boolean {
             if(_Memory.seg1Avail) return _Memory.seg1Avail;
             else if (_Memory.seg2Avail) return _Memory.seg2Avail;
@@ -58,7 +63,7 @@ module TSOS {
             else _Kernel.krnTrace("Error! No available memory.");
         }
 
-        //Translate a literal address (0-767) to an actual segment (0, 1, 2)
+        //Translates a literal address (0-767) to an actual segment (0, 1, 2)
         public translate(addressLiteral: number): number {
             if(addressLiteral >= 0 && addressLiteral <= 255) return 0;
             else if(addressLiteral >= 256 && addressLiteral <= 511) return 1;
@@ -66,12 +71,14 @@ module TSOS {
             else return -1;
         }
 
+        //Makes all memory available for use.
         public allAvailable(){
             _Memory.seg1Avail = true;
             _Memory.seg2Avail = true;
             _Memory.seg3Avail = true;
         }
 
+        //Makes a specified segment available.
         public setSegmentTrue(segment: number){
             if(segment == 0) _Memory.seg1Avail = true;
             else if (segment == 1) _Memory.seg2Avail = true;

@@ -405,14 +405,13 @@ var TSOS;
         shellLoad(args) {
             if (TSOS.Utils.verifyInput()) {
                 let availableMemory = _MemoryManager.getMemoryStatus();
-                console.log("What is available?" + availableMemory);
                 if (!availableMemory) {
                     _Kernel.krnTrapError("Segmentation Fault. No available memory.");
                     _HasCrashed = true;
                 }
                 else {
                     let overritten = false;
-                    let pcb = new TSOS.ProcessControlBlock(_MemoryManager.getAvailableMemory());
+                    let pcb = new TSOS.ProcessControlBlock(_MemoryManager.getAvailableSegmentByID());
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     if (pcb.segment > 2) {
                         _StdOut.putText("Segmentation Fault. Only memory is available for iProject3. Execution has stopped.");
@@ -424,14 +423,13 @@ var TSOS;
                     }
                     pcb.location = "Memory";
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
-                    _CurrentPCB = pcb;
                     //Make an attempt to clean old/unused PCBs
                     if (_ResidentPCB.length > 0) {
                         for (let i = 0; i < _ResidentPCB.length; i++) {
                             if (_ResidentPCB[i].state === "Terminated") { //Might be able to overrite 'Ready' programs too -- check back later.
                                 _ResidentPCB[i].state = "Overwritten";
                                 TSOS.Utils.updatePCBRow(_ResidentPCB[i]);
-                                _ResidentPCB[i] = _CurrentPCB;
+                                _ResidentPCB[i] = pcb;
                                 overritten = true;
                                 break;
                             }
@@ -441,9 +439,8 @@ var TSOS;
                         _ResidentPCB[_ResidentPCB.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     TSOS.Utils.drawMemory();
-                    TSOS.Utils.addPCBRow();
-                    TSOS.Utils.updatePCBRow(_CurrentPCB);
-                    _CurrentPCB.reinstate();
+                    TSOS.Utils.addPCBRow(pcb);
+                    TSOS.Utils.updatePCBRow(pcb);
                 }
             }
         }
@@ -520,7 +517,7 @@ var TSOS;
                 temp.state = "Terminated";
                 TSOS.Utils.updatePCBRow(temp);
             }
-            _MemoryManager.setAvailableMemory();
+            _MemoryManager.setAvailableSegmentByID();
             _MemoryManager.allAvailable();
             TSOS.Utils.drawMemory();
             _ReadyPCB = [];
@@ -597,7 +594,7 @@ var TSOS;
                     _ReadyPCB[i].state = "Terminated";
                     TSOS.Utils.updatePCBRow(_ReadyPCB[i]);
                     _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
-                    _MemoryManager.setAvailableMemory(_ReadyPCB[i].segment);
+                    _MemoryManager.setAvailableSegmentByID(_ReadyPCB[i].segment);
                 }
                 _CPU.isExecuting = false;
                 _CPU.init();
