@@ -25,6 +25,10 @@ module TSOS{
         }
 
         public PCBSwap(){
+            if(_CurrentPCB == null) {
+                _CurrentPCB = _ReadyPCB[this.pointer];
+                return;
+            }
             _CurrentPCB.snapshot();
             if(_CurrentPCB.state == "Running") _CurrentPCB.state = "Ready";
             Utils.updatePCBRow(_CurrentPCB);

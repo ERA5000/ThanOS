@@ -57,6 +57,11 @@ module TSOS {
                                   "- Displays the list of available commands.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellKill,
+                                 "kill",
+                                 "<pid> - Kills the specified process.");
+            this.commandList[this.commandList.length] = sc;
+
             //load
             sc = new ShellCommand(this.shellLoad,
                                     "load",
@@ -381,6 +386,8 @@ module TSOS {
                     case "ps":
                         _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Ready' or 'Resident'" + 
                             " are considered available.");
+                    case "kill":
+                        _StdOut.putText("Terminates execution of the specified program.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -627,6 +634,33 @@ module TSOS {
                     _StdOut.advanceLine();
                 }
                 _StdOut.putText("**************************");
+            }
+        }
+
+        public shellKill(args: string){
+            if(_ReadyPCB.length == 0){
+                _StdOut.putText("There are currently no processes to kill.");
+                return;
+            }
+            else{
+                let found = false;
+                for(let i = 0; i < _ReadyPCB.length; i++) {
+                    if(_ReadyPCB[i].pid == parseInt(args[0])) {
+                        found = true;
+                        _StdOut.putText(`Found process with PID ${_ReadyPCB[i].pid}.`);
+                        _ReadyPCB[i].state = "Terminated";
+                        Utils.updatePCBRow(_ReadyPCB[i]);
+                        _StdOut.advanceLine();
+                        _StdOut.putText(`Process with PID ${_ReadyPCB[i].pid} has been killed.`);
+                        _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
+                        _ReadyPCB.splice(i, 1);
+                        _CurrentPCB = null;
+                        let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+                        _KernelInterruptQueue.enqueue(interrupt);
+                        break;
+                    }
+                }
+                if(!found) _StdOut.putText(`There are no know processes with PID ${args[0]}.`);
             }
         }
     }

@@ -71,5 +71,12 @@ module TSOS {
             _Memory.seg2Avail = true;
             _Memory.seg3Avail = true;
         }
+
+        public setSegmentTrue(segment: number){
+            if(segment == 0) _Memory.seg1Avail = true;
+            else if (segment == 1) _Memory.seg2Avail = true;
+            else if (segment == 2) _Memory.seg3Avail = true;
+            else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+        }
     }
 }
