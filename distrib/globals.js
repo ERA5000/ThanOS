@@ -16,6 +16,7 @@ const CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds), so 1000 = 1 sec
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ = 1;
+const SOFTWARE_IRQ = 2;
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
@@ -42,7 +43,10 @@ var _StdOut = null;
 var _Console;
 var _OsShell;
 //Scheduling
+var _Scheduler;
 var _Quantum = 6;
+var _ReadyPCB = [];
+var _ResidentPCB = [];
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
 // Global Device Driver Objects - page 12

@@ -40,7 +40,6 @@ module TSOS {
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
 
-            console.log("What is the current PCB's segment? " + _CurrentPCB.segment);
             this.execute(_CurrentPCB);
         }
 
@@ -89,14 +88,19 @@ module TSOS {
                     this.PC++;
                     break;
                 case "00":
-                    this.isExecuting = false;
+                    if(_ReadyPCB.length == 0){
+                        this.isExecuting = false;
+                        this.hasExecutionStarted = false;
+                        return;
+                    }
                     _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
                     pcb.state = "Terminated";
-                    this.hasExecutionStarted = false;
+                    var finished = true;
                     if(this.PC >= 255) {
                         Utils.updateCPUDisplay();
                         Utils.drawMemory();
                         Utils.updatePCBRow(pcb);
+                        _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
                         return;
                     }
                     break;
@@ -127,6 +131,8 @@ module TSOS {
             Utils.updatePCBIR(pcb);
             pcb.snapshot();
             Utils.updatePCBRow(pcb);
+            if(finished) _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
+            console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
             if(_SingleStep) this.isExecuting = false;
         }
 

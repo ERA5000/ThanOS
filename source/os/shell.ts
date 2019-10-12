@@ -500,6 +500,7 @@ module TSOS {
                         else if(_CurrentPCB.state === "Running") _StdOut.putText("The specified program is currently running.");
                         else {
                             _CurrentPCB.reinstate();
+                            _ReadyPCB[_ReadyPCB.length] = _CurrentPCB;
                             _CPU.isExecuting = true;
                             _StdOut.putText(`Execution of Program ${_CurrentPCB.pid} has begun.`);
                         }
