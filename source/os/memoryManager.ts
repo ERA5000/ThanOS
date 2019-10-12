@@ -18,24 +18,36 @@ module TSOS {
         }
 
         //Creates an available segment
-        public setAvailableMemory(segment: number): void {
+        public setAvailableMemory(segment?: number): void {
             if(segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }
-            else {
+            else if(segment){
                 for(let i = 0; i < 256; i++) {
                     _Memory.memoryContainer[segment][i] = "00";
+                }
+            }
+            else {
+                for(let i = 0; i < 3; i++){
+                    for(let j = 0; j < 256; j++){
+                        _Memory.memoryContainer[i][j] = "00";
+                    }
                 }
             }
             return;
         }
 
         //Sets memory status. When in use or initially written to, the memory becomes unavailable
-        public setMemoryStatus(segment: number): void {
-            if(segment == 0) _Memory.seg1Avail = !_Memory.seg1Avail;
+        public setMemoryStatus(segment?: number): void {
+            if(segment < 0 || segment > 2) _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+            else if(segment == 0) _Memory.seg1Avail = !_Memory.seg1Avail;
             else if (segment == 1) _Memory.seg2Avail = !_Memory.seg2Avail;
             else if (segment == 2) _Memory.seg3Avail = !_Memory.seg3Avail;
-            else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+            else {
+                _Memory.seg1Avail = !_Memory.seg1Avail;
+                _Memory.seg2Avail = !_Memory.seg2Avail;
+                _Memory.seg3Avail = !_Memory.seg3Avail;
+            }
         }
 
         //Returns status of the next available memory segment.
@@ -52,6 +64,12 @@ module TSOS {
             else if(addressLiteral >= 256 && addressLiteral <= 511) return 1;
             else if(addressLiteral >= 512 && addressLiteral <= 767) return 2;
             else return -1;
+        }
+
+        public allAvailable(){
+            _Memory.seg1Avail = true;
+            _Memory.seg2Avail = true;
+            _Memory.seg3Avail = true;
         }
     }
 }

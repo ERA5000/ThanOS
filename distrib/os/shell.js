@@ -26,6 +26,9 @@ var TSOS;
             // cls
             sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
+            // clearMem
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all of memory.");
+            this.commandList[this.commandList.length] = sc;
             //crash
             sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
@@ -283,6 +286,9 @@ var TSOS;
                         _StdOut.putText("Specifies how many cycles a program receives in the Round Robin Scheduling scheme."
                             + " Usable Flags: 'v' and 'd'. v: Display current value. d: Reset to default (6).");
                         break;
+                    case "clearmem":
+                        _StdOut.putText("Clears all of memory, resetting all values to 0.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -374,6 +380,7 @@ var TSOS;
         shellLoad(args) {
             if (TSOS.Utils.verifyInput()) {
                 let availableMemory = _MemoryManager.getMemoryStatus();
+                console.log("What is available?" + availableMemory);
                 if (!availableMemory) {
                     _Kernel.krnTrapError("Segmentation Fault. No available memory.");
                     _HasCrashed = true;
@@ -390,23 +397,23 @@ var TSOS;
                         _HasCrashed = true;
                         return;
                     }
-                    pcb.location = "Memory"; //Will be set more dynamically when HDD comes online
+                    pcb.location = "Memory";
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
                     _CurrentPCB = pcb;
                     //Make an attempt to clean old/unused PCBs
-                    if (_PCBManager.length > 0) {
-                        for (let i = 0; i < _PCBManager.length; i++) {
-                            if (_PCBManager[i].state === "Terminated") { //Might be able to overrite 'Ready' programs too -- check back later.
-                                _PCBManager[i].state = "Overwritten";
-                                TSOS.Utils.updatePCBRow(_PCBManager[i]);
-                                _PCBManager[i] = _CurrentPCB;
+                    if (_ResidentPCB.length > 0) {
+                        for (let i = 0; i < _ResidentPCB.length; i++) {
+                            if (_ResidentPCB[i].state === "Terminated") { //Might be able to overrite 'Ready' programs too -- check back later.
+                                _ResidentPCB[i].state = "Overwritten";
+                                TSOS.Utils.updatePCBRow(_ResidentPCB[i]);
+                                _ResidentPCB[i] = _CurrentPCB;
                                 overritten = true;
                                 break;
                             }
                         }
                     }
                     if (!overritten)
-                        _PCBManager[_PCBManager.length] = pcb;
+                        _ResidentPCB[_ResidentPCB.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     TSOS.Utils.drawMemory();
                     TSOS.Utils.addPCBRow();
@@ -416,11 +423,13 @@ var TSOS;
             }
         }
         //Runs a program stored in memory when given a corresponding PID
+        //Current bug - If a program is run, and single step is activated, and then another program is run, when the RR goes to that second program,
+        //it'll skip the first instruction
         shellRun(args) {
             if (args.length > 0) {
-                for (let i = 0; i < _PCBManager.length; i++) {
-                    if (parseInt(args[0]) == _PCBManager[i].pid) {
-                        _CurrentPCB = _PCBManager[i];
+                for (let i = 0; i < _ResidentPCB.length; i++) {
+                    if (parseInt(args[0]) == _ResidentPCB[i].pid) {
+                        _CurrentPCB = _ResidentPCB[i];
                         if (_CurrentPCB.state === "Terminated")
                             _StdOut.putText("Execution of that program has since completed.");
                         else if (_CurrentPCB.state === "Running")
@@ -444,6 +453,7 @@ var TSOS;
             else
                 _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
         }
+        //Specifies a quantum for the Round Robin Scheduling scheme
         shellQuantum(args) {
             let valid = /^[0-9.]+$/gm;
             if (args.length > 0) {
@@ -464,6 +474,28 @@ var TSOS;
             }
             else
                 _StdOut.putText("Usage: quantum <integer>. Specify an appropriate quantum.");
+        }
+        //Clears all memory regardless of state
+        shellClearMem(args) {
+            //Possible use-cases
+            //1. Program(s) are currently running
+            //2. Nothing is running but memory is occupied
+            //a. Single step mode is active
+            //3. Memory is empty
+            if (_CPU.isExecuting)
+                _CPU.isExecuting = false;
+            for (let i = 0; i < _ReadyPCB.length; i++) {
+                let temp = _ReadyPCB[i];
+                temp.state = "Terminated";
+                TSOS.Utils.updatePCBRow(temp);
+            }
+            _MemoryManager.setAvailableMemory();
+            _MemoryManager.allAvailable();
+            TSOS.Utils.drawMemory();
+            _ReadyPCB = [];
+            _CPU.init();
+            TSOS.Utils.updateCPUDisplay();
+            _StdOut.putText("Memory successfully cleared.");
         }
     }
     TSOS.Shell = Shell;

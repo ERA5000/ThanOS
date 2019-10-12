@@ -22,23 +22,35 @@ var TSOS;
             if (segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }
-            else {
+            else if (segment) {
                 for (let i = 0; i < 256; i++) {
                     _Memory.memoryContainer[segment][i] = "00";
+                }
+            }
+            else {
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 256; j++) {
+                        _Memory.memoryContainer[i][j] = "00";
+                    }
                 }
             }
             return;
         }
         //Sets memory status. When in use or initially written to, the memory becomes unavailable
         setMemoryStatus(segment) {
-            if (segment == 0)
+            if (segment < 0 || segment > 2)
+                _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+            else if (segment == 0)
                 _Memory.seg1Avail = !_Memory.seg1Avail;
             else if (segment == 1)
                 _Memory.seg2Avail = !_Memory.seg2Avail;
             else if (segment == 2)
                 _Memory.seg3Avail = !_Memory.seg3Avail;
-            else
-                _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+            else {
+                _Memory.seg1Avail = !_Memory.seg1Avail;
+                _Memory.seg2Avail = !_Memory.seg2Avail;
+                _Memory.seg3Avail = !_Memory.seg3Avail;
+            }
         }
         //Returns status of the next available memory segment.
         getMemoryStatus() {
@@ -61,6 +73,11 @@ var TSOS;
                 return 2;
             else
                 return -1;
+        }
+        allAvailable() {
+            _Memory.seg1Avail = true;
+            _Memory.seg2Avail = true;
+            _Memory.seg3Avail = true;
         }
     }
     TSOS.MemoryManager = MemoryManager;

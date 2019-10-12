@@ -12,7 +12,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "ThanOS";
-const APP_VERSION: string = "2.1.2";
+const APP_VERSION: string = "2.1.5";
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds), so 1000 = 1 second.
 
@@ -78,7 +78,6 @@ var _Memory: TSOS.Memory;
 var _MemoryAccessor: TSOS.MemoryAccessor;
 var _MemoryManager: any = null;
 var _PID = 0;
-var _PCBManager: TSOS.ProcessControlBlock[] = [];
 var _CurrentPCB: TSOS.ProcessControlBlock;
 var _SingleStep = false;
 

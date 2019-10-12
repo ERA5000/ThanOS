@@ -27,11 +27,16 @@ var TSOS;
         }
         PCBSwap() {
             _CurrentPCB.snapshot();
+            if (_CurrentPCB.state == "Running")
+                _CurrentPCB.state = "Ready";
+            TSOS.Utils.updatePCBRow(_CurrentPCB);
             if (this.pointer >= _ReadyPCB.length) {
                 this.pointer = 0;
             }
             _CurrentPCB = _ReadyPCB[this.pointer];
             _CurrentPCB.reinstate();
+            _CurrentPCB.state = "Running";
+            TSOS.Utils.updatePCBRow(_CurrentPCB);
             this.pointer++;
             this.cycle = 1;
         }
