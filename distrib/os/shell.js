@@ -48,7 +48,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
             // quantum <number>
-            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<integer> - Set the quantum for RR scheduling.");
+            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<flag> or <integer> - Set the quantum for RR scheduling.");
             this.commandList[this.commandList.length] = sc;
             // rot13 <string>
             sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");

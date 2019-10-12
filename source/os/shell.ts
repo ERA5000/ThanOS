@@ -78,7 +78,7 @@ module TSOS {
             // quantum <number>
             sc = new ShellCommand(this.shellQuantum,
                                   "quantum",
-                                  "<integer> - Set the quantum for RR scheduling.");
+                                  "<flag> or <integer> - Set the quantum for RR scheduling.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
