@@ -530,6 +530,8 @@ module TSOS {
 
         //Current bug - If a program is run, and single step is activated, and then another program is run, when the RR goes to that second program,
             //it'll skip the first instruction
+        //There is also a *huge* issue with just making the next program the _CurrentPCB. It will probably require a complete rewrite of the how 
+            //the programs are managed. I will get to it later.
         public shellRun(args: string[]){
             if(args.length > 0){
                 for(let i = 0; i < _ResidentPCB.length; i++){
