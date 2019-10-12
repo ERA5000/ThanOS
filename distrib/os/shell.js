@@ -462,10 +462,14 @@ var TSOS;
                     _Quantum = 6;
                     return;
                 }
-                else if (args[0] == 'v')
+                else if (args[0] == 'v') {
                     _StdOut.putText(`The current quantum is ${_Quantum}.`);
-                else if (!valid.test(args[0]))
+                    return;
+                }
+                else if (!valid.test(args[0])) {
                     _StdOut.putText("Invalid argument. Quanta can only be integers.");
+                    return;
+                }
                 else if (parseFloat(args[0]) % 1 != 0)
                     _StdOut.putText("Input has been rounded. The new quantum is " + Math.round(parseFloat(args[0])) + ".");
                 else
@@ -473,7 +477,7 @@ var TSOS;
                 _Quantum = Math.round(parseFloat(args[0]));
             }
             else
-                _StdOut.putText("Usage: quantum <integer>. Specify an appropriate quantum.");
+                _StdOut.putText("Usage: quantum <flag> or <integer>. Specify an appropriate quantum.");
         }
         //Clears all memory regardless of state
         shellClearMem(args) {
