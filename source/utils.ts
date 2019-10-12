@@ -285,10 +285,20 @@ module TSOS {
             }
         }
 
+        /*Disables single step. Useful for when things can go awry so the best way to deal with it is
+            to prevent users from clicking the buttons entirely.
+        */
         public static disableSS(){
             _SingleStep = false;
             (<HTMLButtonElement>document.getElementById("btnSingleStep")).disabled = true;
             (<HTMLButtonElement>document.getElementById("btnNextStep")).disabled = true;
+        }
+
+        /*Because of the quirk with the discrepancy between the CPU's IR and PCB's IR, it has to be reset graphically.
+            Again, the CPU does not have control over this, so for now, this is how it has to be done.
+        */
+        public static resetCPUIR(){
+            document.getElementById("CPUIR").innerHTML = "00";
         }
     }
 }

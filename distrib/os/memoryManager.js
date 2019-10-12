@@ -22,7 +22,7 @@ var TSOS;
             if (segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }
-            else if (segment) {
+            else if (segment == 0 || segment == 1 || segment == 2) {
                 for (let i = 0; i < 256; i++) {
                     _Memory.memoryContainer[segment][i] = "00";
                 }

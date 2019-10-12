@@ -57,9 +57,16 @@ module TSOS {
                                   "- Displays the list of available commands.");
             this.commandList[this.commandList.length] = sc;
 
+            // kill
             sc = new ShellCommand(this.shellKill,
                                  "kill",
                                  "<pid> - Kills the specified process.");
+            this.commandList[this.commandList.length] = sc;
+
+            // killall
+            sc = new ShellCommand(this.shellKillAll,
+                                  "killall",
+                                  "- Kills all programs.");
             this.commandList[this.commandList.length] = sc;
 
             //load
@@ -387,7 +394,11 @@ module TSOS {
                         _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Ready' or 'Resident'" + 
                             " are considered available.");
                     case "kill":
-                        _StdOut.putText("Terminates execution of the specified program.");
+                        _StdOut.putText("Terminates execution of the specified program. Only processes listed as 'Ready' or 'Running'" +
+                            " can be terminated.");
+                        break;
+                    case "killall":
+                        _StdOut.putText("Terminates execution of all programs. Only processes listed as 'Ready' or 'Running' can be terminated.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -662,7 +673,31 @@ module TSOS {
                         break;
                     }
                 }
-                if(!found) _StdOut.putText(`There are no know processes with PID ${args[0]}.`);
+                if(!found) _StdOut.putText(`There are no known processes with PID ${args[0]}.`);
+            }
+        }
+
+        public shellKillAll(){
+            if(_ReadyPCB.length == 0){
+                _StdOut.putText("There are currently no programs running to terminate.");
+                return;
+            }
+            else{
+                _StdOut.putText("Executing Order 66...");
+                _StdOut.advanceLine();
+                for(let i = 0; i < _ReadyPCB.length; i++){
+                    _ReadyPCB[i].state = "Terminated";
+                    Utils.updatePCBRow(_ReadyPCB[i]);
+                    _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
+                    _MemoryManager.setAvailableMemory(_ReadyPCB[i].segment);
+                }
+                _CPU.isExecuting = false;
+                _CPU.init();
+                Utils.updateCPUDisplay();
+                Utils.resetCPUIR();
+                Utils.drawMemory();
+                _ReadyPCB = [];
+                _StdOut.putText("All of the programs have been terminated.");
             }
         }
     }
