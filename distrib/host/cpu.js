@@ -133,8 +133,8 @@ var TSOS;
                 TSOS.Utils.updatePCBRow(_ReadyPCB[_ReadyPCB.indexOf(pcb)]);
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
                 //_ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
-                console.log("What is the length of the Resident Q? " + _ResidentPCB.length);
-                console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
+                //console.log("What is the length of the Resident Q? " + _ResidentPCB.length);
+                //console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
             }
             //console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
             //console.log("What is the length of the Ready queue? - CPU " + _ResidentPCB.length);
