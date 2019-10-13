@@ -1,6 +1,16 @@
 module TSOS{
     export class Scheduler{
 
+    /* Between the commands load, run, runall, kill, and killall, this is the continuity of a program:
+        load -> Resident Q
+        run -> splices from Resident Q, places onto Ready Q
+        runall -> splices from Resident Q, places onto Ready Q
+        kill -> splices from Ready Q
+        killall -> splices from Ready Q
+
+        If at any point this traversal pattern is infringed, everything breaks. Also, apparently 'slice' and 'splice' are valid Array methods...
+            A typo lost me a good hour, so just to be clear, we want *splice* (with a p).
+    */
         public cycle = 1;
         public pointer = 0;
 
@@ -16,10 +26,10 @@ module TSOS{
 
         public PCBSwap(){
             this.pointer++;
-            if(_CurrentPCB == null) {
+            /*if(_CurrentPCB == null) {
                 _CurrentPCB = _ReadyPCB[this.pointer];
                 return;
-            }
+            }*/
             _CurrentPCB.snapshot();
             if(_CurrentPCB.state == "Running") _CurrentPCB.state = "Ready";
             Utils.updatePCBRow(_CurrentPCB);
@@ -39,6 +49,8 @@ module TSOS{
         */
         public RoundRobin(){
             console.log("What is the value of cycle? " + this.cycle);
+            console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
+            console.log("What is the state of the PCB? " + _CurrentPCB.state); 
             let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if((_CurrentPCB.state == "Terminated" || this.cycle > _Quantum) && _ReadyPCB.length > 0) {
                 if(_CurrentPCB.state == "Terminated") this.pointer--;

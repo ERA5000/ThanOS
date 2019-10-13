@@ -134,12 +134,15 @@ module TSOS {
             pcb.snapshot();
             Utils.updatePCBRow(pcb);
             if(finished) {
-                _ResidentPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
+                _ReadyPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
+                Utils.updatePCBRow(_ReadyPCB[_ReadyPCB.indexOf(pcb)]);
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                _ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
+                //_ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
+                console.log("What is the length of the Resident Q? " + _ResidentPCB.length);
+                console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
             }
-            console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
-            console.log("What is the length of the Ready queue? - CPU " + _ResidentPCB.length);
+            //console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
+            //console.log("What is the length of the Ready queue? - CPU " + _ResidentPCB.length);
             if(_SingleStep) this.isExecuting = false;
         }
 

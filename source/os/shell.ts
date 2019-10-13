@@ -562,6 +562,7 @@ module TSOS {
                                 Utils.updatePCBRow(temp);
                             }
                             _ReadyPCB[_ReadyPCB.length] = temp;
+                            _ResidentPCB.splice(_ResidentPCB.indexOf(temp), 1);
                             if(_CurrentPCB == null) _CurrentPCB = temp;
                             _StdOut.putText(`Execution of Program ${temp.pid} has begun.`);
                         }
@@ -636,21 +637,25 @@ module TSOS {
                 return;
             }
             else{
-                if(!_CPU.isExecuting) _CPU.init();
                 if(_ReadyPCB.length === 3) {
                     _StdOut.putText("Everything is already running.");
                     return;
                 }
-                for(let i = 0; i < _ResidentPCB.length; i++) {
-                    if(_ResidentPCB[i].state = "Resident"){
+                /*So this gave me a headache and a half...
+                  The Resident and Ready Queues are mutually exclusive. So, when I move it to Ready, I remove it from Resident.
+                  Since this **changes the size of the array,** the for loop always ended early.
+                  Because I need to remove it, I use this as the for loop counter, which is why i itself does not actually change.
+                */
+                for(let i = 0; i < _ResidentPCB.length; i+=0) {
                         _ResidentPCB[i].state = "Ready";
                         Utils.updatePCBRow(_ResidentPCB[i]);
                         _ReadyPCB[_ReadyPCB.length] = _ResidentPCB[i];
-                        //_ResidentPCB.splice(i, 1);
-                    }
+                        _ResidentPCB.splice(i, 1);
                 }
-                if(!_CPU.isExecuting){
-                    _CurrentPCB = _ResidentPCB[0];
+                if(_CPU.isExecuting) _StdOut.putText("New programs have been added to the schedule.");
+                else{
+                    _CPU.init();
+                    _CurrentPCB = _ReadyPCB[0];
                     _CPU.isExecuting = true;
                     _StdOut.putText("Now executing all programs in memory.");
                 }
@@ -690,9 +695,11 @@ module TSOS {
                         _StdOut.putText(`Process with PID ${_ReadyPCB[i].pid} has been killed.`);
                         _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
                         _ReadyPCB.splice(i, 1);
-                        _CurrentPCB = null;
-                        let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
-                        _KernelInterruptQueue.enqueue(interrupt);
+                        if(_ReadyPCB.length == 0) _CPU.isExecuting = false;
+                        else {
+                            let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+                            _KernelInterruptQueue.enqueue(interrupt);
+                        }
                         break;
                     }
                 }
