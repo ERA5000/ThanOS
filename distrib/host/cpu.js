@@ -88,14 +88,16 @@ var TSOS;
                         this.hasExecutionStarted = false;
                         return;
                     }
-                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    _MemoryManager.setMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
                     var finished = true;
                     if (this.PC >= 255) {
                         TSOS.Utils.updateCPUDisplay();
                         TSOS.Utils.drawMemory();
                         TSOS.Utils.updatePCBRow(pcb);
+                        _ResidentPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
                         _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
+                        _ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
                         return;
                     }
                     break;
@@ -126,9 +128,13 @@ var TSOS;
             TSOS.Utils.updatePCBIR(pcb);
             pcb.snapshot();
             TSOS.Utils.updatePCBRow(pcb);
-            if (finished)
+            if (finished) {
+                _ResidentPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
+                _ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
+            }
             console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
+            console.log("What is the length of the Ready queue? - CPU " + _ResidentPCB.length);
             if (_SingleStep)
                 this.isExecuting = false;
         }

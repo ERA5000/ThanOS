@@ -500,7 +500,7 @@ module TSOS {
                     _HasCrashed = true;
                 }
                 else {
-                    let overritten = false;
+                    //let overritten = false;
                     let pcb = new ProcessControlBlock(_MemoryManager.getAvailableSegmentByID());
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     if(pcb.segment > 2) {
@@ -513,19 +513,24 @@ module TSOS {
                     }
                     pcb.location = "Memory";
                     _MemoryAccessor.write(pcb.segment, Utils.standardizeInput());
-                    //Make an attempt to clean old/unused PCBs
+
+                    //This is now broken and will not be fixed until the continuity for load/run/runall/kill/killall works flawlessly*
+                    /*Make an attempt to clean old/unused PCBs
                     if(_ResidentPCB.length > 0) {
                         for(let i = 0; i < _ResidentPCB.length; i++){
-                            if(_ResidentPCB[i].state === "Terminated"){ //Might be able to overrite 'Ready' programs too -- check back later.
+                            console.log("What is the state? " + _ResidentPCB[i].state);
+                            if(_ResidentPCB[i].state == "Terminated"){ //Might be able to overrite 'Ready' programs too -- check back later.
                                 _ResidentPCB[i].state = "Overwritten";
                                 Utils.updatePCBRow(_ResidentPCB[i]);
                                 _ResidentPCB[i] = pcb;
+                                _ReadyPCB.slice(i, 1);
                                 overritten = true;
                                 break;
                             }
                         }
                     }
-                    if(!overritten) _ResidentPCB[_ResidentPCB.length] = pcb;
+                    if(!overritten) _ResidentPCB[_ResidentPCB.length] = pcb;*/
+                    _ResidentPCB[_ResidentPCB.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     Utils.drawMemory();
                     Utils.addPCBRow(pcb);
@@ -535,23 +540,30 @@ module TSOS {
         }
 
         //Runs a program stored in memory when given a corresponding PID
-
-        //Current bug - If a program is run, and single step is activated, and then another program is run, when the RR goes to that second program,
-            //it'll skip the first instruction
-        //There is also a *huge* issue with just making the next program the _CurrentPCB. It will probably require a complete rewrite of the how 
-            //the programs are managed. I will get to it later.
         public shellRun(args: string[]){
             if(args.length > 0){
                 for(let i = 0; i < _ResidentPCB.length; i++){
                     if(parseInt(args[0]) == _ResidentPCB[i].pid){
-                        _CurrentPCB = _ResidentPCB[i];
-                        if(_CurrentPCB.state === "Terminated") _StdOut.putText("Execution of that program has since completed.");
-                        else if(_CurrentPCB.state === "Running") _StdOut.putText("The specified program is currently running.");
+                        let temp = _ResidentPCB[i];
+                        if(temp.state === "Terminated") _StdOut.putText("Execution of that program has since completed.");
+                        else if(temp.state === "Running") _StdOut.putText("The specified program is currently running.");
                         else {
-                            _CurrentPCB.reinstate();
-                            _ReadyPCB[_ReadyPCB.length] = _CurrentPCB;
-                            _CPU.isExecuting = true;
-                            _StdOut.putText(`Execution of Program ${_CurrentPCB.pid} has begun.`);
+
+                            //If the CPU is not executing AND Single Step is NOT enabled, then it is okay to brute-force a start of execution
+                            if(!_CPU.isExecuting && !_CPU.hasExecutionStarted) {
+                                _CPU.init();
+                                _CurrentPCB = null;
+                                _CPU.isExecuting = true;
+                            }
+
+                            //If Single Step is enabled, make sure to update the new program's state and display immediately
+                            if(_CPU.hasExecutionStarted) {
+                                temp.state = "Ready";
+                                Utils.updatePCBRow(temp);
+                            }
+                            _ReadyPCB[_ReadyPCB.length] = temp;
+                            if(_CurrentPCB == null) _CurrentPCB = temp;
+                            _StdOut.putText(`Execution of Program ${temp.pid} has begun.`);
                         }
                         return;
                     }
@@ -592,7 +604,7 @@ module TSOS {
             else _StdOut.putText("Usage: quantum <flag> or <integer>. Specify an appropriate quantum.");
         }
 
-        //Clears all memory regardless of state
+        //Clears all memory regardless of the state of the OS
         public shellClearMem(args: string[]){
         //Possible use-cases
             //1. Program(s) are currently running
@@ -615,19 +627,33 @@ module TSOS {
             _StdOut.putText("Memory successfully cleared.");
         }
 
+        /*Runs all programs sitting in the Resident Queue. The Scheduler (is supposed to) ensure(s) that any new programs will be executed if added after
+            this command is run.
+        */
         public shellRunAll(){
             if(_ResidentPCB.length == 0){
                 _StdOut.putText("There are currently no processes to run.");
                 return;
             }
             else{
+                if(!_CPU.isExecuting) _CPU.init();
+                if(_ReadyPCB.length === 3) {
+                    _StdOut.putText("Everything is already running.");
+                    return;
+                }
                 for(let i = 0; i < _ResidentPCB.length; i++) {
                     if(_ResidentPCB[i].state = "Resident"){
+                        _ResidentPCB[i].state = "Ready";
+                        Utils.updatePCBRow(_ResidentPCB[i]);
                         _ReadyPCB[_ReadyPCB.length] = _ResidentPCB[i];
+                        //_ResidentPCB.splice(i, 1);
                     }
                 }
-                _CPU.isExecuting = true;
-                _StdOut.putText("Now executing all programs in memory.");
+                if(!_CPU.isExecuting){
+                    _CurrentPCB = _ResidentPCB[0];
+                    _CPU.isExecuting = true;
+                    _StdOut.putText("Now executing all programs in memory.");
+                }
             }
         }
 
