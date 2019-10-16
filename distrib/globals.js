@@ -47,6 +47,7 @@ var _Scheduler;
 var _Quantum = 6;
 var _ReadyPCB = [];
 var _ResidentPCB = [];
+var _Dispatcher;
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
 // Global Device Driver Objects - page 12

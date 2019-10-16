@@ -41,6 +41,8 @@ var TSOS;
             _OsShell.init();
             //Initializes the Memory Manager
             _MemoryManager = new TSOS.MemoryManager();
+            //Initializes the Dispatcher
+            _Dispatcher = new TSOS.Dispatcher();
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();

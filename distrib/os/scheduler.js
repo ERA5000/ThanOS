@@ -30,7 +30,7 @@ var TSOS;
                 _CurrentPCB = _ReadyPCB[this.pointer];
                 return;
             }*/
-            _CurrentPCB.snapshot();
+            _Dispatcher.snapshot(_CurrentPCB);
             if (_CurrentPCB.state == "Running")
                 _CurrentPCB.state = "Ready";
             TSOS.Utils.updatePCBRow(_CurrentPCB);
@@ -38,7 +38,7 @@ var TSOS;
                 this.pointer = 0;
             }
             _CurrentPCB = _ReadyPCB[this.pointer];
-            _CurrentPCB.reinstate();
+            _Dispatcher.reinstate(_CurrentPCB);
             _CurrentPCB.state = "Running";
             TSOS.Utils.updatePCBRow(_CurrentPCB);
             this.cycle = 1;

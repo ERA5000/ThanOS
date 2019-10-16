@@ -60,6 +60,7 @@ var _Scheduler: TSOS.Scheduler;
 var _Quantum: number = 6;
 var _ReadyPCB: TSOS.ProcessControlBlock[] = [];
 var _ResidentPCB: TSOS.ProcessControlBlock[] = [];
+var _Dispatcher: TSOS.Dispatcher;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;

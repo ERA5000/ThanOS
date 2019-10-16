@@ -126,7 +126,7 @@ var TSOS;
             TSOS.Utils.drawMemory();
             TSOS.Utils.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
             TSOS.Utils.updatePCBIR(pcb);
-            pcb.snapshot();
+            _Dispatcher.snapshot(pcb);
             TSOS.Utils.updatePCBRow(pcb);
             if (finished) {
                 _ReadyPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";

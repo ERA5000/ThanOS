@@ -131,7 +131,7 @@ module TSOS {
             Utils.drawMemory();
             Utils.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
             Utils.updatePCBIR(pcb);
-            pcb.snapshot();
+            _Dispatcher.snapshot(pcb);
             Utils.updatePCBRow(pcb);
             if(finished) {
                 _ReadyPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";

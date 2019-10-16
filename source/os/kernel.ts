@@ -51,6 +51,9 @@ module TSOS {
             //Initializes the Memory Manager
             _MemoryManager = new MemoryManager();
 
+            //Initializes the Dispatcher
+            _Dispatcher = new Dispatcher();
+
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();
