@@ -497,8 +497,8 @@ module TSOS {
             if(Utils.verifyInput()){
                 let availableMemory = _MemoryManager.getMemoryStatus();
                 if(!availableMemory) {
-                    _Kernel.krnTrapError("Segmentation Fault. No available memory.");
-                    _HasCrashed = true;
+                    _StdOut.putText("All of memory is currently occupied.");
+                    return;
                 }
                 else {
                     //let overritten = false;
@@ -615,10 +615,19 @@ module TSOS {
             //3. Memory is empty
 
             if(_CPU.isExecuting) _CPU.isExecuting = false;
-            for(let i = 0; i < _ReadyPCB.length; i++){
-                let temp = _ReadyPCB[i];
-                temp.state = "Terminated";
-                Utils.updatePCBRow(temp);
+            if(_ResidentPCB.length > 0){
+                for(let i = 0; i < _ResidentPCB.length; i++){
+                    let temp = _ResidentPCB[i];
+                    temp.state = "Terminated";
+                    Utils.updatePCBRow(temp);
+                }
+            }
+            if(_ReadyPCB.length > 0){                
+                for(let i = 0; i < _ReadyPCB.length; i++){
+                    let temp = _ReadyPCB[i];
+                    temp.state = "Terminated";
+                    Utils.updatePCBRow(temp);
+                }
             }
             _MemoryManager.setAvailableSegmentByID();
             _MemoryManager.allAvailable();
@@ -638,7 +647,7 @@ module TSOS {
                 return;
             }
             else{
-                if(_ReadyPCB.length === 3) {
+                if(_ReadyPCB.length == 3) {
                     _StdOut.putText("Everything is already running.");
                     return;
                 }
@@ -742,7 +751,7 @@ module TSOS {
                 Utils.resetCPUIR();
                 Utils.drawMemory();
                 _ReadyPCB = [];
-                _StdOut.putText("All of the programs have been terminated.");
+                _StdOut.putText("All of the processes have been terminated.");
             }
         }
     }
