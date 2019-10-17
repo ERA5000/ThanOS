@@ -125,9 +125,8 @@ module TSOS {
                     this.systemCall();
                     break;
                 default:
-                    _Kernel.krnTrapError("Invalid Op Code. Terminating execution.");
-                    this.isExecuting = false;
-                    pcb.state = "Error";
+                    _Kernel.krnTrace("Invalid Op Code. Terminating execution.");
+                    this.hasProgramEnded = true;
                     break;
             }
             Utils.updateCPUDisplay();
