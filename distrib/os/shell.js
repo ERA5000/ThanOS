@@ -551,7 +551,7 @@ var TSOS;
         */
         shellRunAll() {
             if (_ResidentPCB.length == 0) {
-                _StdOut.putText("There are currently no processes to run.");
+                _StdOut.putText("There are currently no programs to run.");
                 return;
             }
             else {
@@ -641,7 +641,7 @@ var TSOS;
         */
         shellKillAll() {
             if (_ReadyPCB.length == 0) {
-                _StdOut.putText("There are currently no programs running to terminate.");
+                _StdOut.putText("There are currently no processes to terminate.");
                 return;
             }
             else {

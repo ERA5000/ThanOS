@@ -21,7 +21,8 @@ module TSOS {
                     public Yreg: number = 0,
                     public Zflag: number = 0,
                     public isExecuting: boolean = false,
-                    public hasExecutionStarted: boolean = false) {
+                    public hasExecutionStarted: boolean = false,
+                    public hasProgramEnded: boolean = false) {
 
         }
 
@@ -33,6 +34,7 @@ module TSOS {
             this.Zflag = 0;
             this.isExecuting = false;
             this.hasExecutionStarted = false;
+            this.hasProgramEnded = false;
         }
 
         public cycle(): void {
@@ -48,9 +50,7 @@ module TSOS {
             pcb.state = "Running";
             let command: string;
             let instrucAmount = 0;
-            console.log("What is the current PC? " + this.PC);
             if(this.PC < 0 || this.PC >= 255) {
-                console.log("Does this run?");
                 command = "00";
             }
             else command = _MemoryAccessor.read(pcb.segment, this.PC);
@@ -92,14 +92,15 @@ module TSOS {
                     this.PC++;
                     break;
                 case "00":
-                    if(_ReadyPCB.length == 0){
+                    this.hasProgramEnded = true;
+                    /*if(_ReadyPCB.length == 0){
                         this.isExecuting = false;
                         this.hasExecutionStarted = false;
                         return;
-                    }
+                    }*/
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
-                    var finished = true;
+                    //var finished = true;
                     if(this.PC >= 255) {
                         Utils.updateCPUDisplay();
                         Utils.drawMemory();
@@ -135,16 +136,12 @@ module TSOS {
             Utils.updatePCBIR(pcb);
             _Dispatcher.snapshot(pcb);
             Utils.updatePCBRow(pcb);
-            if(finished) {
+            if(this.hasProgramEnded) {
                 _ReadyPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
                 Utils.updatePCBRow(_ReadyPCB[_ReadyPCB.indexOf(pcb)]);
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                //_ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
-                //console.log("What is the length of the Resident Q? " + _ResidentPCB.length);
-                //console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
+                this.hasProgramEnded = false;
             }
-            //console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
-            //console.log("What is the length of the Ready queue? - CPU " + _ResidentPCB.length);
             if(_SingleStep) this.isExecuting = false;
         }
 

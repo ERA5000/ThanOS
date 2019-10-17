@@ -13,7 +13,7 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        constructor(PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false, hasExecutionStarted = false) {
+        constructor(PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false, hasExecutionStarted = false, hasProgramEnded = false) {
             this.PC = PC;
             this.Acc = Acc;
             this.Xreg = Xreg;
@@ -21,6 +21,7 @@ var TSOS;
             this.Zflag = Zflag;
             this.isExecuting = isExecuting;
             this.hasExecutionStarted = hasExecutionStarted;
+            this.hasProgramEnded = hasProgramEnded;
         }
         init() {
             this.PC = 0;
@@ -30,6 +31,7 @@ var TSOS;
             this.Zflag = 0;
             this.isExecuting = false;
             this.hasExecutionStarted = false;
+            this.hasProgramEnded = false;
         }
         cycle() {
             _Kernel.krnTrace('CPU cycle');
@@ -42,9 +44,7 @@ var TSOS;
             pcb.state = "Running";
             let command;
             let instrucAmount = 0;
-            console.log("What is the current PC? " + this.PC);
             if (this.PC < 0 || this.PC >= 255) {
-                console.log("Does this run?");
                 command = "00";
             }
             else
@@ -86,14 +86,15 @@ var TSOS;
                     this.PC++;
                     break;
                 case "00":
-                    if (_ReadyPCB.length == 0) {
+                    this.hasProgramEnded = true;
+                    /*if(_ReadyPCB.length == 0){
                         this.isExecuting = false;
                         this.hasExecutionStarted = false;
                         return;
-                    }
+                    }*/
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
-                    var finished = true;
+                    //var finished = true;
                     if (this.PC >= 255) {
                         TSOS.Utils.updateCPUDisplay();
                         TSOS.Utils.drawMemory();
@@ -129,16 +130,12 @@ var TSOS;
             TSOS.Utils.updatePCBIR(pcb);
             _Dispatcher.snapshot(pcb);
             TSOS.Utils.updatePCBRow(pcb);
-            if (finished) {
+            if (this.hasProgramEnded) {
                 _ReadyPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
                 TSOS.Utils.updatePCBRow(_ReadyPCB[_ReadyPCB.indexOf(pcb)]);
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                //_ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
-                //console.log("What is the length of the Resident Q? " + _ResidentPCB.length);
-                //console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
+                this.hasProgramEnded = false;
             }
-            //console.log("What is the length of the Ready queue? - CPU " + _ReadyPCB.length);
-            //console.log("What is the length of the Ready queue? - CPU " + _ResidentPCB.length);
             if (_SingleStep)
                 this.isExecuting = false;
         }
