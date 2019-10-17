@@ -399,7 +399,7 @@ var TSOS;
             }
         }
         //The command is crash because it is more intuitive for an end-user, but is interally referenced as BSOD for the assignment
-        shellBSOD(args) {
+        shellBSOD() {
             TSOS.Utils.crash();
         }
         //Loads a program into memory for execution

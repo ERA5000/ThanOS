@@ -51,11 +51,16 @@ var TSOS;
             let img = document.getElementById("bsod");
             document.getElementById("display").getContext("2d").drawImage(img, 0, 0, 500, 510);
             _HasCrashed = true;
+            _CPU.isExecuting = false;
+            _CPU.hasExecutionStarted = false;
+            _CPU.hasProgramEnded = true;
             _Kernel.krnTrapError("User invoked crash.");
             document.getElementById("taProgramInput").value = "";
             document.getElementById("taProgramInput").disabled = true;
             document.getElementById("taHostLog").value = "";
             document.getElementById("taHostLog").disabled = true;
+            this.disableSS();
+            _MemoryManager.setAvailableSegmentByID();
         }
         /*A simple method to verify hex input data using RegEx
         I think this turned into one of the those logical 'proofs' where finding the negation is easier,

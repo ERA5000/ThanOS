@@ -53,11 +53,16 @@ module TSOS {
             let img = (<CanvasImageSource>document.getElementById("bsod"));
             (<HTMLCanvasElement>document.getElementById("display")).getContext("2d").drawImage(img, 0, 0, 500, 510);
             _HasCrashed = true;
+            _CPU.isExecuting = false;
+            _CPU.hasExecutionStarted = false;
+            _CPU.hasProgramEnded = true;
             _Kernel.krnTrapError("User invoked crash.");
             (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value = "";
             (<HTMLTextAreaElement>document.getElementById("taProgramInput")).disabled = true;
             (<HTMLTextAreaElement>document.getElementById("taHostLog")).value = "";
             (<HTMLTextAreaElement>document.getElementById("taHostLog")).disabled = true;
+            this.disableSS();
+            _MemoryManager.setAvailableSegmentByID();
         }
 
         /*A simple method to verify hex input data using RegEx
