@@ -73,6 +73,7 @@ module TSOS{
             if(_ReadyPCB.length == 1){
                 this.pointer = 0;
                 if(_CurrentPCB.pid != _ReadyPCB[this.pointer].pid){
+                    _Kernel.krnTrace("Context Switch via Round Robin");
                     _KernelInterruptQueue.enqueue(interrupt);
                 }
                 else{
@@ -82,6 +83,7 @@ module TSOS{
             }
             if((_CurrentPCB.state == "Terminated" || this.cycle > _Quantum) && _ReadyPCB.length > 0) {
                 if(_CurrentPCB.state == "Terminated") this.pointer--;
+                if(_ReadyPCB.length > 1) _Kernel.krnTrace("Context Switch via Round Robin");
                 _KernelInterruptQueue.enqueue(interrupt);
             }
             else {
