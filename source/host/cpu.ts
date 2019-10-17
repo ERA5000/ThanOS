@@ -48,7 +48,9 @@ module TSOS {
             pcb.state = "Running";
             let command: string;
             let instrucAmount = 0;
-            if(this.PC < 0 || this.PC >= 255) command = "00";
+            if(this.PC < 0 || this.PC >= 255) {
+                command = "00";
+            }
             else command = _MemoryAccessor.read(pcb.segment, this.PC);
 
             switch (command) {

@@ -48,9 +48,6 @@ module TSOS{
         I then explicitly check for Termination because if a program ends, the pointer has to be back-peddled one because the array itself changes size.
         */
         public RoundRobin(){
-            console.log("What is the value of cycle? " + this.cycle);
-            console.log("What is the length of the Ready Q? " + _ReadyPCB.length);
-            console.log("What is the state of the PCB? " + _CurrentPCB.state); 
             let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if((_CurrentPCB.state == "Terminated" || this.cycle > _Quantum) && _ReadyPCB.length > 0) {
                 if(_CurrentPCB.state == "Terminated") this.pointer--;

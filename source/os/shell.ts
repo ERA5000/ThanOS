@@ -391,8 +391,9 @@ module TSOS {
                         _StdOut.putText("Runs all programs in memory.");
                         break;
                     case "ps":
-                        _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Ready' or 'Resident'" + 
+                        _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Resident,' 'Ready,' or 'Running'" + 
                             " are considered available.");
+                        break;
                     case "kill":
                         _StdOut.putText("Terminates execution of the specified program. Only processes listed as 'Ready' or 'Running'" +
                             " can be terminated.");
@@ -662,22 +663,34 @@ module TSOS {
             }
         }
 
+        /* Lists any program or process labeled as 'Resident,' 'Ready,' or 'Running.'
+        */
         public shellPS(){
-            if(_ResidentPCB.length == 0){
+            if(_ResidentPCB.length == 0 && _ReadyPCB.length == 0){
                 _StdOut.putText("There are currently no processes to list.");
                 return;
             }
             else{
-                _StdOut.putText("List of current processes:");
+                _StdOut.putText("List of current programs or processes:");
                 _StdOut.advanceLine();
-                for(let i = 0; i < _ResidentPCB.length; i++){
-                    _StdOut.putText(`PID: ${_ResidentPCB[i].pid} | State: ${_ResidentPCB[i].state}`);
-                    _StdOut.advanceLine();
+                if(_ResidentPCB.length > 0) {
+                    for(let i = 0; i < _ResidentPCB.length; i++){
+                        _StdOut.putText(`PID: ${_ResidentPCB[i].pid} | State: ${_ResidentPCB[i].state}`);
+                        _StdOut.advanceLine();
+                    }
+                }
+                if(_ReadyPCB.length > 0) {
+                    for(let i = 0; i < _ReadyPCB.length; i++){
+                        _StdOut.putText(`PID: ${_ReadyPCB[i].pid} | State: ${_ReadyPCB[i].state}`);
+                        _StdOut.advanceLine();
+                    }
                 }
                 _StdOut.putText("**************************");
             }
         }
 
+        /* Kills a specified process (anything 'Ready' or 'Running').
+        */
         public shellKill(args: string){
             if(_ReadyPCB.length == 0){
                 _StdOut.putText("There are currently no processes to kill.");
@@ -707,6 +720,8 @@ module TSOS {
             }
         }
 
+        /* Kills all processes (anything 'Ready' or 'Running').
+        */
         public shellKillAll(){
             if(_ReadyPCB.length == 0){
                 _StdOut.putText("There are currently no programs running to terminate.");

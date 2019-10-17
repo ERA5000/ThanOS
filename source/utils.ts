@@ -242,7 +242,7 @@ module TSOS {
                 *I probably... might... not.
         */
         public static drawMemory(): void{
-            let table = "<table>";
+            let table = "<table id='memory'>";
             let justCreated = false;
             for(let i = 0; i < _Memory.memoryContainer.length; i++){
                 for(let j = 0; j < _Memory.memoryContainer[i].length; j++){
@@ -283,6 +283,7 @@ module TSOS {
                     document.getElementById("mem"+((pc + ((255 * segment) + segment)) + i)).style.backgroundColor = "#05aefc";
                 }
             }
+            this.scrollTable(_CurrentPCB);
         }
 
         /*Disables single step. Useful for when things can go awry so the best way to deal with it is
@@ -299,6 +300,19 @@ module TSOS {
         */
         public static resetCPUIR(){
             document.getElementById("CPUIR").innerHTML = "00";
+        }
+
+        /*Auto scrolls the table to the highlighted section of memory.
+            My display has a height of 7 rows, and each row is 22 pixels tall.
+            If a row is either of the first three, or last three, it cannot be centered, so don't do anything.
+            If a row is the fourth from the top or bottom, it already is centered, so don't do anything.
+            Otherwise, scroll down to that row, then SUBTRACT the height of three rows from the top of the display -- this centers it.
+        */
+        private static scrollTable(pcb: ProcessControlBlock){
+            let segmentOffset = 704 * pcb.segment;
+            let rowToScroll = (22 * Math.floor(pcb.PC / 8)) + segmentOffset;
+            if(rowToScroll <= 88 || rowToScroll >= 2725) document.getElementById("MemoryTable").scrollTop = rowToScroll;
+            else document.getElementById("MemoryTable").scrollTop = rowToScroll - 66;
         }
     }
 }
