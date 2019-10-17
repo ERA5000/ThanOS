@@ -48,7 +48,9 @@ module TSOS {
             pcb.state = "Running";
             let command: string;
             let instrucAmount = 0;
+            console.log("What is the current PC? " + this.PC);
             if(this.PC < 0 || this.PC >= 255) {
+                console.log("Does this run?");
                 command = "00";
             }
             else command = _MemoryAccessor.read(pcb.segment, this.PC);
@@ -102,9 +104,7 @@ module TSOS {
                         Utils.updateCPUDisplay();
                         Utils.drawMemory();
                         Utils.updatePCBRow(pcb);
-                        _ResidentPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
                         _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                        _ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
                         return;
                     }
                     break;

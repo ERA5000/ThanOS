@@ -42,7 +42,9 @@ var TSOS;
             pcb.state = "Running";
             let command;
             let instrucAmount = 0;
+            console.log("What is the current PC? " + this.PC);
             if (this.PC < 0 || this.PC >= 255) {
+                console.log("Does this run?");
                 command = "00";
             }
             else
@@ -96,9 +98,7 @@ var TSOS;
                         TSOS.Utils.updateCPUDisplay();
                         TSOS.Utils.drawMemory();
                         TSOS.Utils.updatePCBRow(pcb);
-                        _ResidentPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
                         _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                        _ResidentPCB.splice(_ResidentPCB.indexOf(pcb), 1);
                         return;
                     }
                     break;
