@@ -67,7 +67,10 @@ module TSOS{
             When a program ends, I remove it from the ReadyPCB[], but _CurrentPCB does not get updated since I wanted to leave it to the scheduler to do that.
                 (Because if I could assign _CurrentPCB at-will, what's the point of the scheduler? :P).
             This (complicated) solution brings me to the code I have. I will hopefully return to clean it since it may be redundant and not optimized, but it works... for now
-        */
+        
+            As far as counting wait time and turn around time, everytime a context switch takes place we DON'T want to count that towards our cycle count since
+                a context switch itself is not a cycle.
+            */
         public RoundRobin(){
             let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if(_ReadyPCB.length == 1){
@@ -75,9 +78,11 @@ module TSOS{
                 if(_CurrentPCB.pid != _ReadyPCB[this.pointer].pid){
                     _Kernel.krnTrace("Context Switch via Round Robin");
                     _KernelInterruptQueue.enqueue(interrupt);
+                    return;
                 }
                 else{
                     this.cycle++;
+                    _ReadyPCB[this.pointer].turnaroundTimeCycles++;
                     return;
                 }
             }
@@ -85,6 +90,7 @@ module TSOS{
                 if(_CurrentPCB.state == "Terminated") this.pointer--;
                 if(_ReadyPCB.length > 1) _Kernel.krnTrace("Context Switch via Round Robin");
                 _KernelInterruptQueue.enqueue(interrupt);
+                return;
             }
             else {
                 if(_ReadyPCB.length == 0) {
@@ -94,6 +100,26 @@ module TSOS{
                     return;
                 }
                 else this.cycle++;
+            }
+            this.addTurnaroundTime();
+            this.addWaitTime();
+        }
+
+        /* Adds 1 to each PCB after every cycle count.
+        */
+        public addTurnaroundTime(){
+            for(let i = 0; i < _ReadyPCB.length; i++){
+                _ReadyPCB[i].turnaroundTimeCycles++;
+            }
+        }
+
+        /* Adds 1 to each PCB after every cycle count IF it is NOT running.
+        */
+        public addWaitTime(){
+            for(let i = 0; i < _ReadyPCB.length; i++){
+                if(_ReadyPCB[i].pid != _CurrentPCB.pid){
+                    _ReadyPCB[i].waitTime++;
+                }
             }
         }
     }

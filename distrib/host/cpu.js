@@ -40,6 +40,10 @@ var TSOS;
             this.execute(_CurrentPCB);
         }
         execute(pcb) {
+            //console.log(`Process: ${pcb.pid}`);
+            //console.log(`What is the wait time?  ${pcb.waitTime}`);
+            //console.log(`What is the turnaround time?  ${pcb.turnaroundTimeCycles}`);
+            //console.log();
             this.hasExecutionStarted = true;
             pcb.state = "Running";
             let command;
@@ -130,8 +134,9 @@ var TSOS;
             _Dispatcher.snapshot(pcb);
             TSOS.Utils.updatePCBRow(pcb);
             if (this.hasProgramEnded) {
-                _ReadyPCB[_ReadyPCB.indexOf(pcb)].state = "Terminated";
-                TSOS.Utils.updatePCBRow(_ReadyPCB[_ReadyPCB.indexOf(pcb)]);
+                this.printTime(pcb);
+                pcb.state = "Terminated";
+                TSOS.Utils.updatePCBRow(pcb);
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
                 this.hasProgramEnded = false;
             }
@@ -259,6 +264,19 @@ var TSOS;
                 _StdOut.putText(_OsShell.promptStr);
             }
             this.PC++;
+        }
+        /* Prints the wait time and turnaround time of a process. I made a new method for it because I wanted to format what was printed and it was taking up
+            too much space. I was conflicted about where to put this method. I will keep it here for now, but if you think it belongs in Utils, I'll move it.
+        */
+        printTime(pcb) {
+            _StdOut.advanceLine();
+            _StdOut.putText(`Stats for process with PID: ${pcb.pid}`);
+            _StdOut.advanceLine();
+            _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTimeCycles} cycles.`);
+            _StdOut.advanceLine();
+            _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
+            _StdOut.advanceLine();
+            _StdOut.putText(_OsShell.promptStr);
         }
     }
     TSOS.Cpu = Cpu;

@@ -14,6 +14,9 @@ module TSOS {
         location: string;
         base: number;
         limit: number;
+        turnaroundTimeCycles: number;
+        waitTime: number;
+        
 
         constructor(segment: number){
             this.PC = 0;
@@ -27,6 +30,8 @@ module TSOS {
             this.priority = 7;
             this.segment = segment;
             this.determineRange();
+            this.turnaroundTimeCycles = 0;
+            this.waitTime = 0;
         }
 
         //Given access to a physical segment, determines the base and limit registers of the PCB
