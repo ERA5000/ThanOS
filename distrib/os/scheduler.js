@@ -88,7 +88,7 @@ var TSOS;
                 }
                 else {
                     this.cycle++;
-                    _ReadyPCB[this.pointer].turnaroundTimeCycles++;
+                    _ReadyPCB[this.pointer].turnaroundTime++;
                     return;
                 }
             }
@@ -117,7 +117,7 @@ var TSOS;
         */
         addTurnaroundTime() {
             for (let i = 0; i < _ReadyPCB.length; i++) {
-                _ReadyPCB[i].turnaroundTimeCycles++;
+                _ReadyPCB[i].turnaroundTime++;
             }
         }
         /* Adds 1 to each PCB after every cycle count IF it is NOT running.

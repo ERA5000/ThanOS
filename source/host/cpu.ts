@@ -135,7 +135,7 @@ module TSOS {
             _Dispatcher.snapshot(pcb);
             Utils.updatePCBRow(pcb);
             if(this.hasProgramEnded) {
-                this.printTime(pcb);
+                Utils.printTime(pcb);
                 pcb.state = "Terminated";
                 Utils.updatePCBRow(pcb);
                 _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
@@ -239,20 +239,6 @@ module TSOS {
             let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16) + 1;
             _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), newValue);
             this.PC += 3;
-        }
-
-        /* Prints the wait time and turnaround time of a process. I made a new method for it because I wanted to format what was printed and it was taking up
-            too much space. I was conflicted about where to put this method. I will keep it here for now, but if you think it belongs in Utils, I'll move it.
-        */
-        public printTime(pcb: ProcessControlBlock){
-            _StdOut.advanceLine();
-            _StdOut.putText(`Stats for process with PID: ${pcb.pid}`);
-            _StdOut.advanceLine();
-            _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTimeCycles} cycles.`);
-            _StdOut.advanceLine();
-            _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
-            _StdOut.advanceLine();
-            _StdOut.putText(_OsShell.promptStr);
         }
     }
 }

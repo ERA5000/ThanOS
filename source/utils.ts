@@ -320,5 +320,19 @@ module TSOS {
             if(rowToScroll <= 88 || rowToScroll >= 2725) document.getElementById("MemoryTable").scrollTop = rowToScroll;
             else document.getElementById("MemoryTable").scrollTop = rowToScroll - 66;
         }
+
+        /* Prints the wait time and turnaround time of a process. I made a new method for it because I wanted to format what was printed and it was taking up
+            too much space. I was conflicted about where to put this method: I knew I had to get it out of CPU, and have since moved it here, to Utils...
+        */
+       public static printTime(pcb: ProcessControlBlock){
+        _StdOut.advanceLine();
+        _StdOut.putText(`Stats for process with PID: ${pcb.pid}`);
+        _StdOut.advanceLine();
+        _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTime} cycles.`);
+        _StdOut.advanceLine();
+        _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
+        _StdOut.advanceLine();
+        _StdOut.putText(_OsShell.promptStr);
+    }
     }
 }

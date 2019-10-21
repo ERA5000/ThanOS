@@ -14,7 +14,7 @@ module TSOS {
         location: string;
         base: number;
         limit: number;
-        turnaroundTimeCycles: number;
+        turnaroundTime: number;
         waitTime: number;
         
 
@@ -30,7 +30,7 @@ module TSOS {
             this.priority = 7;
             this.segment = segment;
             this.determineRange();
-            this.turnaroundTimeCycles = 0;
+            this.turnaroundTime = 0;
             this.waitTime = 0;
         }
 

@@ -88,7 +88,7 @@ module TSOS{
                 }
                 else{
                     this.cycle++;
-                    _ReadyPCB[this.pointer].turnaroundTimeCycles++;
+                    _ReadyPCB[this.pointer].turnaroundTime++;
                     return;
                 }
             }
@@ -115,7 +115,7 @@ module TSOS{
         */
         public addTurnaroundTime(){
             for(let i = 0; i < _ReadyPCB.length; i++){
-                _ReadyPCB[i].turnaroundTimeCycles++;
+                _ReadyPCB[i].turnaroundTime++;
             }
         }
 

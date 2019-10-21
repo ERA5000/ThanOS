@@ -13,7 +13,7 @@ var TSOS;
             this.priority = 7;
             this.segment = segment;
             this.determineRange();
-            this.turnaroundTimeCycles = 0;
+            this.turnaroundTime = 0;
             this.waitTime = 0;
         }
         //Given access to a physical segment, determines the base and limit registers of the PCB
