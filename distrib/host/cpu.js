@@ -91,14 +91,8 @@ var TSOS;
                     break;
                 case "00":
                     this.hasProgramEnded = true;
-                    /*if(_ReadyPCB.length == 0){
-                        this.isExecuting = false;
-                        this.hasExecutionStarted = false;
-                        return;
-                    }*/
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
-                    //var finished = true;
                     if (this.PC >= 255) {
                         TSOS.Utils.updateCPUDisplay();
                         TSOS.Utils.drawMemory();
@@ -120,7 +114,8 @@ var TSOS;
                     this.incByte();
                     break;
                 case "FF":
-                    this.systemCall();
+                    let interrupt = new TSOS.Interrupt(SYSTEM_CALL, [0]);
+                    _KernelInterruptQueue.enqueue(interrupt);
                     break;
                 default:
                     _Kernel.krnTrace("Invalid Op Code. Terminating execution.");
@@ -231,39 +226,6 @@ var TSOS;
             let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16) + 1;
             _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), newValue);
             this.PC += 3;
-        }
-        /*Prints the Y register if X is 1.
-          Dumps the Y register's address' values until it encounters either 00 or the end of memory if X is 2.
-          The toPrint variable has spaces because A) it makes it easier to read, but also B) it does not print properly if all of memory
-            is one contiguous string (which is something I will look into later)*.
-            *This may or may not be true because results have been inconsistent (ie the Heisenbug) -- will still look into later.
-        */
-        systemCall() {
-            if (this.Xreg == 1) {
-                _StdOut.putText(this.Yreg.toString(16));
-                _StdOut.advanceLine();
-                _StdOut.putText(_OsShell.promptStr);
-            }
-            else if (this.Xreg == 2) {
-                let toPrint = "";
-                let temp = 0;
-                let locationToStart = this.Yreg;
-                for (let i = locationToStart; i < 256; i++) {
-                    temp = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, i), 16);
-                    if (temp >= 1 && temp <= 9) {
-                        toPrint += temp;
-                    }
-                    else if (temp == 0)
-                        break;
-                    else {
-                        toPrint += String.fromCharCode(temp);
-                    }
-                }
-                _StdOut.putText(toPrint);
-                _StdOut.advanceLine();
-                _StdOut.putText(_OsShell.promptStr);
-            }
-            this.PC++;
         }
         /* Prints the wait time and turnaround time of a process. I made a new method for it because I wanted to format what was printed and it was taking up
             too much space. I was conflicted about where to put this method. I will keep it here for now, but if you think it belongs in Utils, I'll move it.

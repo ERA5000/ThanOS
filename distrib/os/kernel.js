@@ -113,6 +113,9 @@ var TSOS;
                 case SOFTWARE_IRQ:
                     _Scheduler.PCBSwap();
                     break;
+                case SYSTEM_CALL:
+                    this.systemCall();
+                    break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
@@ -162,6 +165,40 @@ var TSOS;
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
             // TODO: Display error on console, perhaps in some sort of colored screen. (Maybe blue?)
             this.krnShutdown();
+        }
+        /*Prints the Y register if X is 1.
+          Dumps the Y register's address' values until it encounters either 00 or the end of memory if X is 2.
+          The toPrint variable has spaces because A) it makes it easier to read, but also B) it does not print properly if all of memory
+            is one contiguous string (which is something I will look into later)*.
+            *This may or may not be true because results have been inconsistent (ie the Heisenbug) -- will still look into later.
+        */
+        systemCall() {
+            _Kernel.krnTrace("System Call");
+            if (_CPU.Xreg == 1) {
+                _StdOut.putText(_CPU.Yreg.toString(16));
+                _StdOut.advanceLine();
+                _StdOut.putText(_OsShell.promptStr);
+            }
+            else if (_CPU.Xreg == 2) {
+                let toPrint = "";
+                let temp = 0;
+                let locationToStart = _CPU.Yreg;
+                for (let i = locationToStart; i < 256; i++) {
+                    temp = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, i), 16);
+                    if (temp >= 1 && temp <= 9) {
+                        toPrint += temp;
+                    }
+                    else if (temp == 0)
+                        break;
+                    else {
+                        toPrint += String.fromCharCode(temp);
+                    }
+                }
+                _StdOut.putText(toPrint);
+                _StdOut.advanceLine();
+                _StdOut.putText(_OsShell.promptStr);
+            }
+            _CPU.PC++;
         }
     }
     TSOS.Kernel = Kernel;
