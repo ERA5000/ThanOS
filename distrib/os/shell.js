@@ -500,8 +500,8 @@ var TSOS;
             let valid = /^[0-9.]+$/gm;
             if (args.length > 0) {
                 if (args[0] == 'd') {
-                    _StdOut.putText("The quantum has been reset to its default value of 6.");
-                    _Quantum = 6;
+                    _StdOut.putText(`The quantum has been reset to its default value of ${QUANTUM_DEFAULT}.`);
+                    _Quantum = QUANTUM_DEFAULT;
                     return;
                 }
                 else if (args[0] == 'v') {

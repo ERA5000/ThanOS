@@ -11,13 +11,14 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME = "ThanOS";
-const APP_VERSION = "2.9.1";
+const APP_VERSION = "2.9.2";
 const CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds), so 1000 = 1 second.
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ = 1;
 const SOFTWARE_IRQ = 2;
 const SYSTEM_CALL = 3;
+const QUANTUM_DEFAULT = 6; //Acts as a safety to the _Quantum variable just in case things break...
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.

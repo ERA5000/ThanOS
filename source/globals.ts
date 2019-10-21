@@ -12,7 +12,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "ThanOS";
-const APP_VERSION: string = "2.9.1";
+const APP_VERSION: string = "2.9.2";
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds), so 1000 = 1 second.
 
@@ -23,6 +23,9 @@ const KEYBOARD_IRQ: number = 1;
 const SOFTWARE_IRQ: number = 2;
 
 const SYSTEM_CALL: number = 3;
+
+
+const QUANTUM_DEFAULT: number = 6; //Acts as a safety to the _Quantum variable just in case things break...
 
 //
 // Global Variables
