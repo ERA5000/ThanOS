@@ -495,11 +495,12 @@ var TSOS;
                 b. The 'v' flag displays its current value.
             Also, if the user tries to do a quantum that is not a whole number (7.8), it gets rounded to the closest number.
             The regex prevents negative numbers since '-' is parsed as a non-digit.
+        Also, quantua cannot be set to 0...
         */
         shellQuantum(args) {
             let valid = /^[0-9.]+$/gm;
             if (args.length > 0) {
-                if (args[0] == 'd') {
+                if (args[0] == 'd' || args[0] == '0') {
                     _StdOut.putText(`The quantum has been reset to its default value of ${QUANTUM_DEFAULT}.`);
                     _Quantum = QUANTUM_DEFAULT;
                     return;
