@@ -579,7 +579,13 @@ module TSOS {
             else _StdOut.putText("Usage: run <pid>. Specify a program by its PID.");
         }
 
-        //Specifies a quantum for the Round Robin Scheduling scheme
+        /*Specifies a quantum for the Round Robin Scheduling scheme
+            I added two flags:
+                a. The 'd' flag sets the quantum to its default of 6.
+                b. The 'v' flag displays its current value.
+            Also, if the user tries to do a quantum that is not a whole number (7.8), it gets rounded to the closest number.
+            The regex prevents negative numbers since '-' is parsed as a non-digit.
+        */
         public shellQuantum(args: string[]){
             let valid = /^[0-9.]+$/gm;
             if(args.length > 0){
@@ -595,7 +601,7 @@ module TSOS {
                 }
 
                 else if(!valid.test(args[0])) {
-                    _StdOut.putText("Invalid argument. Quanta can only be integers.");
+                    _StdOut.putText("Invalid argument. Quanta can only be integers greater than 0.");
                     return;
                 }
                 else if(parseFloat(args[0]) % 1 != 0) _StdOut.putText("Input has been rounded. The new quantum is " + Math.round(parseFloat(args[0])) + ".");

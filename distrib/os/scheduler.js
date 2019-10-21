@@ -2,14 +2,24 @@ var TSOS;
 (function (TSOS) {
     class Scheduler {
         constructor() {
-            /* Between the commands load, run, runall, kill, and killall, this is the continuity of a program:
+            /* So what is this 'logic continuity loop' I keep referring to? (I hope I have been typing it elsewhere... Otherwise, this is what it is)
+                It essentially defines the combinations (and permutations?) in which the commands load, run, runall, kill, killall, and clearmem
+                interact with each other. I have tried to make these interactions as intuitive as possible by adhering to these three ideas:
+                    1. Program the command to do what the user would expect.
+                    2. Implement functionality specifically requested of Alan (That's you).
+                    3. In any scenario of conflict, assume the worst case and ideally how it would want to be solved.
+                        As an example, the clearmem command acts a nuke so it stops execution and wipes memory, as if nothing had ever happened
+                        to prevent rogue/zombie programs from going hay-wire.
+            
+            Functionally, between the commands load, run, runall, kill, killall, and clearmem this is the continuity of the code:
                 load -> Resident Q
                 run -> splices from Resident Q, places onto Ready Q
                 runall -> splices from Resident Q, places onto Ready Q
                 kill -> splices from Ready Q
                 killall -> splices from Ready Q
+                clearmem -> stops execution of the CPU, clears memory entirely (Resident and Ready Qs)
         
-                If at any point this traversal pattern is infringed, everything breaks. Also, apparently 'slice' and 'splice' are valid Array methods...
+                If at any point this traversal pattern is infringed, everything will probably break. Also, apparently 'slice' and 'splice' are both valid Array methods...
                     A typo lost me a good hour, so just to be clear, we want *splice* (with a p).
             */
             this.cycle = 1;
@@ -26,10 +36,6 @@ var TSOS;
         }
         PCBSwap() {
             this.pointer++;
-            /*if(_CurrentPCB == null) {
-                _CurrentPCB = _ReadyPCB[this.pointer];
-                return;
-            }*/
             _Dispatcher.snapshot(_CurrentPCB);
             if (_CurrentPCB.state == "Running")
                 _CurrentPCB.state = "Ready";
@@ -43,8 +49,8 @@ var TSOS;
             TSOS.Utils.updatePCBRow(_CurrentPCB);
             this.cycle = 1;
         }
-        /*The Round Robin scheduling scheme. If either the cycle limit is exceeded, a process ends, and as long as there is at least a program
-            to execute, create a software interrupt to switch to another program.
+        /*The Round Robin scheduling scheme. If either the cycle limit is exceeded or a process ends, and as long as there is at least a program
+            to execute, create a software interrupt to switch to another program (I explain why we check for one program not two for an interrupt below).
         I then explicitly check for Termination because if a program ends, the pointer has to be back-peddled one because the array itself changes size.
 
         UPDATE: 10.17.19
