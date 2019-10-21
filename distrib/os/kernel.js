@@ -47,6 +47,7 @@ var TSOS;
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();
             }
+            _Mode = 1;
         }
         krnShutdown() {
             this.krnTrace("begin shutdown OS");
@@ -74,6 +75,9 @@ var TSOS;
                 // Process the first interrupt on the interrupt queue.
                 // TODO (maybe): Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
+                //Mode bit is now toggled for software interrupts (context switches) and the system call functionality
+                if (interrupt.irq == 2 || interrupt.irq == 3)
+                    _Mode = 0;
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
             }
             else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
@@ -114,10 +118,20 @@ var TSOS;
                     _StdIn.handleInput();
                     break;
                 case SOFTWARE_IRQ:
-                    _Scheduler.PCBSwap();
+                    if (_Mode == 0) {
+                        _Scheduler.PCBSwap();
+                        _Mode = 1;
+                    }
+                    else
+                        this.krnTrace("Insufficient Privilege. Unable to context switch.");
                     break;
                 case SYSTEM_CALL:
-                    this.systemCall();
+                    if (_Mode == 0) {
+                        this.systemCall();
+                        _Mode = 1;
+                    }
+                    else
+                        this.krnTrace("Insufficient Privilege. Unable to make system call.");
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
