@@ -629,6 +629,7 @@ var TSOS;
                         _StdOut.advanceLine();
                         _StdOut.putText(`Process with PID ${_ReadyPCB[i].pid} has been killed.`);
                         _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
+                        TSOS.Utils.printTime(_ReadyPCB[i]);
                         _ReadyPCB.splice(i, 1);
                         if (_ReadyPCB.length == 0)
                             _CPU.isExecuting = false;
@@ -658,6 +659,7 @@ var TSOS;
                     TSOS.Utils.updatePCBRow(_ReadyPCB[i]);
                     _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
                     _MemoryManager.setAvailableSegmentByID(_ReadyPCB[i].segment);
+                    TSOS.Utils.printTime(_ReadyPCB[i]);
                 }
                 _CPU.isExecuting = false;
                 _CPU.init();
