@@ -4,7 +4,6 @@ module TSOS {
 
         //Initializes memory to empty. A segment can be specified, otherwise it is all of memory.
         public init(segment?: number): void {
-
             if(segment <= 2 && segment > 0) {
                 for(let i = 0; i < 256; i++) {
                     _Memory.memoryContainer[segment][i] = "00";
@@ -21,9 +20,10 @@ module TSOS {
 
         //Reads two bytes of memory.
         public read(segment: number, address: number): string {
-            if(segment < 0 || segment > 2 && address > 0 || address > 255) {
+            if(segment < 0 || segment > 2 && address < 0 || address > 255) {
                 _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
             }
+            else if(_CurrentPCB.segment != _CurrentPCB.getSegHash()) _Kernel.krnTrapError("IntegrityMismatchException. Illegal Read Access.");
             else return _Memory.memoryContainer[segment][address];
         }
 
@@ -34,11 +34,11 @@ module TSOS {
             if(segment < 0 || segment > 2 && address < 0 || address > 255 && data.length > 255) {
                 _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
             }
+            else if(_CurrentPCB != null && _CurrentPCB.segment != _CurrentPCB.getSegHash()) _Kernel.krnTrapError("IntegrityMismatchException. Illegal Write Access.");
             else if(address){
                 _Memory.memoryContainer[segment][address] = data;
             }
             else {
-                //console.log("What data is being written? " + data);
                 let wordCounter = 0;
                 for(let i = 0; i < data.length / 2; i++) {
                     _Memory.memoryContainer[segment][i] = data.substring(wordCounter, wordCounter+2);

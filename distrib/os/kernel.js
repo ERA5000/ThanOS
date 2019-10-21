@@ -54,6 +54,9 @@ var TSOS;
             // ... Disable the Interrupts.
             this.krnTrace("Disabling the interrupts.");
             this.krnDisableInterrupts();
+            this.krnTrace("Terminating CPU execution.");
+            _CPU.isExecuting = false;
+            _CPU.hasExecutionStarted = false;
             //
             // Unload the Device Drivers?
             // More?
