@@ -18,33 +18,34 @@ var TSOS;
         }
         //Reads two bytes of memory.
         read(segment, address) {
-            if (segment < 0 || segment > 2 && address < 0 || address > 255) {
-                _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
-            }
-            else if (_CurrentPCB.segment != _CurrentPCB.getSegHash())
+            if (_CurrentPCB.segment != _CurrentPCB.getSegHash())
                 _Kernel.krnTrapError("IntegrityMismatchException. Illegal Read Access.");
-            else
+            else if ((segment >= 0 && segment <= 2) && (address >= 0 && address <= 255))
                 return _Memory.memoryContainer[segment][address];
+            else
+                _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
         }
         /*Writes a stream of code to memory
             The 'stream of code' is 512 characters long, containing 256 2-byte segments.
         */
         write(segment, data, address) {
-            if (segment < 0 || segment > 2 && address < 0 || address > 255 && data.length > 255) {
-                _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
-            }
-            else if (_CurrentPCB != null && _CurrentPCB.segment != _CurrentPCB.getSegHash())
+            if (_CurrentPCB != null && _CurrentPCB.segment != _CurrentPCB.getSegHash())
                 _Kernel.krnTrapError("IntegrityMismatchException. Illegal Write Access.");
             else if (address) {
-                _Memory.memoryContainer[segment][address] = data;
+                if ((address >= 0 && address <= 255))
+                    _Memory.memoryContainer[segment][address] = data;
+                else
+                    _Kernel.krnTrapError("OutOfBoundsException. Illegal Address Write Access.");
             }
-            else {
+            else if ((segment >= 0 && segment <= 2) && data.length / 2 <= 256) {
                 let wordCounter = 0;
                 for (let i = 0; i < data.length / 2; i++) {
                     _Memory.memoryContainer[segment][i] = data.substring(wordCounter, wordCounter + 2);
                     wordCounter += 2;
                 }
             }
+            else
+                _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
         }
         //Debugging purposes - Prints the contents of memory to the console
         print() {
