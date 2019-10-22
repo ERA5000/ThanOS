@@ -53,7 +53,6 @@ var TSOS;
             _HasCrashed = true;
             _CPU.isExecuting = false;
             _CPU.hasExecutionStarted = false;
-            _CPU.hasProgramEnded = true;
             _Kernel.krnTrapError("User invoked crash.");
             document.getElementById("taProgramInput").value = "";
             document.getElementById("taProgramInput").disabled = true;
@@ -318,6 +317,14 @@ var TSOS;
             _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
             _StdOut.advanceLine();
             _StdOut.putText(_OsShell.promptStr);
+        }
+        static updateGUI(pcb, instrucAmount) {
+            this.updateCPUDisplay();
+            this.drawMemory();
+            this.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
+            this.updatePCBIR(pcb);
+            _Dispatcher.snapshot(pcb);
+            this.updatePCBRow(pcb);
         }
     }
     TSOS.Utils = Utils;

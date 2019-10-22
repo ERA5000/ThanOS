@@ -55,7 +55,6 @@ module TSOS {
             _HasCrashed = true;
             _CPU.isExecuting = false;
             _CPU.hasExecutionStarted = false;
-            _CPU.hasProgramEnded = true;
             _Kernel.krnTrapError("User invoked crash.");
             (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value = "";
             (<HTMLTextAreaElement>document.getElementById("taProgramInput")).disabled = true;
@@ -325,14 +324,23 @@ module TSOS {
             too much space. I was conflicted about where to put this method: I knew I had to get it out of CPU, and have since moved it here, to Utils...
         */
        public static printTime(pcb: ProcessControlBlock){
-        _StdOut.advanceLine();
-        _StdOut.putText(`Stats for process with PID: ${pcb.pid}`);
-        _StdOut.advanceLine();
-        _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTime} cycles.`);
-        _StdOut.advanceLine();
-        _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
-        _StdOut.advanceLine();
-        _StdOut.putText(_OsShell.promptStr);
-    }
+            _StdOut.advanceLine();
+            _StdOut.putText(`Stats for process with PID: ${pcb.pid}`);
+            _StdOut.advanceLine();
+            _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTime} cycles.`);
+            _StdOut.advanceLine();
+            _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
+            _StdOut.advanceLine();
+            _StdOut.putText(_OsShell.promptStr);
+        }
+
+        public static updateGUI(pcb: ProcessControlBlock, instrucAmount: number){
+            this.updateCPUDisplay();
+            this.drawMemory();
+            this.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
+            this.updatePCBIR(pcb);
+            _Dispatcher.snapshot(pcb);
+            this.updatePCBRow(pcb);
+        }
     }
 }

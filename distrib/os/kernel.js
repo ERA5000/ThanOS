@@ -75,13 +75,14 @@ var TSOS;
                 // Process the first interrupt on the interrupt queue.
                 // TODO (maybe): Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
-                //Mode bit is now toggled for software interrupts (context switches) and the system call functionality
+                // Mode bit is now toggled for software interrupts (context switches) and the system call functionality
                 if (interrupt.irq == 2 || interrupt.irq == 3)
                     _Mode = 0;
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
             }
             else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 _CPU.cycle();
+                TSOS.Utils.updateGUI(_CurrentPCB, _CPU.dataAmount); // Moved all graphical updates to here from CPU
                 _Scheduler.schedulerInterrupt("RoundRobin");
             }
             else { // If there are no interrupts and there is nothing being executed then just be idle.

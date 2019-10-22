@@ -22,7 +22,7 @@ module TSOS {
                     public Zflag: number = 0,
                     public isExecuting: boolean = false,
                     public hasExecutionStarted: boolean = false,
-                    public hasProgramEnded: boolean = false) {
+                    public dataAmount: number = 0) {
 
         }
 
@@ -34,7 +34,7 @@ module TSOS {
             this.Zflag = 0;
             this.isExecuting = false;
             this.hasExecutionStarted = false;
-            this.hasProgramEnded = false;
+            this.dataAmount = 0;
         }
 
         public cycle(): void {
@@ -46,14 +46,9 @@ module TSOS {
         }
 
         public execute(pcb: ProcessControlBlock) {
-            //console.log(`Process: ${pcb.pid}`);
-            //console.log(`What is the wait time?  ${pcb.waitTime}`);
-            //console.log(`What is the turnaround time?  ${pcb.turnaroundTimeCycles}`);
-            //console.log();
             this.hasExecutionStarted = true;
             pcb.state = "Running";
             let command: string;
-            let instrucAmount = 0;
             if(this.PC < 0 || this.PC >= 255) {
                 command = "00";
             }
@@ -61,85 +56,68 @@ module TSOS {
 
             switch (command) {
                 case "A9":
-                    instrucAmount = 1;
+                    this.dataAmount = 1;
                     this.loadAccConst();
                     break;
                 case "AD": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.loadAccMem();
                     break;
                 case "8D": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.storeInMem();
                     break;
                 case "6D": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.addWCarry();
                     break;
                 case "A2":
-                    instrucAmount = 1;
+                    this.dataAmount = 1;
                     this.loadXConst();
                     break;
                 case "AE": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.loadXMem();
                     break;
                 case "A0":
-                    instrucAmount = 1;
+                    this.dataAmount = 1;
                     this.loadYConst();
                     break;
                 case "AC": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.loadYMem();
                     break;
                 case "EA":
+                    this.dataAmount = 0;
                     this.PC++;
                     break;
                 case "00":
-                    this.hasProgramEnded = true;
+                    this.dataAmount = 0;
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
-                    if(this.PC >= 255) {
-                        Utils.updateCPUDisplay();
-                        Utils.drawMemory();
-                        Utils.updatePCBRow(pcb);
-                        _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                        return;
-                    }
+                    Utils.printTime(pcb);
+                    _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
                     break;
                 case "EC": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.compXMem();
                     break;
                 case "D0":
-                    instrucAmount = 1;
+                    this.dataAmount = 1;
                     this.branchOnZ();
                     break;
                 case "EE": //Little Endian
-                    instrucAmount = 2;
+                    this.dataAmount = 2;
                     this.incByte();
                     break;
                 case "FF":
+                    this.dataAmount = 0;
                     let interrupt = new TSOS.Interrupt(SYSTEM_CALL, [0]);
                     _KernelInterruptQueue.enqueue(interrupt);
                     break;
                 default:
                     _Kernel.krnTrace("Invalid Op Code. Terminating execution.");
-                    this.hasProgramEnded = true;
                     break;
-            }
-            Utils.updateCPUDisplay();
-            Utils.drawMemory();
-            Utils.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
-            Utils.updatePCBIR(pcb);
-            _Dispatcher.snapshot(pcb);
-            Utils.updatePCBRow(pcb);
-            if(this.hasProgramEnded) {
-                Utils.printTime(pcb);
-                pcb.state = "Terminated";
-                Utils.updatePCBRow(pcb);
-                _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
-                this.hasProgramEnded = false;
             }
             if(_SingleStep) this.isExecuting = false;
         }
