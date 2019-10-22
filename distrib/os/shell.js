@@ -448,6 +448,8 @@ var TSOS;
                     TSOS.Utils.drawMemory();
                     TSOS.Utils.addPCBRow(pcb);
                     TSOS.Utils.updatePCBRow(pcb);
+                    if (!_CPU.isExecuting)
+                        _CPU.init();
                 }
             }
         }
@@ -662,14 +664,12 @@ var TSOS;
                     _ReadyPCB[i].state = "Terminated";
                     TSOS.Utils.updatePCBRow(_ReadyPCB[i]);
                     _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
-                    //_MemoryManager.wipeSegmentByID(_ReadyPCB[i].segment);
                     TSOS.Utils.printTime(_ReadyPCB[i]);
                 }
                 _CPU.isExecuting = false;
                 _CPU.init();
                 TSOS.Utils.updateCPUDisplay();
                 TSOS.Utils.resetCPUIR();
-                //Utils.drawMemory();
                 _ReadyPCB = [];
                 _StdOut.putText("All of the processes have been terminated.");
             }

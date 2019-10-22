@@ -538,6 +538,7 @@ module TSOS {
                     Utils.drawMemory();
                     Utils.addPCBRow(pcb);
                     Utils.updatePCBRow(pcb);
+                    if(!_CPU.isExecuting) _CPU.init();
                 }
             }
         }
@@ -753,14 +754,12 @@ module TSOS {
                     _ReadyPCB[i].state = "Terminated";
                     Utils.updatePCBRow(_ReadyPCB[i]);
                     _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
-                    //_MemoryManager.wipeSegmentByID(_ReadyPCB[i].segment);
                     Utils.printTime(_ReadyPCB[i]);
                 }
                 _CPU.isExecuting = false;
                 _CPU.init();
                 Utils.updateCPUDisplay();
                 Utils.resetCPUIR();
-                //Utils.drawMemory();
                 _ReadyPCB = [];
                 _StdOut.putText("All of the processes have been terminated.");
             }

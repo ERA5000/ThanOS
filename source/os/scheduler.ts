@@ -100,7 +100,6 @@ module TSOS{
             }
             else {
                 if(_ReadyPCB.length == 0) {
-                    console.log("Am I ever run?");
                     _CPU.hasExecutionStarted = false;
                     _CPU.isExecuting = false;
                     this.cycle = 1;
