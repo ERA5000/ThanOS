@@ -59,7 +59,7 @@ var TSOS;
             document.getElementById("taHostLog").value = "";
             document.getElementById("taHostLog").disabled = true;
             this.disableSS();
-            _MemoryManager.setAvailableSegmentByID();
+            _MemoryManager.wipeSegmentByID();
         }
         /*A simple method to verify hex input data using RegEx
         I think this turned into one of the those logical 'proofs' where finding the negation is easier,

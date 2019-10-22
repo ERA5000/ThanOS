@@ -11,7 +11,7 @@ var TSOS;
             this.range3 = [512, 767];
         }
         //Returns which first segment is available
-        getAvailableSegmentByID() {
+        getNextAvailableSegment() {
             if (_Memory.seg1Avail)
                 return 0;
             else if (_Memory.seg2Avail)
@@ -22,7 +22,7 @@ var TSOS;
                 return -1;
         }
         //If a segment is specified, it will erase it. If not, all of memory will be erased.
-        setAvailableSegmentByID(segment) {
+        wipeSegmentByID(segment) {
             if (segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }

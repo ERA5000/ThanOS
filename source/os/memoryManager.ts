@@ -15,7 +15,7 @@ module TSOS {
         }
 
         //Returns which first segment is available
-        public getAvailableSegmentByID(): number {
+        public getNextAvailableSegment(): number {
             if(_Memory.seg1Avail) return 0;
             else if (_Memory.seg2Avail) return 1;
             else if (_Memory.seg3Avail) return 2;
@@ -23,7 +23,7 @@ module TSOS {
         }
 
         //If a segment is specified, it will erase it. If not, all of memory will be erased.
-        public setAvailableSegmentByID(segment?: number): void {
+        public wipeSegmentByID(segment?: number): void {
             if(segment < 0 || segment > 2) {
                 _Kernel.krnTrapError("Segmentation Fault. Memory out of range.");
             }

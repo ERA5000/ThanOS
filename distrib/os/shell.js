@@ -412,7 +412,7 @@ var TSOS;
                 }
                 else {
                     //let overritten = false;
-                    let pcb = new TSOS.ProcessControlBlock(_MemoryManager.getAvailableSegmentByID());
+                    let pcb = new TSOS.ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
                     _MemoryManager.setMemoryStatus(pcb.segment);
                     if (pcb.segment > 2) {
                         _StdOut.putText("Segmentation Fault. Only memory is available for iProject3. Execution has stopped.");
@@ -423,6 +423,9 @@ var TSOS;
                         return;
                     }
                     pcb.location = "Memory";
+                    if (!_CPU.isExecuting)
+                        _CPU.init();
+                    _MemoryManager.wipeSegmentByID(pcb.segment);
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
                     //This is now broken and will not be fixed until the continuity for load/run/runall/kill/killall works flawlessly*
                     /*Make an attempt to clean old/unused PCBs
@@ -545,7 +548,7 @@ var TSOS;
                     TSOS.Utils.updatePCBRow(temp);
                 }
             }
-            _MemoryManager.setAvailableSegmentByID();
+            _MemoryManager.wipeSegmentByID();
             _MemoryManager.allAvailable();
             TSOS.Utils.drawMemory();
             _ReadyPCB = [];
@@ -659,14 +662,14 @@ var TSOS;
                     _ReadyPCB[i].state = "Terminated";
                     TSOS.Utils.updatePCBRow(_ReadyPCB[i]);
                     _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
-                    _MemoryManager.setAvailableSegmentByID(_ReadyPCB[i].segment);
+                    //_MemoryManager.wipeSegmentByID(_ReadyPCB[i].segment);
                     TSOS.Utils.printTime(_ReadyPCB[i]);
                 }
                 _CPU.isExecuting = false;
                 _CPU.init();
                 TSOS.Utils.updateCPUDisplay();
                 TSOS.Utils.resetCPUIR();
-                TSOS.Utils.drawMemory();
+                //Utils.drawMemory();
                 _ReadyPCB = [];
                 _StdOut.putText("All of the processes have been terminated.");
             }

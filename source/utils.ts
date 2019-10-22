@@ -61,7 +61,7 @@ module TSOS {
             (<HTMLTextAreaElement>document.getElementById("taHostLog")).value = "";
             (<HTMLTextAreaElement>document.getElementById("taHostLog")).disabled = true;
             this.disableSS();
-            _MemoryManager.setAvailableSegmentByID();
+            _MemoryManager.wipeSegmentByID();
         }
 
         /*A simple method to verify hex input data using RegEx
