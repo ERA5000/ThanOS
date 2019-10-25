@@ -342,5 +342,44 @@ module TSOS {
             _Dispatcher.snapshot(pcb);
             this.updatePCBRow(pcb);
         }
+
+        public static moveDog(){
+            let dog = document.getElementById("dog");
+            let x = Math.random() * document.documentElement.clientWidth;
+            if(x <= 55 || x >= document.documentElement.clientWidth - 55) x = document.documentElement.clientWidth / 2;
+            let y = Math.random() * document.documentElement.clientHeight;
+            if(y <= 45 || y >= document.documentElement.clientHeight - 45) y = document.documentElement.clientHeight / 2;
+            dog.style.left = x + "px";
+            dog.style.top = y + "px";
+            let speak = ["bork", "heck", "*sniff*"];
+            _StdOut.putText(`${speak[Math.round(Math.random() * 2)]}`);
+            _StdOut.advanceLine();
+            console.log("What is this x value? " + dog.style.left);
+            console.log("What is this y value? " + dog.style.top);
+            let bark = new Audio("distrib/resources/audio/bork.mp3");
+            bark.play();
+        }
+        public static test(){
+            //setInterval(this.moveDog, 1000);
+            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
+            dogSong.play();
+            dogSong.loop = true;
+            let dog = document.getElementById("dog");
+            dog.style.display = "initial";
+            this.moveDog();
+            dog.addEventListener("mouseover", this.moveDog);
+            document.getElementById("rainbow").style.display = "initial";
+            setInterval(this.color, 1000);
+        }
+
+        private static color(){
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            document.getElementById("rainbow").style.backgroundColor = color;
+            console.log("What is the new color? " + color);
+        }
     }
 }

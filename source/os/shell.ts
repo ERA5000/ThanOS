@@ -50,6 +50,12 @@ module TSOS {
                                   "date",
                                   "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
+
+            //dog
+            sc = new ShellCommand(this.shellDog,
+                                  "dog",
+                                   "- Make a heckin' floofer do an appear.");
+            this.commandList[this.commandList.length] = sc;
             
             // help
             sc = new ShellCommand(this.shellHelp,
@@ -400,6 +406,11 @@ module TSOS {
                         break;
                     case "killall":
                         _StdOut.putText("Terminates execution of all programs. Only processes listed as 'Ready' or 'Running' can be terminated.");
+                        break;
+                    case "dog":
+                        _StdOut.putText("Bork");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("-A very good boi");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -763,6 +774,11 @@ module TSOS {
                 _ReadyPCB = [];
                 _StdOut.putText("All of the processes have been terminated.");
             }
+        }
+
+        public shellDog(){
+            Utils.test();
+            _StdOut.putText("Wrangle the doggo!");
         }
     }
 }
