@@ -326,6 +326,10 @@ var TSOS;
             _Dispatcher.snapshot(pcb);
             this.updatePCBRow(pcb);
         }
+        /**
+         * Everytime the mouse hovers over the dog, it moves to a new random spot based on the size of the viewport, it 'speaks' (by outputting one of
+         *  the text options onto the CLI), and it audibly barks (or borks for the meme-literate).
+         */
         static moveDog() {
             let dog = document.getElementById("dog");
             let x = Math.random() * document.documentElement.clientWidth;
@@ -337,33 +341,25 @@ var TSOS;
             dog.style.left = x + "px";
             dog.style.top = y + "px";
             let speak = ["bork", "heck", "*sniff*"];
-            _StdOut.putText(`${speak[Math.round(Math.random() * 2)]}`);
+            _StdOut.putText(`${speak[Math.floor(Math.random() * 3)]}`);
             _StdOut.advanceLine();
-            console.log("What is this x value? " + dog.style.left);
-            console.log("What is this y value? " + dog.style.top);
             let bark = new Audio("distrib/resources/audio/bork.mp3");
             bark.play();
         }
-        static test() {
-            //setInterval(this.moveDog, 1000);
-            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
-            dogSong.play();
-            dogSong.loop = true;
-            let dog = document.getElementById("dog");
-            dog.style.display = "initial";
-            this.moveDog();
-            dog.addEventListener("mouseover", this.moveDog);
-            document.getElementById("rainbow").style.display = "initial";
-            setInterval(this.color, 1000);
-        }
-        static color() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
+        /**
+         * I must give credit where credit is due. Source: https://stackoverflow.com/questions/1484506/random-color-generator
+         * JS/TS do NOT support what I will call a 'native color library.' What I mean by that is one cannot simply say 'element.style.color = rgb(x, y, z)'
+         * The next best thing is Hex. While I was thinking about doing it this way, whereby random hex digits are pulled and mashed together,
+         *   my implementation was significantly more complicated (unnecessarily, as usual). So instead of trying to do 4-dimensional chess, I found
+         *   this solution.
+         */
+        static randomColor() {
+            let letters = '0123456789ABCDEF';
+            let color = '#';
             for (var i = 0; i < 6; i++) {
                 color += letters[Math.floor(Math.random() * 16)];
             }
             document.getElementById("rainbow").style.backgroundColor = color;
-            console.log("What is the new color? " + color);
         }
     }
     TSOS.Utils = Utils;

@@ -777,7 +777,15 @@ module TSOS {
         }
 
         public shellDog(){
-            Utils.test();
+            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
+            dogSong.play();
+            dogSong.loop = true;
+            let dog = document.getElementById("dog");
+            dog.style.display = "initial";
+            Utils.moveDog();
+            dog.addEventListener("mouseover", Utils.moveDog);
+            document.getElementById("rainbow").style.display = "initial";
+            setInterval(Utils.randomColor, 1000);
             _StdOut.putText("Wrangle the doggo!");
         }
     }
