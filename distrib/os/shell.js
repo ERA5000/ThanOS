@@ -27,12 +27,12 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
             // clearMem
-            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all of memory.");
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all of memory of Resident programs.");
             this.commandList[this.commandList.length] = sc;
-            //crash
+            // crash
             sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
-            //date
+            // date
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
             // help
@@ -44,7 +44,7 @@ var TSOS;
             // killall
             sc = new TSOS.ShellCommand(this.shellKillAll, "killall", "- Kills all programs.");
             this.commandList[this.commandList.length] = sc;
-            //load
+            // load
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads user program into memory for execution.");
             this.commandList[this.commandList.length] = sc;
             // man <topic>
@@ -71,10 +71,10 @@ var TSOS;
             // shutdown
             sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
-            //snap
+            // snap
             sc = new TSOS.ShellCommand(this.shellSnap, "snap", "- Reality is often disappointing. That is, it was.");
             this.commandList[this.commandList.length] = sc;
-            //status
+            // status
             sc = new TSOS.ShellCommand(this.shellStatus, "status", " - Sets a new status.");
             this.commandList[this.commandList.length] = sc;
             // trace <on | off>
@@ -83,11 +83,9 @@ var TSOS;
             // ver
             sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version of the OS.");
             this.commandList[this.commandList.length] = sc;
-            //whereami
+            // whereami
             sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Let me guess, your home?");
             this.commandList[this.commandList.length] = sc;
-            // ps  - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -299,10 +297,12 @@ var TSOS;
                             + " Usable Flags: 'v' and 'd'. v: Display current value. d: Reset to default (6).");
                         break;
                     case "clearmem":
-                        _StdOut.putText("Clears all of memory, resetting all values to 0.");
+                        _StdOut.putText("Clears all memory of programs with a State of 'Resident,' resetting values to 0."
+                            + " Processes in the State of 'Terminated' are unaffected because they are A) automatically removed"
+                            + " from the queue and B) exist in a different queue entirely.");
                         break;
                     case "runall":
-                        _StdOut.putText("Runs all programs in memory.");
+                        _StdOut.putText("Runs any 'Resident' programs in memory.");
                         break;
                     case "ps":
                         _StdOut.putText("Lists the state and PID of all available processes. Only processes listed as 'Resident,' 'Ready,' or 'Running'" +
@@ -497,10 +497,10 @@ var TSOS;
         /*Specifies a quantum for the Round Robin Scheduling scheme
             I added two flags:
                 a. The 'd' flag sets the quantum to its default of 6.
-                b. The 'v' flag displays its current value.
+                b. The 'v' flag displays the current value.
             Also, if the user tries to do a quantum that is not a whole number (7.8), it gets rounded to the closest number.
             The regex prevents negative numbers since '-' is parsed as a non-digit.
-        Also, quantua cannot be set to 0...
+        Also, quantua cannot be set to 0... (I know the regex should cover -- it does -- but I wanted to be extra sure)
         */
         shellQuantum(args) {
             let valid = /^[0-9.]+$/gm;
@@ -514,7 +514,7 @@ var TSOS;
                     _StdOut.putText(`The current quantum is ${_Quantum}.`);
                     return;
                 }
-                else if (!valid.test(args[0])) {
+                else if (!valid.test(args[0]) || parseInt(args[0]) < 0) {
                     _StdOut.putText("Invalid argument. Quanta can only be integers greater than 0.");
                     return;
                 }
@@ -527,35 +527,23 @@ var TSOS;
             else
                 _StdOut.putText("Usage: quantum <flag> or <integer>. Specify an appropriate quantum.");
         }
-        //Clears all memory regardless of the state of the OS
-        shellClearMem(args) {
-            //Possible use-cases
-            //1. Program(s) are currently running
-            //2. Nothing is running but memory is occupied
-            //a. Single step mode is active
-            //3. Memory is empty
-            if (_CPU.isExecuting)
-                _CPU.isExecuting = false;
-            if (_ResidentPCB.length > 0) {
+        //Clears memory of any programs with the State of 'Resident'
+        shellClearMem() {
+            if (_ResidentPCB.length <= 0) {
+                _StdOut.putText("There are no programs to clear.");
+                return;
+            }
+            else {
                 for (let i = 0; i < _ResidentPCB.length; i++) {
                     let temp = _ResidentPCB[i];
+                    _MemoryManager.wipeSegmentByID(temp.segment);
+                    _MemoryManager.setMemoryStatus(temp.segment);
                     temp.state = "Terminated";
                     TSOS.Utils.updatePCBRow(temp);
                 }
             }
-            if (_ReadyPCB.length > 0) {
-                for (let i = 0; i < _ReadyPCB.length; i++) {
-                    let temp = _ReadyPCB[i];
-                    temp.state = "Terminated";
-                    TSOS.Utils.updatePCBRow(temp);
-                }
-            }
-            _MemoryManager.wipeSegmentByID();
-            _MemoryManager.allAvailable();
             TSOS.Utils.drawMemory();
-            _ReadyPCB = [];
-            _CPU.init();
-            TSOS.Utils.updateCPUDisplay();
+            _ResidentPCB = [];
             _StdOut.putText("Memory successfully cleared.");
         }
         /*Runs all programs sitting in the Resident Queue. The Scheduler (is supposed to) ensure(s) that any new programs will be executed if added after
@@ -583,7 +571,7 @@ var TSOS;
                     _ResidentPCB.splice(i, 1);
                 }
                 if (_CPU.isExecuting)
-                    _StdOut.putText("New programs have been added to the schedule.");
+                    _StdOut.putText("New program(s) successfully added to the schedule.");
                 else {
                     _CPU.init();
                     _CurrentPCB = _ReadyPCB[0];
