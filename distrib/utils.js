@@ -318,6 +318,8 @@ var TSOS;
             _StdOut.advanceLine();
             _StdOut.putText(_OsShell.promptStr);
         }
+        /* Acts as a catch-all method to call to update 'all' of the graphics. Helps to reduce lines of code, in principle at least.
+        */
         static updateGUI(pcb, instrucAmount) {
             this.updateCPUDisplay();
             this.drawMemory();

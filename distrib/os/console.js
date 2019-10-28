@@ -59,10 +59,16 @@ var TSOS;
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
-                    //As long as the line is not empty, add it to the command history
+                    /*As long as the line is not empty, add it to the command history
+                        and set the pointer to the bottom of the list, i.e. the most
+                        recent command.
+                    */
                     if (this.buffer.length != 0 && this.previousLinePosition.length == 0) {
                         this.cmdHistory[this.cmdHistory.length] = this.buffer;
+                        this.cmdPointer = 0;
                     }
+                    this.tabList = [];
+                    this.tabPointer = 0;
                     // ... and reset our buffer.
                     this.buffer = "";
                 }
@@ -212,6 +218,8 @@ var TSOS;
         }
         // Allows the user to traverse command history.
         recall(arrow) {
+            if (this.cmdHistory.length <= 0)
+                return;
             this.eraseLine();
             if (arrow === "↑") {
                 this.cmdPointer--;

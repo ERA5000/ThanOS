@@ -334,6 +334,8 @@ module TSOS {
             _StdOut.putText(_OsShell.promptStr);
         }
 
+        /* Acts as a catch-all method to call to update 'all' of the graphics. Helps to reduce lines of code, in principle at least.
+        */
         public static updateGUI(pcb: ProcessControlBlock, instrucAmount: number){
             this.updateCPUDisplay();
             this.drawMemory();
