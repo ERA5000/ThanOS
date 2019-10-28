@@ -330,21 +330,31 @@ var TSOS;
          * Everytime the mouse hovers over the dog, it moves to a new random spot based on the size of the viewport, it 'speaks' (by outputting one of
          *  the text options onto the CLI), and it audibly barks (or borks for the meme-literate).
          */
+        /* If there is time, make the dog 'dragged' back to its cage: https://www.w3schools.com/howto/howto_js_draggable.asp
+        */
         static moveDog() {
             let dog = document.getElementById("dog");
-            let x = Math.random() * document.documentElement.clientWidth;
-            if (x <= 55 || x >= document.documentElement.clientWidth - 55)
-                x = document.documentElement.clientWidth / 2;
-            let y = Math.random() * document.documentElement.clientHeight;
-            if (y <= 45 || y >= document.documentElement.clientHeight - 45)
-                y = document.documentElement.clientHeight / 2;
-            dog.style.left = x + "px";
-            dog.style.top = y + "px";
-            let speak = ["bork", "heck", "*sniff*"];
-            _StdOut.putText(`${speak[Math.floor(Math.random() * 3)]}`);
-            _StdOut.advanceLine();
-            let bark = new Audio("distrib/resources/audio/bork.mp3");
-            bark.play();
+            if (_PetCounter < _RequiredPets) {
+                let x = Math.random() * document.documentElement.clientWidth;
+                if (x <= 55 || x >= document.documentElement.clientWidth - 55)
+                    x = document.documentElement.clientWidth / 2;
+                let y = Math.random() * document.documentElement.clientHeight;
+                if (y <= 45 || y >= document.documentElement.clientHeight - 45)
+                    y = document.documentElement.clientHeight / 2;
+                dog.style.left = x + "px";
+                dog.style.top = y + "px";
+                let speak = ["bork", "heck", "*sniff*"];
+                _StdOut.putText(`${speak[Math.floor(Math.random() * 3)]}`);
+                _StdOut.advanceLine();
+                let bark = new Audio("distrib/resources/audio/bork.mp3");
+                bark.play();
+                _PetCounter++;
+            }
+            else {
+                dog.addEventListener("click", Utils.test);
+                dog.removeEventListener("mouseover", Utils.moveDog);
+            }
+            console.log("New _PetCounter: " + _PetCounter);
         }
         /**
          * I must give credit where credit is due. Source: https://stackoverflow.com/questions/1484506/random-color-generator
@@ -360,6 +370,11 @@ var TSOS;
                 color += letters[Math.floor(Math.random() * 16)];
             }
             document.getElementById("rainbow").style.backgroundColor = color;
+        }
+        static test() {
+            console.log("I was pet!");
+            //_StdOut.putText("He really is the goodest of boi.");
+            _Kernel.krnEnableInterrupts();
         }
     }
     TSOS.Utils = Utils;

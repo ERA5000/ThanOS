@@ -184,6 +184,7 @@ td, th{
   width: 55px;
   height: 45px;
   animation: spin 4s linear infinite;
+  cursor: grab;
 }
 
 @keyframes spin{ 100% {-webkit-transform: rotate(-360deg);}}

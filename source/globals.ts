@@ -12,7 +12,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "ThanOS";
-const APP_VERSION: string = "3.0.2";
+const APP_VERSION: string = "3.1";
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds), so 1000 = 1 second.
 
@@ -91,3 +91,7 @@ var onDocumentLoad = function() {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();
 };
+
+//Mission Critical
+var _PetCounter = 0;
+var _RequiredPets: number;
