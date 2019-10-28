@@ -351,7 +351,7 @@ var TSOS;
                 _PetCounter++;
             }
             else {
-                dog.addEventListener("click", Utils.test);
+                dog.addEventListener("mousedown", Utils.test);
                 dog.removeEventListener("mouseover", Utils.moveDog);
             }
             console.log("New _PetCounter: " + _PetCounter);
@@ -375,6 +375,33 @@ var TSOS;
             console.log("I was pet!");
             //_StdOut.putText("He really is the goodest of boi.");
             _Kernel.krnEnableInterrupts();
+            Utils.onDogMouseDown(event);
+        }
+        static onDogMouseDown(e) {
+            let dog = document.getElementById("dog");
+            e = e || window.event;
+            e.preventDefault();
+            let mouseX = e.clientX;
+            let mouseY = e.clientY;
+            dog.style.cursor = "grabbing";
+            document.onmousemove = (event) => {
+                e = event || window.event;
+                e.preventDefault();
+                let pos1 = mouseX - event.clientX;
+                let pos2 = mouseY - event.clientY;
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+                dog.style.top = (dog.offsetTop - pos2) + "px";
+                dog.style.left = (dog.offsetLeft - pos1) + "px";
+            };
+            document.onmouseup = () => {
+                dog.style.cursor = "grab";
+                Utils.endDrag();
+            };
+        }
+        static endDrag() {
+            document.onmouseup = null;
+            document.onmousemove = null;
         }
     }
     TSOS.Utils = Utils;

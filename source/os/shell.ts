@@ -780,7 +780,7 @@ module TSOS {
             let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
             dogSong.play();
             dogSong.loop = true;
-            _RequiredPets = Math.floor(Math.random() * 30) + 5;
+            _RequiredPets = 3;//Math.floor(Math.random() * 30) + 5;
             console.log("_RequiredPets " + _RequiredPets);
             let dog = document.getElementById("dog");
             dog.style.display = "initial";

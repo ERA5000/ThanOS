@@ -180,7 +180,7 @@ td, th{
 #dog{
   display: none;
   z-index: 5;
-  position: fixed;
+  position: absolute;
   width: 55px;
   height: 45px;
   animation: spin 4s linear infinite;
