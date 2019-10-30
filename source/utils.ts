@@ -358,7 +358,7 @@ module TSOS {
             dogSong.play();
             dogSong.loop = true;
             _MusicManager[_MusicManager.length] = dogSong;
-            _RequiredPets = 5;//Math.floor(Math.random() * 25) + 5;
+            _RequiredPets = Math.floor(Math.random() * 25) + 5;
             let dog = document.getElementById("dog");
             dog.classList.add("spin");
             dog.style.display = "initial";
