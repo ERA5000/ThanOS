@@ -326,12 +326,44 @@ var TSOS;
             _Dispatcher.snapshot(pcb);
             this.updatePCBRow(pcb);
         }
-        /**
-         * Everytime the mouse hovers over the dog, it moves to a new random spot based on the size of the viewport, it 'speaks' (by outputting one of
-         *  the text options onto the CLI), and it audibly barks (or borks for the meme-literate).
+        /** A fun new command I made in my spare time from iProject3 -- Dogs!
+         * I actually wanted to make this command before snap, but because it was not thematically appropriate, I figured I'd wait until I had the time (and experience)
+         *  to get it right. This too was a labor of love because there are things here I had never done before! (like dragging and 'collision checking').
+         *
+         * What it does:
+         * Pet the dog a random number of times (between 5 and 30) and then bring him back to his dog house -- entertaining enough.
+         * The easiest part was making the div flash random colors (see below), and that was not super straight-forward.
+         * The hardest part was definitely making the dog draggable -- I knew it was possible, but had no idea how to start.
+         * Everything else just kind of came together. I do have some more ideas I'd like to expand on, but iProject4 probably won't be as forgiving timewise.
          */
-        /* If there is time, make the dog 'dragged' back to its cage: https://www.w3schools.com/howto/howto_js_draggable.asp
-        */
+        static dogInit() {
+            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
+            dogSong.play();
+            dogSong.loop = true;
+            _MusicManager[_MusicManager.length] = dogSong;
+            _RequiredPets = 5; //Math.floor(Math.random() * 25) + 5;
+            let dog = document.getElementById("dog");
+            dog.classList.add("spin");
+            dog.style.display = "initial";
+            Utils.moveDog();
+            dog.addEventListener("mouseover", Utils.moveDog);
+            document.getElementById("rainbow").style.display = "initial";
+            document.getElementById("doghouse").style.display = "none";
+            let flashColor = setInterval(() => { document.getElementById("rainbow").style.backgroundColor = Utils.randomColor(); }, 1000);
+            _TimerManager = flashColor;
+            _StdOut.putText(`Pet the doggo! He requires ${_RequiredPets} pets.`);
+            _StdOut.advanceLine();
+            _StdOut.putText("He can be fiesty around new people ;-)");
+            _Kernel.krnDisableInterrupts();
+        }
+        /**
+         * Everytime the mouse hovers over the dog, it moves to a new random spot based on the size of the HTML document, it 'speaks' (by outputting one of
+         *  the text options onto the CLI), and it audibly barks (or borks for the meme-literate).
+         * Two interesting notes about CSS manipulation here:
+         *  1. You have to add "px" at the end otherwise it does not work (it 'takes' a string)
+         *  2. Even if previous values are declared in a CSS document, in order for JS/TS to use them, they MUST be explicitly declared in the JS/TS for usage...
+         *      (This gave me such headaches until I stumbled across a very lucky Stack Overflow form which I've since lost to the sands of time).
+         */
         static moveDog() {
             let dog = document.getElementById("dog");
             if (_PetCounter < _RequiredPets) {
@@ -351,17 +383,23 @@ var TSOS;
                 _PetCounter++;
             }
             else {
-                dog.addEventListener("mousedown", Utils.test);
+                dog.addEventListener("mousedown", Utils.dragDog);
                 dog.removeEventListener("mouseover", Utils.moveDog);
+                dog.classList.remove("spin");
+                let dogHouse = document.getElementById("doghouse");
+                dogHouse.style.display = "initial";
+                dogHouse.style.top = "2px";
+                dogHouse.style.left = "7px";
+                _StdOut.putText("Play time is over! Bring him back to his dog house, please and thank you.");
+                _StdOut.advanceLine();
             }
-            console.log("New _PetCounter: " + _PetCounter);
         }
         /**
          * I must give credit where credit is due. Source: https://stackoverflow.com/questions/1484506/random-color-generator
          * JS/TS do NOT support what I will call a 'native color library.' What I mean by that is one cannot simply say 'element.style.color = rgb(x, y, z)'
          * The next best thing is Hex. While I was thinking about doing it this way, whereby random hex digits are pulled and mashed together,
          *   my implementation was significantly more complicated (unnecessarily, as usual). So instead of trying to do 4-dimensional chess, I found
-         *   this solution.
+         *   this really elegant solution.
          */
         static randomColor() {
             let letters = '0123456789ABCDEF';
@@ -369,15 +407,36 @@ var TSOS;
             for (var i = 0; i < 6; i++) {
                 color += letters[Math.floor(Math.random() * 16)];
             }
-            document.getElementById("rainbow").style.backgroundColor = color;
+            return color;
         }
-        static test() {
-            console.log("I was pet!");
-            //_StdOut.putText("He really is the goodest of boi.");
-            _Kernel.krnEnableInterrupts();
+        /**
+         * Acts as a 'manager' of sorts for the dog drag event(s)
+         */
+        static dragDog() {
+            _StdOut.putText("*Pet*");
+            _StdOut.advanceLine();
             Utils.onDogMouseDown(event);
         }
+        /** Okay, this is complicated as h*ck, at least to me, so I will briefly describe what is happening here. Resource: https://www.w3schools.com/howto/howto_js_draggable.asp.
+         *
+         * @param {MouseEvent} e  The initial mouse click on the dog
+         *
+         * I essentially appropriated the above resource's code to work on my element. Here is what it roughly does:
+         *  1. Capture a mousedown (click) event.
+         *  2. If the mouse is 'on top of' the dog, now listen for an onmousemove event (this is why 'e' and 'event' are named differently -- they are NOT the same event).
+         *      Although there is no 'if' statement here, it knows to listen like this because there is an event listener attached to the dog itself.
+         *  3. As the mouse moves, find its new position, and assign it to the dog's position.
+         *  4. At the end, check if the mouse's position has 'overlapped' the dog house's position.
+         *      i. parseInt - we need an integer for some math, dog.style.top/left - the current position (300px), substring(0, length-2) - lob off the 'px',
+         *          + 40/35 - an offset (about half the dog's width/height) to make it visually appear as though they've overlapped (since the origin is the top left of the dog house)
+         *      a. If they have overlapped, the dog command is over
+         *      b. Otherwise, just keep dragging the dog around the screen
+         *
+         * Fun Fact: Empirically, this must be extremely CPU intensive since, when I added some simple console.logs the see the positions for debugging, the dog was lagging
+         *  so far behind the mouse. I thought there was something wrong, but removing those helped a lot, so I tried to keep this method light.
+         */
         static onDogMouseDown(e) {
+            let dogHouse = document.getElementById("doghouse");
             let dog = document.getElementById("dog");
             e = e || window.event;
             e.preventDefault();
@@ -393,12 +452,33 @@ var TSOS;
                 mouseY = event.clientY;
                 dog.style.top = (dog.offsetTop - pos2) + "px";
                 dog.style.left = (dog.offsetLeft - pos1) + "px";
+                if (parseInt(dog.style.top.substring(0, dog.style.top.length - 2)) <= parseInt(dogHouse.style.top.substring(0, dogHouse.style.top.length - 2)) + 40
+                    && parseInt(dog.style.left.substring(0, dog.style.left.length - 2)) <= parseInt(dogHouse.style.left.substring(0, dogHouse.style.left.length - 2)) + 35) {
+                    document.onmousedown = null;
+                    document.onmousemove = null;
+                    dog.style.display = "none";
+                    dogHouse.style.display = "none";
+                    document.getElementById("rainbow").style.display = "none";
+                    for (let i = 0; i < _MusicManager.length; i++) {
+                        if (!_MusicManager[i].paused) {
+                            _MusicManager[i].pause();
+                            _MusicManager.splice(i, 1);
+                        }
+                    }
+                    clearInterval(_TimerManager);
+                    _StdOut.putText(_OsShell.promptStr);
+                    _PetCounter = 0;
+                    _Kernel.krnEnableInterrupts();
+                }
             };
             document.onmouseup = () => {
                 dog.style.cursor = "grab";
                 Utils.endDrag();
             };
         }
+        /**
+         * If the dog still has not been placed into the dog house, but the user has let go of the dog, stop moving the dog's position
+         */
         static endDrag() {
             document.onmouseup = null;
             document.onmousemove = null;

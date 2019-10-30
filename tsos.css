@@ -183,8 +183,12 @@ td, th{
   position: absolute;
   width: 55px;
   height: 45px;
-  animation: spin 4s linear infinite;
+  /*animation: spin 4s linear infinite;*/
   cursor: grab;
+}
+
+.spin{
+  animation: spin 4s linear infinite;
 }
 
 @keyframes spin{ 100% {-webkit-transform: rotate(-360deg);}}
@@ -196,4 +200,11 @@ td, th{
   width: 100%;
   opacity: .4;
   display: none;
+  cursor: grab;
+}
+
+#doghouse{
+  z-index: 4;
+  display: none;
+  position: absolute;
 }

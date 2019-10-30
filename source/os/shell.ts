@@ -777,21 +777,8 @@ module TSOS {
         }
 
         public shellDog(){
-            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
-            dogSong.play();
-            dogSong.loop = true;
-            _RequiredPets = Math.floor(Math.random() * 25) + 5;
-            console.log("_RequiredPets " + _RequiredPets);
-            let dog = document.getElementById("dog");
-            dog.style.display = "initial";
-            Utils.moveDog();
-            dog.addEventListener("mouseover", Utils.moveDog);
-            document.getElementById("rainbow").style.display = "initial";
-            setInterval(Utils.randomColor, 1000);
-            _StdOut.putText(`Pet the doggo! He requires ${_RequiredPets} pets.`);
-            _StdOut.advanceLine();
-            _StdOut.putText("He can be fiesty around new people ;-)");
-            _Kernel.krnDisableInterrupts();
+            if(_CPU.hasExecutionStarted) _StdOut.putText("The dog doesn't like CPU execution. Try again later.");
+            else Utils.dogInit();
         }
     }
 }
