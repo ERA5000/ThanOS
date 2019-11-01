@@ -71,7 +71,7 @@ var onDocumentLoad = function () {
 };
 //Other Managers
 var _MusicManager = [];
-var _TimerManager;
+var _TimerManager = [];
 //Mission Critical
 var _PetCounter = 0;
 var _RequiredPets;

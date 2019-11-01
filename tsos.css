@@ -191,7 +191,14 @@ td, th{
   animation: spin 4s linear infinite;
 }
 
+.turnAround{
+  animation: turnAround .02s;
+  animation-fill-mode: forwards;
+}
+
 @keyframes spin{ 100% {-webkit-transform: rotate(-360deg);}}
+
+@keyframes turnAround{ 100% {-webkit-transform: scaleX(-1);}}
 
 #rainbow{
   z-index: 3;
@@ -207,4 +214,13 @@ td, th{
   z-index: 4;
   display: none;
   position: absolute;
+}
+
+#bone{
+  display: none;
+  cursor: grab;
+  position: absolute;
+  z-index: 4;
+  width: 40px;
+  height: 40px;
 }

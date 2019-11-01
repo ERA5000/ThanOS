@@ -94,7 +94,7 @@ var onDocumentLoad = function() {
 
 //Other Managers
 var _MusicManager: HTMLAudioElement[] = [];
-var _TimerManager: number;
+var _TimerManager: TSOS.Interval[] = [];
 
 //Mission Critical
 var _PetCounter = 0;
