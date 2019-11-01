@@ -542,6 +542,7 @@ module TSOS {
                 _StdOut.putText("Thanks for catching Beauregard! He can't wait to play again!");
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
+                return;
             }
 
             //Otherwise, just move the dog closer to the bone
