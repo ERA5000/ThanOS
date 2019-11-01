@@ -494,6 +494,15 @@ module TSOS {
         /**
          * Once the dog has been pet the required amount of times, it will then proceed to get the bone.
          * The user must drag the bone around to try and get the dog into the dog house.
+         * 
+         * I also apologize for what seems like an extensive use of 'magic numbers.'
+         *  Getting these 'hitboxes' to work was nightmarish because the origin is supposed to be the top-left of an element,
+         *  but it really does not act that way. Larger numbers like 55, 75 etc are most aligned to actual width and height values,
+         *  while smaller numbers like 5 are just to give the 'collision' some wiggle room.
+         * 
+         * parseInt - convert to a number
+         * dog.style.top/left - get the CSS value (ex. 307px)
+         * substring(0, dog.style.top/left-2) - lob off the 'px' component of the string
          */
         private static dogToBone(): void{
             let dog = document.getElementById("dog");
