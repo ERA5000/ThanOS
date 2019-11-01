@@ -328,6 +328,270 @@ var TSOS;
             _Dispatcher.snapshot(pcb);
             this.updatePCBRow(pcb);
         }
+        /** A fun new command I made in my spare time from iProject3 -- Dogs!
+         * I actually wanted to make this command before snap, but because it was not thematically appropriate, I figured I'd wait until I had the time (and experience)
+         *  to get it right. This too was a labor of love because there are things here I had never done before! (like dragging and 'collision checking').
+         *
+         * What it does:
+         * Pet the dog a random number of times (between 5 and 30) and then get him back to his dog house using his bone -- entertaining enough.
+         * The easiest part was making the div flash random colors (see below), and that was not super straight-forward.
+         * The hardest part was definitely making the bone draggable -- I knew it was possible, but had no idea how to start.
+         * Everything else just kind of came together. I do have some more ideas I'd like to expand on and things I'd like to clean up,
+         *  but iProject4 probably won't be as forgiving timewise.
+         */
+        static dogInit() {
+            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
+            dogSong.play();
+            dogSong.loop = true;
+            _MusicManager[_MusicManager.length] = dogSong;
+            _RequiredPets = Math.floor(Math.random() * 25) + 5;
+            let dog = document.getElementById("dog");
+            dog.classList.add("spin");
+            dog.style.display = "initial";
+            Utils.moveDog();
+            dog.addEventListener("mouseover", Utils.moveDog);
+            document.getElementById("rainbow").style.display = "initial";
+            document.getElementById("doghouse").style.display = "none";
+            let flashColor = setInterval(() => { document.getElementById("rainbow").style.backgroundColor = Utils.randomColor(); }, 1000);
+            _TimerManager[_TimerManager.length] = new TSOS.Interval("flashColor", flashColor);
+            _StdOut.putText(`Pet the doggo! He requires ${_RequiredPets} pets.`);
+            _StdOut.advanceLine();
+            _StdOut.putText("He can be fiesty around new people ;-)");
+            _Kernel.krnDisableInterrupts();
+        }
+        /**
+         * Everytime the mouse hovers over the dog, it moves to a new random spot based on the size of the HTML document, it 'speaks' (by outputting one of
+         *  the text options onto the CLI), and it audibly barks (or borks for the meme-literate).
+         * Two interesting notes about CSS manipulation here:
+         *  1. You have to add "px" at the end otherwise it does not work (it 'takes' a string).
+         *  2. Even if previous values are declared in a CSS document, in order for JS/TS to use them, they MUST be explicitly declared in the JS/TS for usage...
+         *      (This gave me such headaches until I stumbled across a very lucky Stack Overflow form explaing this which I've since lost to the sands of time).
+         */
+        static moveDog() {
+            let dog = document.getElementById("dog");
+            if (_PetCounter < _RequiredPets) {
+                let x = Math.random() * document.documentElement.clientWidth;
+                if (x <= 55 || x >= document.documentElement.clientWidth - 55)
+                    x = document.documentElement.clientWidth / 2;
+                let y = Math.random() * document.documentElement.clientHeight;
+                if (y <= 45 || y >= document.documentElement.clientHeight - 45)
+                    y = document.documentElement.clientHeight / 2;
+                dog.style.left = x + "px";
+                dog.style.top = y + "px";
+                let speak = ["bork", "heck", "*sniff*"];
+                _StdOut.putText(`${speak[Math.floor(Math.random() * 3)]}`);
+                _StdOut.advanceLine();
+                let bark = new Audio("distrib/resources/audio/bork.mp3");
+                bark.play();
+                _PetCounter++;
+            }
+            else {
+                let bone = document.getElementById("bone");
+                //TO DO: Change how bone's start position is generated.
+                bone.style.top = parseInt(dog.style.top.substring(0, dog.style.top.length - 2)) / 2 + "px";
+                bone.style.left = parseInt(dog.style.left.substring(0, dog.style.left.length - 2)) / 2 + "px";
+                bone.style.display = "initial";
+                bone.addEventListener("mousedown", Utils.dragBone);
+                dog.removeEventListener("mouseover", Utils.moveDog);
+                dog.classList.remove("spin");
+                let dogHouse = document.getElementById("doghouse");
+                dogHouse.style.display = "initial";
+                dogHouse.style.width = "60px";
+                dogHouse.style.height = "75px";
+                dogHouse.style.left = (document.documentElement.clientWidth / 2 - parseInt(dogHouse.style.width.substring(0, dogHouse.style.width.length - 2)) / 2) + "px";
+                dogHouse.style.top = (document.documentElement.clientHeight / 2 - parseInt(dogHouse.style.height.substring(0, dogHouse.style.height.length - 2)) / 2) + "px";
+                _StdOut.putText("Play time is over! Bring him back to his dog house, please and thank you.");
+                _StdOut.advanceLine();
+                let dogChase = new TSOS.Interval("dogChase", setInterval(Utils.dogToBone, 25));
+                _TimerManager[_TimerManager.length] = dogChase;
+            }
+        }
+        /**
+         * I must give credit where credit is due. Source: https://stackoverflow.com/questions/1484506/random-color-generator
+         * JS/TS do NOT support what I will call a 'native color library.' What I mean by that is one cannot simply say 'element.style.color = rgb(x, y, z).'
+         * The next best thing is Hex. While I was thinking about doing it this way, whereby random hex digits are pulled and mashed together,
+         *   my implementation was significantly more complicated (unnecessarily, as usual). So instead of trying to do 4-dimensional chess, I found
+         *   this really elegant solution.
+         */
+        static randomColor() {
+            let letters = '0123456789ABCDEF';
+            let color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        //Acts as a 'manager' of sorts for the dog drag event(s)
+        static dragBone() {
+            Utils.onBoneMouseDown(event);
+        }
+        /** Okay, this is complicated as h*ck, at least to me, so I will briefly describe what is happening here. Resource: https://www.w3schools.com/howto/howto_js_draggable.asp.
+         *
+         * @param {MouseEvent} e  The initial mouse click on the dog
+         *
+         * I essentially appropriated the above resource's code to work on my element. Here is what it roughly does:
+         *  1. Capture a mousedown (click) event.
+         *  2. If the mouse is 'on top of' the bone, now listen for an onmousemove event (this is why 'e' and 'event' are named differently -- they are NOT the same event).
+         *      Although there is no 'if' statement here, it knows to listen like this because there is an event listener attached to the bone element itself.
+         *  3. As the mouse moves, find its new position, and assign it to the bone's position.
+         *
+         * Fun Fact: Empirically, this must be extremely CPU/browser intensive since, when I added some simple console.logs to see the positions for debugging, the bone was lagging
+         *  so far behind the mouse. I thought there was something wrong, but removing those helped a lot, so I tried to keep this method light.
+         */
+        static onBoneMouseDown(e) {
+            let bone = document.getElementById("bone");
+            e = e || window.event;
+            e.preventDefault();
+            let mouseX = e.clientX;
+            let mouseY = e.clientY;
+            bone.style.cursor = "grabbing";
+            document.onmousemove = (event) => {
+                e = event || window.event;
+                e.preventDefault();
+                let pos1 = mouseX - event.clientX;
+                let pos2 = mouseY - event.clientY;
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+                bone.style.top = (bone.offsetTop - pos2) + "px";
+                bone.style.left = (bone.offsetLeft - pos1) + "px";
+            };
+            document.onmouseup = () => {
+                bone.style.cursor = "grab";
+                Utils.endDrag();
+            };
+        }
+        /**
+         * When not clicking anymore, the bone needs to stop moving and ensure that, if a new click is made elsewhere, nothing happens.
+         */
+        static endDrag() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+        /**
+         * Once the dog has been pet the required amount of times, it will then proceed to get the bone.
+         * The user must drag the bone around to try and get the dog into the dog house.
+         *
+         * I also apologize for what seems like an extensive use of 'magic numbers.'
+         *  Getting these 'hitboxes' to work was nightmarish because the origin is supposed to be the top-left of an element,
+         *  but it really does not act that way. Larger numbers like 55, 75 etc are most aligned to actual width and height values,
+         *  while smaller numbers like 5 are just to give the 'collision' some wiggle room.
+         *
+         * parseInt - convert to a number
+         * dog.style.top/left - get the CSS value (ex. 307px)
+         * substring(0, dog.style.top/left-2) - lob off the 'px' component of the string
+         */
+        static dogToBone() {
+            let dog = document.getElementById("dog");
+            let bone = document.getElementById("bone");
+            let dogHouse = document.getElementById("doghouse");
+            let dogX = parseInt(dog.style.left.substring(0, dog.style.left.length - 2));
+            let dogY = parseInt(dog.style.top.substring(0, dog.style.top.length - 2));
+            let boneX = parseInt(bone.style.left.substring(0, bone.style.left.length - 2));
+            let boneY = parseInt(bone.style.top.substring(0, bone.style.top.length - 2));
+            let dogHouseX = parseInt(dogHouse.style.left.substring(0, dogHouse.style.left.length - 2));
+            let dogHouseY = parseInt(dogHouse.style.top.substring(0, dogHouse.style.top.length - 2));
+            //Checks to see whether or not the dog has grabbed the bone. If so, the dog command is over, but with a fun animation to boot.
+            if ((dogX <= boneX + 5 && dogX >= boneX - 5) && (dogY >= boneY - 5 && dogY <= boneY + 5)) {
+                bone.style.display = "none";
+                if (dog.classList.contains("turnAround")) {
+                    dog.style.animationFillMode = "none";
+                    dog.classList.remove("turnAround");
+                }
+                for (let i = 0; i < _TimerManager.length; i++) {
+                    if (_TimerManager[i].name == "dogChase")
+                        clearInterval(_TimerManager[i].intervalID);
+                }
+                dog.style.animationFillMode = "forwards";
+                //TO DO: Make animation smoother here
+                for (let i = 1; i < 5; i++) {
+                    if (i % 2 == 0)
+                        setTimeout(() => { dog.classList.add("turnAround"); }, 750 * i);
+                    else
+                        setTimeout(() => { dog.classList.remove("turnAround"); }, 750 * i);
+                }
+                setTimeout(() => {
+                    let dogSong;
+                    for (let i = 0; i < _MusicManager.length; i++) {
+                        if (!_MusicManager[i].paused)
+                            dogSong = _MusicManager[i];
+                    }
+                    let dogLeave = new TSOS.Interval("dogLeave", setInterval(Utils.dogLeave, 25, dog, dogSong));
+                    _TimerManager[_TimerManager.length] = dogLeave;
+                }, 3000);
+                return;
+            }
+            //TO DO: Fine-tune these coordinates
+            //Checks to see whether or not the dog has entered the dog house. If so, the dog command has canonically ended.
+            if ((dogX + 55 <= dogHouseX + 60 && dogX >= dogHouseX) && (dogY + 45 <= dogHouseY + 75 && dogY >= dogHouseY)) {
+                Utils.dogReset();
+                _StdOut.putText("Thanks for catching Beauregard! He can't wait to play again!");
+                _StdOut.advanceLine();
+                _StdOut.putText(_OsShell.promptStr);
+                return;
+            }
+            //Otherwise, just move the dog closer to the bone
+            if (dogX <= boneX) {
+                dog.classList.add("turnAround");
+                dog.style.left = dogX + 5 + "px";
+            }
+            else {
+                dog.classList.remove("turnAround");
+                dog.style.left = dogX - 5 + "px";
+            }
+            if (dogY <= boneY)
+                dog.style.top = dogY + 5 + "px";
+            else
+                dog.style.top = dogY - 5 + "px";
+        }
+        /** This plays ONLY after the dog has grabbed the bone.
+         * If the dog has grabbed the bone, he looks around for a few seconds, and then leaves.
+         * Once he's gone, the command is over.
+         */
+        static dogLeave(dog, dogSong) {
+            let dogX = parseInt(dog.style.left.substring(0, dog.style.left.length - 2));
+            if (dogX > document.documentElement.clientWidth) {
+                dogSong.pause();
+                for (let i = 0; i < _TimerManager.length; i++) {
+                    if (_TimerManager[i].name = "dogLeave")
+                        clearInterval(_TimerManager[i].intervalID);
+                }
+                _StdOut.putText("The dog has left because of your failed antics :/");
+                _StdOut.advanceLine();
+                _StdOut.putText(_OsShell.promptStr);
+                Utils.dogReset();
+            }
+            //TO DO: Make the dog go in the direction he's farthest from (as opposed to always going to the right)
+            else {
+                dogSong.volume = 1 - (dogX / document.documentElement.clientWidth);
+                dog.style.left = dogX + 5 + "px";
+            }
+        }
+        /**
+         * Acts as a 'catch-all' reset mechanism for the dog command since it A) is significantly bigger
+         *  than snap() and B) relies on user-input, so that now has to be accounted for too.
+         */
+        //TO DO: Write a getter method for these Managers that allows for the lookup of an object based on its properties
+        static dogReset() {
+            for (let i = 0; i < _MusicManager.length; i++) {
+                if (!_MusicManager[i].paused) {
+                    _MusicManager[i].pause();
+                    _MusicManager.splice(i, 1);
+                }
+            }
+            for (let i = 0; i < _TimerManager.length; i++) {
+                if (_TimerManager[i].name = "dogLeave")
+                    clearInterval(_TimerManager[i].intervalID);
+            }
+            document.getElementById("doghouse").style.display = "none";
+            document.getElementById("rainbow").style.display = "none";
+            document.getElementById("bone").style.display = "none";
+            let dog = document.getElementById("dog");
+            dog.style.display = "none";
+            dog.classList.remove("turnAround");
+            dog.classList.add("spin");
+            _PetCounter = 0;
+            _Kernel.krnEnableInterrupts();
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

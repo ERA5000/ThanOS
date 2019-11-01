@@ -6,6 +6,10 @@ body {
   font-size: 12pt;
   font-weight: normal;
   font-style: normal;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -171,4 +175,52 @@ td, th{
   max-height: 156px;
   overflow-y: scroll;
   width: 702px;
+}
+
+#dog{
+  display: none;
+  z-index: 5;
+  position: absolute;
+  width: 55px;
+  height: 45px;
+  /*animation: spin 4s linear infinite;*/
+  cursor: grab;
+}
+
+.spin{
+  animation: spin 4s linear infinite;
+}
+
+.turnAround{
+  animation: turnAround .02s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes spin{ 100% {-webkit-transform: rotate(-360deg);}}
+
+@keyframes turnAround{ 100% {-webkit-transform: scaleX(-1);}}
+
+#rainbow{
+  z-index: 3;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  opacity: .4;
+  display: none;
+  cursor: grab;
+}
+
+#doghouse{
+  z-index: 4;
+  display: none;
+  position: absolute;
+}
+
+#bone{
+  display: none;
+  cursor: grab;
+  position: absolute;
+  z-index: 4;
+  width: 40px;
+  height: 40px;
 }

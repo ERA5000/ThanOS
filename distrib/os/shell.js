@@ -35,6 +35,9 @@ var TSOS;
             // date
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
+            //dog
+            sc = new TSOS.ShellCommand(this.shellDog, "dog", "- Make a heckin' floofer do an appear.");
+            this.commandList[this.commandList.length] = sc;
             // help
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "- Displays the list of available commands.");
             this.commandList[this.commandList.length] = sc;
@@ -314,6 +317,11 @@ var TSOS;
                         break;
                     case "killall":
                         _StdOut.putText("Terminates execution of all programs. Only processes listed as 'Ready' or 'Running' can be terminated.");
+                        break;
+                    case "dog":
+                        _StdOut.putText("Bork");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("-A very good boi");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -661,6 +669,12 @@ var TSOS;
                 _ReadyPCB = [];
                 _StdOut.putText("All of the processes have been terminated.");
             }
+        }
+        shellDog() {
+            if (_CPU.hasExecutionStarted)
+                _StdOut.putText("The dog doesn't like CPU execution. Try again later.");
+            else
+                TSOS.Utils.dogInit();
         }
     }
     TSOS.Shell = Shell;
