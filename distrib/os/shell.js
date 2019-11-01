@@ -300,9 +300,12 @@ var TSOS;
                             + " Usable Flags: 'v' and 'd'. v: Display current value. d: Reset to default (6).");
                         break;
                     case "clearmem":
-                        _StdOut.putText("Clears all memory of programs with a State of 'Resident,' resetting values to 0."
-                            + " Processes in the State of 'Terminated' are unaffected because they are A) automatically removed"
+                        _StdOut.putText("Clears all memory of programs with a State of 'Resident,' resetting values to 0.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Processes in the State of 'Terminated' are unaffected because they are A) automatically removed"
                             + " from the queue and B) exist in a different queue entirely.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("The GUI will update only when new programs are written to memory. This is for debugging purposes.");
                         break;
                     case "runall":
                         _StdOut.putText("Runs any 'Resident' programs in memory.");
