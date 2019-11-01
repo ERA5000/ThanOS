@@ -327,9 +327,11 @@ module TSOS {
             _StdOut.advanceLine();
             _StdOut.putText(`Stats for process with PID: ${pcb.pid}`);
             _StdOut.advanceLine();
-            _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTime} cycles.`);
+            if(pcb.turnaroundTime != 1) _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTime} cycles.`);
+            else _StdOut.putText(`Turn Around Time: ${pcb.turnaroundTime} cycle.`);
             _StdOut.advanceLine();
-            _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
+            if(pcb.waitTime != 1) _StdOut.putText(`Wait Time: ${pcb.waitTime} cycles.`);
+            else _StdOut.putText(`Wait Time: ${pcb.waitTime} cycle.`);
             _StdOut.advanceLine();
             _StdOut.putText(_OsShell.promptStr);
         }
