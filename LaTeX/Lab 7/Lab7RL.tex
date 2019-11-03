@@ -67,7 +67,7 @@
    \normalfont \normalsize 
    \textsc{CMPT 424 - Fall 2019 - Dr. Labouseur} \\[10pt] % Header stuff.
    \horrule{0.5pt} \\[0.25cm] 	% Top horizontal rule
-   \huge Lab Three  \\     	    % Assignment title
+   \huge Lab Six  \\     	    % Assignment title
    \horrule{0.5pt} \\[0.25cm] 	% Bottom horizontal rule
 }
 
@@ -83,37 +83,14 @@
 %----------------------------------------------------------------------------------------
 \section{Question One}
 
-\subsection{Explain the difference between internal and external fragmentation.}
-
-Internal and external fragmentation are mutually-exclusive consequences of how memory is allocated. Internal fragmentation occurs when statically sized memory is assigned to a program. If the program does not use all of the memory it has been allocated, that leftover space is wasted, or 'internally fragmented.' Because it is bound by the size of the allocation, nothing can be done with it. External fragmentation, on the other hand, occurs in variably sized memory allocation.
+\subsection{Matt Smith: a great Doctor, of the greatest Doctor? Bonus: What about Jodie?}
 \par
-External fragmentation occurs when, as programs are assigned just the memory they need and subsequently finish, empty holes start to appear. A program might need X amount of memory to run, and adding the empty holes together might sum to Y memory where Y > X, but because it is not contiguous, that program cannot run. To combat this issue, many operating systems have programs that will defragment memory, usually a hard drive. While we're concerned more with 'RAM,' the same principles still apply.
-
+I would say they're both definitely within the top 13 of the Doctors.
 
 %----------------------------------------------------------------------------------------
 %   end PROBLEM ONE
 %----------------------------------------------------------------------------------------
 \pagebreak
-%----------------------------------------------------------------------------------------
-%   start PROBLEM TWO
-%----------------------------------------------------------------------------------------
-\section{Question Two}
 
-\subsection{Given five (5) memory partitions of 100KB, 500KB, 200KB, 300KB, and 600KB (in that order), how would optimal, first-fit, best-fit, and worst-fit algorithms place processes of 212KB, 417KB, 112KB, and 426KB (in that order)?}
-\par
-Assuming none of these processes complete while others are being assigned memory...
-\par
-First-Fit: The 212KB would be assigned the 500KB, the 417KB would be assigned the 600KB, the 112KB would be assigned the 200KB, and the 426KB would have to wait. It happens in this order because First-Fit grants the largest hole that is available, so a memory hole might be big enough, but if it is unavailable, as what happens to the 426KB, then it has to wait.
-\par
-Best-Fit: The 212KB would be assigned the 300KB, the 417KB would be assigned the 500KB, the 112KB would be assigned the 200KB, and the 426KB would be assigned the 600KB. It happens in this order because Best-Fit actually attempts to optimize memory allocation by proactively reducing internal fragmentation. In this instance, Best-Fit is more optimal than First-Fit.
-\par
-Worst-Fit: The 212KB would be assigned the 600KB, the 417KB would be assigned the 500KB, the 112KB would be assigned the 300KB, and the 426KB would again, have to wait. It happens in the order because Worst-Fit assigns the largest first available hole, disregarding the actual program size.
-
-
-%----------------------------------------------------------------------------------------
-%   end PROBLEM Two
-%----------------------------------------------------------------------------------------
-
-\pagebreak
 
 \end{document}

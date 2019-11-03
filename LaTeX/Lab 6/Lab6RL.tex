@@ -67,7 +67,7 @@
    \normalfont \normalsize 
    \textsc{CMPT 424 - Fall 2019 - Dr. Labouseur} \\[10pt] % Header stuff.
    \horrule{0.5pt} \\[0.25cm] 	% Top horizontal rule
-   \huge Lab Four  \\     	    % Assignment title
+   \huge Lab Six  \\     	    % Assignment title
    \horrule{0.5pt} \\[0.25cm] 	% Bottom horizontal rule
 }
 
@@ -83,13 +83,15 @@
 %----------------------------------------------------------------------------------------
 \section{Question One}
 
-\subsection{What is the relationship between a guest operating system and a host operating system in a system like VMWare? What factors need to be considered in choosing the host operating system?}
+\subsection{What?}
 \par
-Assuming VMWare refers to VMWare Workstation, this would be considered a Type 2 hypervisor. This situation is defined by the fact that what creates the virtualization is dedicated software running on the host operating system. What software like VMWare Workstation does is it allocates resources for the guest operating system to function. From the perspective of the guest OS, it is running on its own machine with dedicated hardware. In reality, however, this OS might be one of several processes that has been sandboxed by the software and given its own environment. Resources such as memory and even clocks are isolated. All of these processes sit on the Virtual Machine Manager, VMM or hypervisor. The VMM is what directly communicates with the host operating system to see what is actually going on.
+That.
+
+\section{Question Two}
+
+\subsection{Why?}
 \par
-Important factors to consider when choosing a host operating system include questions regarding memory management, CPU scheduling, and disk storage. Operating systems, be it through the use of hardware, themselves, or software manage VMs differently amongst each other, and certain implementations may be significantly more optimal. As an example, some processes may demand more CPU usage than is even physically available, let alone logically. How this is managed in terms of scheduling, task completion rate, and clock offset tuning can be crucial in how well the process runs. For some processes, a certain level of accuracy can be sacrificed while other times it is imperative to be stupendously precise.
-
-
+Because.
 
 %----------------------------------------------------------------------------------------
 %   end PROBLEM ONE
