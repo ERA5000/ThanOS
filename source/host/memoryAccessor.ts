@@ -22,7 +22,12 @@ module TSOS {
         public read(segment: number, address: number): string {
             if(_CurrentPCB.segment != _CurrentPCB.getSegHash()) _Kernel.krnTrapError("IntegrityMismatchException. Illegal Read Access.");
             else if((segment >= 0 && segment <= 2) && (address >= 0 && address <= 255)) return _Memory.memoryContainer[segment][address];
-            else _Kernel.krnTrapError("OutOfBoundsException. Illegal Read Access.");
+            else {
+                _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
+                _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                _CurrentPCB.state = "Terminated";
+                _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
+            }
         }
 
         /*Writes a stream of code to memory
@@ -32,7 +37,12 @@ module TSOS {
             if(_CurrentPCB != null && _CurrentPCB.segment != _CurrentPCB.getSegHash()) _Kernel.krnTrapError("IntegrityMismatchException. Illegal Write Access.");
             else if(address) {
                 if((address >= 0 && address <= 255)) _Memory.memoryContainer[segment][address] = data;
-                else _Kernel.krnTrapError("OutOfBoundsException. Illegal Address Write Access.");
+                else {
+                    _Kernel.krnTrace("OutOfBoundsException. Illegal Address Write Access. Terminating Execution.");
+                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    _CurrentPCB.state = "Terminated";
+                    _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
+                }
             }
             else if((segment >= 0 && segment <= 2) && data.length / 2 <= 256) {
                 let wordCounter = 0;
@@ -41,7 +51,7 @@ module TSOS {
                     wordCounter += 2;
                 }
             }
-            else _Kernel.krnTrapError("OutOfBoundsException. Illegal Write Access.");
+            else _Kernel.krnTrace("IndexOutOfBounds. Only 3 segments of memory are available. Nothing was written.");
         }
 
         //Debugging purposes - Prints the contents of memory to the console

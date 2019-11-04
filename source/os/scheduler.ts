@@ -76,6 +76,8 @@ module TSOS{
         
             As far as counting wait time and turn around time, everytime a context switch takes place we DON'T want to count that towards our cycle count since
                 a context switch itself is not a cycle.
+
+            Update 11/4/19: this.cycle >= _Quantum is now inclusive since it checks after it increases, making it correctly do 6 instead of 7 cycles
             */
         public RoundRobin(){
             let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
@@ -88,11 +90,12 @@ module TSOS{
                 }
                 else{
                     this.cycle++;
+                    if(this.cycle > 6) this.cycle = 1;
                     _ReadyPCB[this.pointer].turnaroundTime++;
                     return;
                 }
             }
-            if((_CurrentPCB.state == "Terminated" || this.cycle > _Quantum) && _ReadyPCB.length > 0) {
+            if((_CurrentPCB.state == "Terminated" || this.cycle >= _Quantum) && _ReadyPCB.length > 0) {
                 if(_CurrentPCB.state == "Terminated") this.pointer--;
                 if(_ReadyPCB.length > 1) _Kernel.krnTrace("Context Switch via Round Robin");
                 _KernelInterruptQueue.enqueue(interrupt);

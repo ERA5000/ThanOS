@@ -67,6 +67,9 @@ module TSOS {
             member, segHash. When memory is then (attempted to be) read from or written to, if there is tomfoolery afoot (i.e. the segments don't match) it'll throw an error.
 
         Also, TS and JS apparently do not have built-in hash functions, so that's disappointing. I figured this was the next best thing.
+
+        But now, learning as of 11/4/19, there is no guarantee that when a program is swapped that it will return to the same segment.
+        I'll keep it for now, but remove it for iProject4.
         */
         public getSegHash(){return this.segHash;}
     }

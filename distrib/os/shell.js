@@ -27,7 +27,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
             // clearMem
-            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all of memory of Resident programs.");
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears memory of all Resident programs.");
             this.commandList[this.commandList.length] = sc;
             // crash
             sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
@@ -516,12 +516,12 @@ var TSOS;
         shellQuantum(args) {
             let valid = /^[0-9.]+$/gm;
             if (args.length > 0) {
-                if (args[0] == 'd' || args[0] == '0') {
+                if (args[0] == '-d' || args[0] == '0') {
                     _StdOut.putText(`The quantum has been reset to its default value of ${QUANTUM_DEFAULT}.`);
                     _Quantum = QUANTUM_DEFAULT;
                     return;
                 }
-                else if (args[0] == 'v') {
+                else if (args[0] == '-v') {
                     _StdOut.putText(`The current quantum is ${_Quantum}.`);
                     return;
                 }
