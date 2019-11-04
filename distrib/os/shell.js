@@ -39,7 +39,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellDog, "dog", "- Make a heckin' floofer do an appear.");
             this.commandList[this.commandList.length] = sc;
             // help
-            sc = new TSOS.ShellCommand(this.shellHelp, "help", "<page> - Displays the list of available commands.");
+            sc = new TSOS.ShellCommand(this.shellHelp, "help", "<page?> - Displays a list of available commands.");
             this.commandList[this.commandList.length] = sc;
             // kill
             sc = new TSOS.ShellCommand(this.shellKill, "kill", "<pid> - Kills the specified process.");
@@ -230,16 +230,22 @@ var TSOS;
             _StdOut.putText(APP_NAME + " v" + APP_VERSION);
         }
         /**
-         * Since the command list is growing beyond the size of the CLI, I've turned the help command into one that requires an argument.
-         * Each 'page' holds 15 commands.
+         * Since the command list is growing beyond the size of the CLI, I've turned the help command into one that recommends an argument.
+         * Each 'page' holds up to 15 commands.
          */
         shellHelp(args) {
             const PAGE = parseInt(args[0]);
             const COMMAND_LIMIT = 15;
-            if (COMMAND_LIMIT * PAGE - _OsShell.commandList.length >= COMMAND_LIMIT || PAGE == 0)
+            if (args.length <= 0) {
+                for (var i in _OsShell.commandList) {
+                    _StdOut.advanceLine();
+                    _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                }
+            }
+            else if (COMMAND_LIMIT * PAGE - _OsShell.commandList.length >= COMMAND_LIMIT || PAGE <= 0)
                 _StdOut.putText("There are no commands on that page.");
-            else if (args.length <= 0 || isNaN(PAGE))
-                _StdOut.putText("Usage: help <page>. Please specify a page.");
+            else if (isNaN(PAGE))
+                _StdOut.putText("Usage: help <page?>. Please specify a page.");
             else {
                 _StdOut.putText("Commands:");
                 if (PAGE == 1) {
@@ -268,10 +274,6 @@ var TSOS;
                     _StdOut.putText("Page " + PAGE);
                 }
             }
-            /*for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
-            }*/
         }
         shellShutdown(args) {
             _StdOut.putText("Shutting down...");
@@ -290,8 +292,8 @@ var TSOS;
                         _StdOut.putText("Lists the running version of the OS.");
                         break;
                     case "help":
-                        _StdOut.putText("Given a page number, displays a list of valid commands."
-                            + " Commands are organized alphabetically and each page displays 15 commands.");
+                        _StdOut.putText("Displays the entire list of available commands. Or, given a page number, displays 15 commands."
+                            + " Commands are organized alphabetically.");
                         break;
                     case "shutdown":
                         _StdOut.putText("Disables user input but keeps the underlying software running.");
