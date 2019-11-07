@@ -54,6 +54,9 @@ module TSOS {
             //Initializes the Dispatcher
             _Dispatcher = new Dispatcher();
 
+            //Sets the schedule to the default of Round Robin
+            _CurrentSchedule = DEFAULT_SCHEDULE;
+
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();
@@ -97,7 +100,7 @@ module TSOS {
             } else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 _CPU.cycle();
                 Utils.updateGUI(_CurrentPCB, _CPU.dataAmount); // Moved all graphical updates to here from CPU
-                _Scheduler.schedulerInterrupt("RoundRobin");
+                _Scheduler.schedulerInterrupt(_CurrentSchedule);
             } else {                       // If there are no interrupts and there is nothing being executed then just be idle.
                 this.krnTrace("Idle");
             }
@@ -137,7 +140,7 @@ module TSOS {
                     break;
                 case SOFTWARE_IRQ:
                     if(_Mode == 0) {
-                        _Scheduler.PCBSwap();
+                        _Scheduler.PCBSwap(_CurrentSchedule);
                         _Mode = 1;
                     }
                     else this.krnTrace("Insufficient Privilege. Unable to context switch.");

@@ -27,6 +27,8 @@ const SYSTEM_CALL: number = 3;
 
 const QUANTUM_DEFAULT: number = 6; //Acts as a safety to the _Quantum variable just in case things break...
 
+const DEFAULT_SCHEDULE: string = "rr"; //Acts as a safety to the _CurrentSchedule variable just in case things break...
+
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
@@ -66,6 +68,7 @@ var _Quantum: number = 6;
 var _ReadyPCB: TSOS.ProcessControlBlock[] = [];
 var _ResidentPCB: TSOS.ProcessControlBlock[] = [];
 var _Dispatcher: TSOS.Dispatcher;
+var _CurrentSchedule: string;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;

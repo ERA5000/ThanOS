@@ -19,6 +19,7 @@ const KEYBOARD_IRQ = 1;
 const SOFTWARE_IRQ = 2;
 const SYSTEM_CALL = 3;
 const QUANTUM_DEFAULT = 6; //Acts as a safety to the _Quantum variable just in case things break...
+const DEFAULT_SCHEDULE = "rr"; //Acts as a safety to the _CurrentSchedule variable just in case things break...
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
@@ -50,6 +51,7 @@ var _Quantum = 6;
 var _ReadyPCB = [];
 var _ResidentPCB = [];
 var _Dispatcher;
+var _CurrentSchedule;
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
 // Global Device Driver Objects - page 12

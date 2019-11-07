@@ -95,8 +95,8 @@ module TSOS {
 
             // ps
             sc = new ShellCommand(this.shellPS,
-                                  "ps",
-                                "- Lists the PID and State of all available processes.");
+                                 "ps",
+                                 "- Lists the PID and State of all available processes.");
             this.commandList[this.commandList.length] = sc;
 
             // quantum <number>
@@ -119,8 +119,14 @@ module TSOS {
 
             // runall
             sc = new ShellCommand(this.shellRunAll,
-                                    "runall",
-                                    "- Runs all programs in memory.");
+                                  "runall",
+                                  "- Runs all programs in memory.");
+            this.commandList[this.commandList.length] = sc;
+
+            // set schedule
+            sc = new ShellCommand(this.shellSetSchedule,
+                                  "setsch",
+                                  "- Sets the scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
 
             // shutdown
@@ -131,14 +137,14 @@ module TSOS {
 
             // snap
             sc = new ShellCommand(this.shellSnap,
-                                    "snap",
-                                    "- Reality is often disappointing. That is, it was.");
+                                  "snap",
+                                  "- Reality is often disappointing. That is, it was.");
             this.commandList[this.commandList.length] = sc;
 
             // status
             sc = new ShellCommand(this.shellStatus,
-                                    "status",
-                                    " - Sets a new status.");
+                                  "status",
+                                  " - Sets a new status.");
             this.commandList[this.commandList.length] = sc;
 
             // trace <on | off>
@@ -155,8 +161,8 @@ module TSOS {
 
             // whereami
             sc = new ShellCommand(this.shellWhereAmI,
-                                    "whereami",
-                                    "- Let me guess, your home?");
+                                  "whereami",
+                                "- Let me guess, your home?");
             this.commandList[this.commandList.length] = sc;
 
             // Display the initial prompt.
@@ -452,6 +458,17 @@ module TSOS {
                         _StdOut.putText("Bork");
                         _StdOut.advanceLine();
                         _StdOut.putText("-A very good boi");
+                        break;
+                    case "setsch":
+                        _StdOut.putText("Defines the order in which the programs will execute.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Valid inputs: fcfs, priority, rr.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("FCFS: First Come First Serve.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Priority: Defined by importance, Non preemptive.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Round Robin: All programs get x turns, x = quantum.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -808,6 +825,31 @@ module TSOS {
         public shellDog(){
             if(_CPU.hasExecutionStarted) _StdOut.putText("The dog doesn't like CPU execution. Try again later.");
             else Utils.dogInit();
+        }
+
+        public shellSetSchedule(args: string[]){
+            let schedule = args[0];
+            switch(schedule){
+                case "fcfs":
+                    _CurrentSchedule = "fcfs";
+                    _StdOut.putText("Schedule set to First Come First Serve.");
+                    break;
+                case "priority":
+                    _CurrentSchedule = "priority";
+                    _StdOut.putText("Schedule set to Priority.");
+                    break;
+                case "rr":
+                    _CurrentSchedule = "rr";
+                    _StdOut.putText("Schedule set to Round Robin.");
+                    break;
+                default:
+                    _StdOut.putText("That is not a valid Scheduling Algorithm.");
+                    break;
+            }
+            if(_CPU.hasExecutionStarted) {
+                let interrupt = new Interrupt(SOFTWARE_IRQ, [0]);
+                _KernelInterruptQueue.enqueue(interrupt);
+            }
         }
     }
 }

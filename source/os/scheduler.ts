@@ -1,7 +1,7 @@
 module TSOS{
     export class Scheduler{
 
-    /* So what is this 'logic continuity loop' I keep referring to? (I hope I have been typing it elsewhere... Otherwise, this is what it is)
+    /* So what is this 'logic continuity module' I keep referring to? (I hope I have been typing it elsewhere... Otherwise, this is what it is)
         It essentially defines the combinations (and permutations?) in which the commands load, run, runall, kill, killall, and clearmem
         interact with each other. I have tried to make these interactions as intuitive as possible by adhering to these three ideas:
             1. Program the command to do what the user would expect.
@@ -16,7 +16,7 @@ module TSOS{
         runall -> splices from Resident Q, places onto Ready Q
         kill -> splices from Ready Q
         killall -> splices from Ready Q
-        clearmem -> stops execution of the CPU, clears memory entirely (Resident and Ready Qs)
+        clearmem -> Only clears programs that are 'Resident'
 
         If at any point this traversal pattern is infringed, everything will probably break. Also, apparently 'slice' and 'splice' are both valid Array methods...
             A typo lost me a good hour, so just to be clear, we want *splice* (with a p).
@@ -26,16 +26,53 @@ module TSOS{
 
         public schedulerInterrupt(scheduleType: string){
             switch(scheduleType) {
-                case "RoundRobin":
-                    this.RoundRobin();
+                case "fcfs":
+                    this.firstComeFirstServe();
+                    break;
+                case "priority":
+                    break;
+                case "rr":
+                    this.roundRobin();
                     break;
                 default:
-                    _Kernel.krnTrapError("Invalid Scheduling Scheme. Terminating Execution.");
+                    DEFAULT_SCHEDULE;
+                    break;
             }
+            this.addTurnaroundTime();
+            this.addWaitTime();
         }
 
-        public PCBSwap(){
-            this.pointer++;
+        public PCBSwap(schedule: string){
+            if(schedule == "rr") {
+                if(this.cycle >= 6) this.pointer++;
+            }
+            else if(schedule == "fcfs"){
+                this.pointer = 0;
+                let first = _ReadyPCB[this.pointer];
+                for(let i = 0; i < _ReadyPCB.length; i++){
+                    if(_ReadyPCB[i].pid < first.pid){
+                        first = _ReadyPCB[i];
+                        this.pointer = i;
+                    }
+                }
+            }
+            else if(schedule == "priority"){
+                this.pointer = 0;
+                let highest = _ReadyPCB[this.pointer];
+                for(let i = 0; i < _ReadyPCB.length; i++){
+                    if(_ReadyPCB[i].priority < highest.priority){
+                        highest = _ReadyPCB[i];
+                        this.pointer = i;
+                    }
+                }
+            }
+            else{
+                _Kernel.krnTrapError("Invalid Scheduling Scheme. Terminating OS.");
+                _CPU.isExecuting = false;
+                _CPU.hasExecutionStarted = false;
+                _MemoryManager.wipeSegmentByID();
+                return;
+            }
             _Dispatcher.snapshot(_CurrentPCB);
             if(_CurrentPCB.state == "Running") _CurrentPCB.state = "Ready";
             Utils.updatePCBRow(_CurrentPCB);
@@ -79,21 +116,20 @@ module TSOS{
 
             Update 11/4/19: this.cycle >= _Quantum is now inclusive since it checks after it increases, making it correctly do 6 instead of 7 cycles
             */
-        public RoundRobin(){
-            let interrupt =  new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+        public roundRobin(): void{
+            let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if(_ReadyPCB.length == 1){
                 this.pointer = 0;
                 if(_CurrentPCB.pid != _ReadyPCB[this.pointer].pid){
                     _Kernel.krnTrace("Context Switch via Round Robin");
                     _KernelInterruptQueue.enqueue(interrupt);
-                    return;
                 }
                 else{
                     this.cycle++;
                     if(this.cycle > 6) this.cycle = 1;
                     _ReadyPCB[this.pointer].turnaroundTime++;
-                    return;
                 }
+                return;
             }
             if((_CurrentPCB.state == "Terminated" || this.cycle >= _Quantum) && _ReadyPCB.length > 0) {
                 if(_CurrentPCB.state == "Terminated") this.pointer--;
@@ -107,17 +143,40 @@ module TSOS{
                     _CPU.isExecuting = false;
                     this.cycle = 1;
                     _CPU.init();
-                    return;
                 }
                 else this.cycle++;
             }
-            this.addTurnaroundTime();
-            this.addWaitTime();
+        }
+
+        public firstComeFirstServe(): void{
+            let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+            if(_ReadyPCB.length == 1){
+                this.pointer = 0;
+                if(_CurrentPCB.pid != _ReadyPCB[this.pointer].pid){
+                    _Kernel.krnTrace("Context Switch via First Come First Serve");
+                    _KernelInterruptQueue.enqueue(interrupt);
+                    return;
+                }
+            }
+            else if(_CurrentPCB.state == "Terminated" && _ReadyPCB.length > 0) {
+                this.pointer--;
+                if(_ReadyPCB.length > 1) _Kernel.krnTrace("Context Switch via First Come First Serve");
+                _KernelInterruptQueue.enqueue(interrupt);
+                return;
+            }
+            else {
+                if(_ReadyPCB.length == 0) {
+                    _CPU.hasExecutionStarted = false;
+                    _CPU.isExecuting = false;
+                    this.cycle = 1;
+                    _CPU.init();
+                }
+            }
         }
 
         /* Adds 1 to each PCB after every cycle count.
         */
-        public addTurnaroundTime(){
+        public addTurnaroundTime(): void{
             for(let i = 0; i < _ReadyPCB.length; i++){
                 _ReadyPCB[i].turnaroundTime++;
             }
@@ -125,7 +184,7 @@ module TSOS{
 
         /* Adds 1 to each PCB after every cycle count IF it is NOT running.
         */
-        public addWaitTime(){
+        public addWaitTime(): void{
             for(let i = 0; i < _ReadyPCB.length; i++){
                 if(_ReadyPCB[i].pid != _CurrentPCB.pid){
                     _ReadyPCB[i].waitTime++;
@@ -136,7 +195,7 @@ module TSOS{
 }
 
 /* Test programs of length 12 each.
-A9 00 A9 02 A9 04 A9 06 A9 08 A9 10 A9 12 A9 14 A9 16 A9 18 A9 20 A9 22 A9 24
+A9 00 A9 02 A9 04 A9 06 A9 08 A9 10 A9 12 A9 14 A9 16 A9 18 A9 20 A9 22 A9 24 
 
-A9 01 A9 03 A9 05 A9 07 A9 09 A9 11 A9 13 A9 15 A9 17 A9 19 A9 21 A9 23 A9 25
+A9 01 A9 03 A9 05 A9 07 A9 09 A9 11 A9 13 A9 15 A9 17 A9 19 A9 21 A9 23 A9 25 
 */
