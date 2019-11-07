@@ -38,6 +38,8 @@ var TSOS;
             //dog
             sc = new TSOS.ShellCommand(this.shellDog, "dog", "- Make a heckin' floofer do an appear.");
             this.commandList[this.commandList.length] = sc;
+            sc = new TSOS.ShellCommand(this.shellGetSchedule, "getsch", "- See the current CPU schedule.");
+            this.commandList[this.commandList.length] = sc;
             // help
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "<page?> - Displays a list of available commands.");
             this.commandList[this.commandList.length] = sc;
@@ -372,13 +374,18 @@ var TSOS;
                     case "setsch":
                         _StdOut.putText("Defines the order in which the programs will execute.");
                         _StdOut.advanceLine();
-                        _StdOut.putText("Valid inputs: fcfs, priority, rr.");
+                        _StdOut.putText("Valid inputs: fcfs, priority, rr, or -d.");
                         _StdOut.advanceLine();
                         _StdOut.putText("FCFS: First Come First Serve.");
                         _StdOut.advanceLine();
                         _StdOut.putText("Priority: Defined by importance, Non preemptive.");
                         _StdOut.advanceLine();
                         _StdOut.putText("Round Robin: All programs get x turns, x = quantum.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("-d: The default scheduling algorithm, Round Robin.");
+                        break;
+                    case "getsch":
+                        _StdOut.putText("Returns the current scheduling algorithm for CPU execution.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -748,6 +755,10 @@ var TSOS;
                     _CurrentSchedule = "rr";
                     _StdOut.putText("Schedule set to Round Robin.");
                     break;
+                case "-d":
+                    _CurrentSchedule = DEFAULT_SCHEDULE;
+                    _StdOut.putText("Schedule set to default of Round Robin.");
+                    break;
                 default:
                     _StdOut.putText("That is not a valid Scheduling Algorithm.");
                     break;
@@ -756,6 +767,16 @@ var TSOS;
                 let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
                 _KernelInterruptQueue.enqueue(interrupt);
             }
+        }
+        shellGetSchedule() {
+            let schedule;
+            if (_CurrentSchedule == "fcfs")
+                schedule = "First Come First Serve";
+            else if (_CurrentSchedule == "priority")
+                schedule = "Priority";
+            else
+                schedule = "Round Robin";
+            _StdOut.putText(`The current CPU scheduling algorithm is ${schedule}.`);
         }
     }
     TSOS.Shell = Shell;
