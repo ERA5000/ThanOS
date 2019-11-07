@@ -31,6 +31,7 @@ var TSOS;
                     this.firstComeFirstServe();
                     break;
                 case "priority":
+                    this.priority();
                     break;
                 case "rr":
                     this.roundRobin();
@@ -44,6 +45,8 @@ var TSOS;
         }
         PCBSwap(schedule) {
             if (schedule == "rr") {
+                if (this.pointer < 0)
+                    this.pointer = 0;
                 if (this.cycle >= 6)
                     this.pointer++;
             }
@@ -152,6 +155,11 @@ var TSOS;
                     this.cycle++;
             }
         }
+        /**
+         * First Come First Serve scheduling scheme.
+         * On intial run, it simply executes the programs in order.
+         * While running, it first checks to see which PCB has the lowest PID and then runs that program.
+         */
         firstComeFirstServe() {
             let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if (_ReadyPCB.length == 1) {
@@ -166,6 +174,37 @@ var TSOS;
                 this.pointer--;
                 if (_ReadyPCB.length > 1)
                     _Kernel.krnTrace("Context Switch via First Come First Serve");
+                _KernelInterruptQueue.enqueue(interrupt);
+                return;
+            }
+            else {
+                if (_ReadyPCB.length == 0) {
+                    _CPU.hasExecutionStarted = false;
+                    _CPU.isExecuting = false;
+                    this.cycle = 1;
+                    _CPU.init();
+                }
+            }
+        }
+        /**
+         * Priority scheduling scheme.
+         * On initial run, as of now, it does NOT check priority since the programs all share priority.
+         * While running, it first checks to see which PCB has the highest priority (lowest literal value) and then runs that program.
+         */
+        priority() {
+            let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+            if (_ReadyPCB.length == 1) {
+                this.pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[this.pointer].pid) {
+                    _Kernel.krnTrace("Context Switch via Priority");
+                    _KernelInterruptQueue.enqueue(interrupt);
+                    return;
+                }
+            }
+            else if (_CurrentPCB.state == "Terminated" && _ReadyPCB.length > 0) {
+                this.pointer--;
+                if (_ReadyPCB.length > 1)
+                    _Kernel.krnTrace("Context Switch via Priority");
                 _KernelInterruptQueue.enqueue(interrupt);
                 return;
             }
