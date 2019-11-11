@@ -54,6 +54,10 @@ module TSOS {
             //Initializes the Dispatcher
             _Dispatcher = new Dispatcher();
 
+            //Initializes the Disk and the Disk Driver
+            _Disk = new Disk(MAX_TRACKS, MAX_SECTORS, MAX_BLOCKS, MAX_BLOCK_SIZE, false, window.sessionStorage);
+            _DiskDriver = new DeviceDriverDisk(_Disk);
+
             //Sets the schedule to the default of Round Robin
             _CurrentSchedule = DEFAULT_SCHEDULE;
 

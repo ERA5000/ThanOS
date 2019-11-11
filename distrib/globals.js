@@ -11,15 +11,22 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME = "ThanOS";
-const APP_VERSION = "3.5";
+const APP_VERSION = "4.0";
 const CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds), so 1000 = 1 second.
+//Interrupts
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ = 1;
 const SOFTWARE_IRQ = 2;
 const SYSTEM_CALL = 3;
+//Scheduling
 const QUANTUM_DEFAULT = 6; //Acts as a safety to the _Quantum variable just in case things break...
 const DEFAULT_SCHEDULE = "rr"; //Acts as a safety to the _CurrentSchedule variable just in case things break...
+//Disk(ing)
+const MAX_TRACKS = 4;
+const MAX_SECTORS = 8;
+const MAX_BLOCKS = 8;
+const MAX_BLOCK_SIZE = 64;
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
@@ -67,6 +74,9 @@ var _MemoryManager = null;
 var _PID = 0;
 var _CurrentPCB;
 var _SingleStep = false;
+//Disk
+var _Disk;
+var _DiskDriver;
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();

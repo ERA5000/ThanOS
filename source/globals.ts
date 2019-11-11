@@ -12,10 +12,11 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "ThanOS";
-const APP_VERSION: string = "3.5";
+const APP_VERSION: string = "4.0";
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds), so 1000 = 1 second.
 
+//Interrupts
 const TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                               // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ: number = 1;
@@ -24,10 +25,19 @@ const SOFTWARE_IRQ: number = 2;
 
 const SYSTEM_CALL: number = 3;
 
-
+//Scheduling
 const QUANTUM_DEFAULT: number = 6; //Acts as a safety to the _Quantum variable just in case things break...
 
 const DEFAULT_SCHEDULE: string = "rr"; //Acts as a safety to the _CurrentSchedule variable just in case things break...
+
+//Disk(ing)
+const MAX_TRACKS = 4;
+
+const MAX_SECTORS = 8;
+
+const MAX_BLOCKS = 8;
+
+const MAX_BLOCK_SIZE = 64;
 
 //
 // Global Variables
@@ -89,6 +99,10 @@ var _MemoryManager: any = null;
 var _PID = 0;
 var _CurrentPCB: TSOS.ProcessControlBlock;
 var _SingleStep = false;
+
+//Disk
+var _Disk: TSOS.Disk;
+var _DiskDriver: TSOS.DeviceDriverDisk;
 
 var onDocumentLoad = function() {
     TSOS.Control.hostInit();

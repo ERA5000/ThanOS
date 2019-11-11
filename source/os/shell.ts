@@ -51,12 +51,19 @@ module TSOS {
                                   "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
 
-            //dog
+            // dog
             sc = new ShellCommand(this.shellDog,
                                   "dog",
                                    "- Make a heckin' floofer do an appear.");
             this.commandList[this.commandList.length] = sc;
             
+            // format
+            sc = new ShellCommand(this.shellFormat,
+                                  "format",
+                                   "- Formats the disk drive.");
+            this.commandList[this.commandList.length] = sc;
+
+            // getschedule
             sc = new ShellCommand(this.shellGetSchedule,
                                   "getsch",
                                    "- See the current CPU schedule.");
@@ -480,6 +487,13 @@ module TSOS {
                     case "getsch":
                         _StdOut.putText("Returns the current scheduling algorithm for CPU execution.");
                         break;
+                    case "format":
+                        _StdOut.putText("Formats the disk drive. Available flag: -q.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Full Format: Default Operation. Complete wipe of drive and meta data.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Quick Format (-q): Wipe only meta data.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -832,6 +846,8 @@ module TSOS {
             }
         }
 
+        /* In Memorium to Gabe the Dog. RIP in peace, homie.
+         */
         public shellDog(){
             if(_CPU.hasExecutionStarted) _StdOut.putText("The dog doesn't like CPU execution. Try again later.");
             else Utils.dogInit();
@@ -866,12 +882,47 @@ module TSOS {
             }
         }
 
+        /* Prints the current CPU scheduling algorithm to the console.
+        */
         public shellGetSchedule(){
             let schedule: string;
             if(_CurrentSchedule == "fcfs") schedule = "First Come First Serve";
             else if(_CurrentSchedule == "priority") schedule = "Priority";
             else schedule = "Round Robin";
             _StdOut.putText(`The current CPU scheduling algorithm is ${schedule}.`);
+        }
+
+        /* Shell command to format the disk.
+            The result of the format prints a success or failure message.
+        */
+        public shellFormat(args: string[]){
+            let isCompleted: boolean;
+            let isQFormat: boolean = false;
+            if(args[0] == "-q") {
+                if(!_DiskDriver.disk.isFormatted){
+                    _StdOut.putText("Quick Formats can only be performed after at least one full format.");
+                    return;
+                }
+                else{
+                    _StdOut.putText("Performing Quick Format...");
+                    isCompleted = _DiskDriver.format(true);
+                    isQFormat = true;
+                    _StdOut.advanceLine();
+                }
+            }
+            else if(args.length == 0){
+                _StdOut.putText("Performing Full Format...");
+                isCompleted = _DiskDriver.format(false);
+                _StdOut.advanceLine();
+            }
+            else{
+                _StdOut.putText("Usage: format <flag?>.");
+                return;
+            }
+            if(isCompleted && isQFormat) _StdOut.putText("Quick Format successful!");
+            else if(isCompleted && !isQFormat) _StdOut.putText("Full Format successful!");
+            else if(!isCompleted) _StdOut.putText("The format failed.");
+            else _StdOut.putText("Error! There was an error displaying the error. Layman's: If you're seeing this, something is very wrong :(");
         }
     }
 }
