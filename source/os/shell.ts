@@ -919,10 +919,16 @@ module TSOS {
                 _StdOut.putText("Usage: format <flag?>.");
                 return;
             }
-            if(isCompleted && isQFormat) _StdOut.putText("Quick Format successful!");
-            else if(isCompleted && !isQFormat) _StdOut.putText("Full Format successful!");
+
+            if(isCompleted){
+                if(isQFormat) _StdOut.putText("Quick Format successful!");
+                else _StdOut.putText("Full Format successful!");
+                Utils.drawDisk();
+                Utils.enableScroll(<HTMLDivElement>document.getElementById("HDDDisplay"));
+            }
             else if(!isCompleted) _StdOut.putText("The format failed.");
             else _StdOut.putText("Error! There was an error displaying the error. Layman's: If you're seeing this, something is very wrong :(");
+
         }
     }
 }

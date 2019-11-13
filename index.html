@@ -182,22 +182,38 @@
       <div id="MemoryTable"></div>
    </div>
 
-   <label>PCB</label>
-   <div id="PCBDiv">
-      <table id="PCBTable">
-         <tr>
-            <th class="PCBth">PID</th>
-            <th class="PCBth">Priority</th>
-            <th class="PCBth">State</th>
-            <th class="PCBth">PC</th>
-            <th class="PCBth">IR</th>
-            <th class="PCBth">Acc</th>
-            <th class="PCBth">X</th>
-            <th class="PCBth">Y</th>
-            <th class="PCBth">Z</th>
-            <th class="PCBth">Location</th>
-         </tr>
-      </table>
+   <!--TO DO: Make Table Headers NOT scroll with rest of table, if that's feasible-->
+   <div id="PCBEverything">
+      <label>PCB</label>
+      <div id="PCBDiv">
+         <table id="PCBTable">
+            <tr>
+               <th class="PCBth">PID</th>
+               <th class="PCBth">Priority</th>
+               <th class="PCBth">State</th>
+               <th class="PCBth">PC</th>
+               <th class="PCBth">IR</th>
+               <th class="PCBth">Acc</th>
+               <th class="PCBth">X</th>
+               <th class="PCBth">Y</th>
+               <th class="PCBth">Z</th>
+               <th class="PCBth">Location</th>
+            </tr>
+         </table>
+      </div>
+   </div>
+
+   <!--TO DO: Make Table Headers NOT scroll with rest of table, if that's feasible-->
+   <div id="HDDEverything">
+      <label>HDD</label>
+      <div id="HDDDisplay">
+         <div id="DiskTable">
+            <div id="notFormatted">
+               <img src="distrib/resources/img/diskerr.png">
+               <p>The Disk is not currently formatted :(</p>
+            </div>
+         </div>
+      </div>
    </div>
 
 <br>

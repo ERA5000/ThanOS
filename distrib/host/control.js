@@ -75,6 +75,7 @@ var TSOS;
             _Memory.init();
             TSOS.Utils.drawMemory();
             _MemoryAccessor = new TSOS.MemoryAccessor();
+            TSOS.Utils.enableScroll(document.getElementById("MemoryTable"));
             // ... then set the host clock pulse ...
             _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.

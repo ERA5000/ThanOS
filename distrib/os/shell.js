@@ -820,10 +820,14 @@ var TSOS;
                 _StdOut.putText("Usage: format <flag?>.");
                 return;
             }
-            if (isCompleted && isQFormat)
-                _StdOut.putText("Quick Format successful!");
-            else if (isCompleted && !isQFormat)
-                _StdOut.putText("Full Format successful!");
+            if (isCompleted) {
+                if (isQFormat)
+                    _StdOut.putText("Quick Format successful!");
+                else
+                    _StdOut.putText("Full Format successful!");
+                TSOS.Utils.drawDisk();
+                TSOS.Utils.enableScroll(document.getElementById("HDDDisplay"));
+            }
             else if (!isCompleted)
                 _StdOut.putText("The format failed.");
             else

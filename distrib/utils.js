@@ -598,6 +598,31 @@ var TSOS;
             _PetCounter = 0;
             _Kernel.krnEnableInterrupts();
         }
+        /* Draws the disk to the display
+        */
+        static drawDisk() {
+            let table = "<table id='disk'>";
+            table += "<tr><th>T:S:B</th><th>In Use</th><th>Next</th><th>Data</th></tr>";
+            for (let i = 0; i < _Disk.tracks; i++) {
+                for (let j = 0; j < _Disk.sectors; j++) {
+                    for (let k = 0; k < _Disk.blocks; k++) {
+                        let curRow = `${i}:${j}:${k}`;
+                        table += `<tr><td>${curRow}</td>`;
+                        table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(0, 1)}</td>`;
+                        table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(1, 4)}</td>`;
+                        table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(4)}</td></tr>`;
+                    }
+                }
+            }
+            table += "</table>";
+            document.getElementById("DiskTable").innerHTML = table;
+        }
+        /* Takes a Div element and enables scrolling only when the relavent info in that div has been 'activated.'
+                This way, the scroll bar does not just sit there being useless and ugly.
+        */
+        static enableScroll(elem) {
+            elem.style.overflowY = "scroll";
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

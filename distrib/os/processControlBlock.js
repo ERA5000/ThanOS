@@ -10,7 +10,7 @@ var TSOS;
             this.pid = _PID;
             _PID++;
             this.state = "Resident";
-            this.priority = Math.floor(Math.random() * 10 + 1);
+            this.priority = 5; //Math.floor(Math.random() * 10 + 1);
             this.segment = segment;
             this.determineRange();
             this.turnaroundTime = 0;

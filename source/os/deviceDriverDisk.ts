@@ -31,7 +31,9 @@ module TSOS{
 
                             let reset = "---";
                             let previous = this.disk.storage.getItem(`${i}:${j}:${k}`).substring(4);
-                            let data = "0" + reset + previous;
+                            let data: string = "";
+                            if(k == 0 && j == 0 && i == 0) data = "1" + reset + previous;
+                            else data = "0" + reset + previous;
                             this.disk.storage.setItem(`${i}:${j}:${k}`, data);
                             console.log(`${i}:${j}:${k}: ${this.disk.storage.getItem(`${i}:${j}:${k}`)} Length: ${data.length}`);
                         }
@@ -47,12 +49,8 @@ module TSOS{
                     for(let j = 0; j < this.disk.sectors; j++){
                         for(let k = 0; k < this.disk.blocks; k++){
                             let data: string = "";
-                            if(i == 0 && j == 0 && k == 0){
-                                data += "1";
-                            }
-                            else{
-                                data += "0";
-                            }
+                            if(k == 0 && j == 0 && i == 0) data += "1";
+                            else data += "0";
                             data = (data + "---").padEnd(MAX_WRITEABLE, "0");
                             this.disk.storage.setItem(`${i}:${j}:${k}`, data);
                             console.log(`${i}:${j}:${k}: ${data} Length: ${data.length}`);
