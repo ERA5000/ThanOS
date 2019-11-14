@@ -630,10 +630,13 @@ module TSOS {
             for(let i = 0; i < _Disk.tracks; i++){
                 for(let j = 0; j < _Disk.sectors; j++){
                     for(let k = 0; k < _Disk.blocks; k++){
-                        let curRow = `${i}:${j}:${k}`;
-                        table += `<tr><td>${curRow}</td>`;
+                        let curRow = `${i}${j}${k}`;
+                        let linkT = _Disk.storage.getItem(`${curRow}`).charAt(1);
+                        let linkS = _Disk.storage.getItem(`${curRow}`).charAt(2);
+                        let linkB = _Disk.storage.getItem(`${curRow}`).charAt(3);
+                        table += `<tr><td>${i}:${j}:${k}</td>`;
                         table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(0, 1)}</td>`;
-                        table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(1, 4)}</td>`;
+                        table += `<td>${linkT}:${linkS}:${linkB}</td>`;
                         table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(4)}</td></tr>`;
                     }
                 }

@@ -32,6 +32,9 @@ var TSOS;
             // crash
             sc = new TSOS.ShellCommand(this.shellBSOD, "crash", " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
+            // create
+            sc = new TSOS.ShellCommand(this.shellCreateFile, "create", "<filename> - Creates a file with the designated name.");
+            this.commandList[this.commandList.length] = sc;
             // date
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
@@ -397,6 +400,11 @@ var TSOS;
                         _StdOut.putText("Full Format: Default Operation. Complete wipe of drive and meta data.");
                         _StdOut.advanceLine();
                         _StdOut.putText("Quick Format (-q): Wipe only meta data.");
+                        break;
+                    case "create":
+                        _StdOut.putText("If the disk is formatted and there is available space, ");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("creates a file with the specified name.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -832,6 +840,31 @@ var TSOS;
                 _StdOut.putText("The format failed.");
             else
                 _StdOut.putText("Error! There was an error displaying the error. Layman's: If you're seeing this, something is very wrong :(");
+        }
+        shellCreateFile(args) {
+            let isCreated = false;
+            if (!_DiskDriver.disk.isFormatted) {
+                _StdOut.putText("Files can only be created once the disk is formatted.");
+                return;
+            }
+            else if (args.length <= 0) {
+                _StdOut.putText("A file name must contain at least one valid character.");
+                return;
+            }
+            else if (args[0] == "@") {
+                _StdOut.putText("Invalid name. File names cannot start with '@.'");
+                return;
+            }
+            else {
+                isCreated = _DiskDriver.createFile(args[0]);
+            }
+            if (isCreated) {
+                TSOS.Utils.drawDisk();
+                _StdOut.putText(`File '${args[0]}' was created successfully!`);
+            }
+            else {
+                _StdOut.putText("Error! File name too long.");
+            }
         }
     }
     TSOS.Shell = Shell;
