@@ -71,6 +71,9 @@ var TSOS;
             // quantum <number>
             sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<flag> or <integer> - Set the quantum for RR scheduling.");
             this.commandList[this.commandList.length] = sc;
+            // read <file>
+            sc = new TSOS.ShellCommand(this.shellReadFile, "read", "<filename> - Read the contents of a file.");
+            this.commandList[this.commandList.length] = sc;
             // rot13 <string>
             sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
@@ -425,6 +428,9 @@ var TSOS;
                         _StdOut.putText("When given a file name and some data, ");
                         _StdOut.advanceLine();
                         _StdOut.putText("the data is written to the specified file.");
+                        break;
+                    case "read":
+                        _StdOut.putText("Given a file name, outputs file's contents.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -902,6 +908,15 @@ var TSOS;
                 else {
                     _StdOut.putText("File write unsuccessful.");
                 }
+            }
+        }
+        shellReadFile(args) {
+            if (!_Disk.isFormatted)
+                _StdOut.putText("Data cannot be read from an unformatted disk.");
+            else if (args[0] == "")
+                _StdOut.putText("A valid file name must be provided.");
+            else {
+                _StdOut.putText(_DiskDriver.readFile(args[0]));
             }
         }
     }

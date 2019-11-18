@@ -48,7 +48,7 @@ var TSOS;
                             else
                                 data += "0";
                             data = (data + "---").padEnd(MAX_LENGTH, "0");
-                            console.log("What is the length of the data? " + data.length);
+                            //console.log("What is the length of the data? "+ data.length);
                             this.disk.storage.setItem(`${i}${j}${k}`, data);
                             //console.log(`${i}:${j}:${k}: ${data} Length: ${data.length}`);
                         }
@@ -64,8 +64,12 @@ var TSOS;
             console.log(`Data for TSB ${track}:${sector}:${block} is ${this.disk.storage.getItem(`${track}:${sector}:${block}`)}`);*/
             return isSuccess;
         }
+        /*Use Cases for Creating a file
+            File does not exist and enough space is available      -> create file
+            File does not exist but enough space is unavailable    -> don't create file, return 'not enough space' error
+            File does exist                                        -> dont' create file, return 'file already exists' error
+        */
         createFile(fileName) {
-            //console.log("create file call");
             let isDirSpace = false;
             let isFileSpace = false;
             let dirSpace;
@@ -73,7 +77,6 @@ var TSOS;
             //Find Directory Space
             outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
                 for (let j = 0; j < this.disk.blocks; j++) {
-                    //console.log("first loop set.");
                     if (this.getTSBAvailability(`0${i}${j}`) == "0") {
                         isDirSpace = true;
                         dirSpace = `0${i}${j}`;
@@ -95,7 +98,6 @@ var TSOS;
                 }
             }
             if (isDirSpace && isFileSpace) {
-                //console.log("both were true.");
                 if (!this.setTSBData(dirSpace, fileName))
                     return false;
                 this.setTSBAvailability(dirSpace, 1);
@@ -106,26 +108,21 @@ var TSOS;
             else
                 return false; //Create proper error message
         }
-        /*Use Cases for Writing
-            <= 60 hex chars on a file
-                1. "Expected"/Standard write behavior
-            > 60 hex chars on a file
+        /*Use Cases for Writing to a file
+            <= 60 hex chars on a file.                                              -> write converted data
+                1. "Expected"/Standard write behavior.
+            > 60 hex chars on a file.
                 1. Find as many TSBs as needed.
-                    a. If all are available, use them
-                    b. If not enough are available, for now, fail operation.
-            from >60 to <=60 hex chars
-                1. Unlink as many TSBs as required
-                2. Write new data
+                    a. If all are available, use them.                              -> write converted data
+                    b. If not enough are available, for now, fail operation.        -> return 'not enough space' error
+            from > 60 to <= 60 hex chars.                                           -> Unlink all TSBs, write converted data
         */
         writeToFile(fileName, data) {
             let isFileFound = false;
             let fileTSB = "";
-            console.log("What file are we attempting a write to? " + fileName);
-            console.log("what data are we attempting to write? " + data);
             outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
                 for (let j = 0; j < this.disk.blocks; j++) {
                     let fileFound = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
-                    console.log("What was the fileFound? " + fileFound);
                     if (fileFound == fileName) {
                         isFileFound = true;
                         fileTSB = `0${i}${j}`;
@@ -135,25 +132,61 @@ var TSOS;
             }
             if (isFileFound) {
                 this.setTSBData(this.getTSBLink(fileTSB), data);
-                console.log("What is now in here? " + this.getTSBData(fileTSB));
                 return true;
             }
             else
                 return false;
         }
+        /*Use Cases for Reading from a file
+            File does not exist                                             -> return 'file does not exist' error
+            <= 60 hex chars on a file
+                1. "Expected"/Standard read behavior                        -> return converted data
+            > 60 hex chars on a file
+                1. 'Snake' through linked TSBs. Combine data and output.    -> return converted data
+        */
+        readFile(fileName) {
+            let hexName = this.convertToHex(fileName);
+            let fileFound = false;
+            let fileTSB;
+            outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
+                for (let j = 0; j < this.disk.blocks; j++) {
+                    let currentFile = this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]; //May break if the file length is exactly 30 chars / 60 hex.
+                    if (currentFile == hexName) {
+                        fileFound = true;
+                        fileTSB = this.getTSBLink(`0${i}${j}`);
+                        break outer_loop;
+                    }
+                }
+            }
+            if (fileFound) {
+                let printOut = "";
+                outer_loop: for (let i = 1; i < this.disk.tracks; i++) {
+                    for (let j = 0; j < this.disk.sectors; j++) {
+                        for (let k = 0; k < this.disk.blocks; k++) {
+                            printOut += this.convertFromHex(this.getTSBData(fileTSB).substring(4).split("00", 1)[0]);
+                            fileTSB = this.getTSBLink(fileTSB);
+                            if (fileTSB == "---")
+                                break outer_loop;
+                            else
+                                fileTSB = this.getTSBLink(fileTSB);
+                        }
+                    }
+                }
+                return printOut;
+            }
+        }
+        /*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
         getTSBData(tsb) {
             return this.disk.storage.getItem(tsb);
         }
         /*Writes data to a block
-            Watch out for file names/data ending in 0 -> This will be a bug later.
+            Watch out for file names/data ending in 0 -> This will be a bug later.*
+                *Potentially fixed as I now check for '00' as a 'null terminator' of sorts.
         */
         setTSBData(tsb, data) {
-            //console.log("What does it look like just before writing the name? "+ this.getTSBData(tsb));
             let whole = this.getTSBData(tsb);
             let meta = whole.substring(0, 4);
             let hexName = this.convertToHex(data);
-            console.log("What was returned? " + hexName);
-            console.log("What is the reversed text? " + this.convertFromHex(hexName));
             if (hexName == "BROKEN")
                 return false;
             let updated = (meta + hexName).padEnd(64, "0");
@@ -180,8 +213,6 @@ var TSOS;
             let whole = this.getTSBData(tsb);
             let inUse = whole.charAt(0);
             let updated = inUse + link + whole.substring(4);
-            console.log("What is this value? " + updated);
-            console.log("What is its length? " + updated.length);
             this.disk.storage.setItem(tsb, updated);
         }
         /*Takes a string and converts it to unicode/ascii which then gets converted to Hex.
