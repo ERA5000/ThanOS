@@ -106,6 +106,41 @@ var TSOS;
             else
                 return false; //Create proper error message
         }
+        /*Use Cases for Writing
+            <= 60 hex chars on a file
+                1. "Expected"/Standard write behavior
+            > 60 hex chars on a file
+                1. Find as many TSBs as needed.
+                    a. If all are available, use them
+                    b. If not enough are available, for now, fail operation.
+            from >60 to <=60 hex chars
+                1. Unlink as many TSBs as required
+                2. Write new data
+        */
+        writeToFile(fileName, data) {
+            let isFileFound = false;
+            let fileTSB = "";
+            console.log("What file are we attempting a write to? " + fileName);
+            console.log("what data are we attempting to write? " + data);
+            outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
+                for (let j = 0; j < this.disk.blocks; j++) {
+                    let fileFound = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                    console.log("What was the fileFound? " + fileFound);
+                    if (fileFound == fileName) {
+                        isFileFound = true;
+                        fileTSB = `0${i}${j}`;
+                        break outer_loop;
+                    }
+                }
+            }
+            if (isFileFound) {
+                this.setTSBData(this.getTSBLink(fileTSB), data);
+                console.log("What is now in here? " + this.getTSBData(fileTSB));
+                return true;
+            }
+            else
+                return false;
+        }
         getTSBData(tsb) {
             return this.disk.storage.getItem(tsb);
         }
@@ -118,11 +153,11 @@ var TSOS;
             let meta = whole.substring(0, 4);
             let hexName = this.convertToHex(data);
             console.log("What was returned? " + hexName);
+            console.log("What is the reversed text? " + this.convertFromHex(hexName));
             if (hexName == "BROKEN")
                 return false;
             let updated = (meta + hexName).padEnd(64, "0");
             this.disk.storage.setItem(tsb, updated);
-            //console.log("What does it look like just after writing the name? " + this.getTSBData(tsb));
             return true;
         }
         getTSBAvailability(tsb) {
@@ -138,8 +173,8 @@ var TSOS;
         findFreeTSB() {
             return "";
         }
-        getTSBLink() {
-            return "";
+        getTSBLink(tsb) {
+            return this.disk.storage.getItem(tsb).substring(1, 4);
         }
         setTSBLink(tsb, link) {
             let whole = this.getTSBData(tsb);
@@ -153,6 +188,7 @@ var TSOS;
             If the value of what is attempted to be written, after doing all of the math/conversion is
             > 60, I return the string "BROKEN". This acts as a 'bubble' event like in JS to denote whether
             an operation was successful or not.
+        This is read one-by-one because it's for each character.
         */
         convertToHex(data) {
             let hex = "";
@@ -167,6 +203,20 @@ var TSOS;
                 return "BROKEN";
             else
                 return hex;
+        }
+        /* Convert data from hex to ascii to readable strings
+            Useful link: https://stackoverflow.com/questions/57803/how-to-convert-decimal-to-hexadecimal-in-javascript
+        Thankfully, because we read every two chars, we don't need a special file terminator... for now.
+        This is read two at a time because each value is is ASCII in hex.
+            This will break if single-valued ASCII values are used -> I'll deal with these later if there's time.
+        */
+        convertFromHex(data) {
+            let ascii = "";
+            for (let i = 0; i < data.length - 1; i += 2) {
+                let temp = String.fromCharCode(parseInt(data.substring(i, i + 2), 16));
+                ascii += temp;
+            }
+            return ascii;
         }
     }
     TSOS.DeviceDriverDisk = DeviceDriverDisk;

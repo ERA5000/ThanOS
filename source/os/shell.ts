@@ -183,6 +183,12 @@ module TSOS {
                                 "- Let me guess, your home?");
             this.commandList[this.commandList.length] = sc;
 
+            // write 
+            sc = new ShellCommand(this.shellWriteToFile,
+                                  "write",
+                                  "<filename> <data> - Writes data to the specified file.");
+            this.commandList[this.commandList.length] = sc;
+
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -256,6 +262,19 @@ module TSOS {
             // 1. Remove leading and trailing spaces.
             buffer = Utils.trim(buffer);
 
+            // 1.5 Make an exception for the write command to manage the command, fileName, and data
+            if(buffer.substring(0, 5) == "write"){
+                let command = buffer.substring(0, 5);
+                buffer = buffer.substring(6);
+                let splitData = buffer.split(" ", 2);
+                let fileName = splitData[0];
+                let data = splitData[1];
+
+                retVal.command = Utils.trim(command);
+                retVal.args[0] = fileName;
+                retVal.args[1] = data;
+                return retVal;
+            }
 
             //2. Split up the input by spaces
             var tempList = buffer.split(" ");
@@ -504,6 +523,11 @@ module TSOS {
                         _StdOut.putText("If the disk is formatted and there is available space, ");
                         _StdOut.advanceLine();
                         _StdOut.putText("creates a file with the specified name.");
+                        break;
+                    case "write":
+                        _StdOut.putText("When given a file name and some data, ");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("the data is written to the specified file.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -965,6 +989,22 @@ module TSOS {
             }
             else{
                 _StdOut.putText("Error! File name too long.");
+            }
+        }
+
+        public shellWriteToFile(args: string[]){
+            if(!_Disk.isFormatted) _StdOut.putText("Data cannot be written to an unformatted disk.");
+            else if(typeof args[0] === "undefined" || args[0] == "") _StdOut.putText("A valid file name must be provided.");
+            else if (typeof args[1] === "undefined" || args[1] == "") _StdOut.putText("Data must be given to write to a file.");
+            else {
+                let isWritten = _DiskDriver.writeToFile(args[0], args[1]);
+                if(isWritten) {
+                    _StdOut.putText(`File ${args[0]} successfully written to!`);
+                    Utils.drawDisk();
+                }
+                else{
+                    _StdOut.putText("File write unsuccessful.");
+                }
             }
         }
     }
