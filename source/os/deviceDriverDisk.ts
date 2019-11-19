@@ -128,6 +128,7 @@ module TSOS{
                     b. If not enough are available, for now, fail operation.        -> return 'not enough space' error
             from > 60 to <= 60 hex chars.                                           -> Unlink all TSBs, write converted data
         */
+       //TO DO: Add quote parsing. Throw error if string not in quotes.
         public writeToFile(fileName: string, data: string): boolean{
             let isFileFound = false;
             let fileTSB = "";
@@ -193,6 +194,33 @@ module TSOS{
             }
         }
 
+        public listFiles(listHidden: boolean): string[]{
+            let files: string[] = [];
+            if(listHidden){
+                for(let i = 0; i < this.disk.sectors; i++){
+                    for(let j = 1; j < this.disk.blocks; j++){
+                        let currentFileBit = this.getTSBAvailability(`0${i}${j}`);
+                        if(currentFileBit == "1"){
+                            files[files.length] = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                        }
+                    }
+                }
+            }
+            else{
+                for(let i = 0; i < this.disk.sectors; i++){
+                    for(let j = 1; j < this.disk.blocks; j++){
+                        let currentFileBit = this.getTSBAvailability(`0${i}${j}`);
+                        if(currentFileBit == "1"){
+                            let fileName = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                            if(fileName.charAt(0) == "." || fileName.charAt(0) == "@") continue;
+                            else files[files.length] = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                        }
+                    }
+                }
+            }
+            return files;
+        }
+
 
 /*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
         public getTSBData(tsb: string): string{
@@ -252,13 +280,10 @@ module TSOS{
         private convertToHex(data: string): string{
             let hex = "";
             for(let i = 0; i < data.length; i++){
-                //console.log(`What's getting added? ASCII: ${data.charCodeAt(i)}`);
-                //console.log(`What's getting added? Hex: ${data.charCodeAt(i).toString(16)}`);
                 hex += data.charCodeAt(i).toString(16);
                 hex = hex.toUpperCase();
             }
-            //console.log("What is the length of the file name? " + hex.length);
-            if(hex.length > 60) return "BROKEN";
+            if(hex.length > 60) return "BROKEN"; //TO DO: Need to implement TSB searching.
             else return hex;
         }
 

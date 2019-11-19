@@ -56,6 +56,9 @@ var TSOS;
             // killall
             sc = new TSOS.ShellCommand(this.shellKillAll, "killall", "- Kills all programs.");
             this.commandList[this.commandList.length] = sc;
+            // list
+            sc = new TSOS.ShellCommand(this.shellList, "ls", "- Lists the files on disk.");
+            this.commandList[this.commandList.length] = sc;
             // load
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads user program into memory for execution.");
             this.commandList[this.commandList.length] = sc;
@@ -431,6 +434,11 @@ var TSOS;
                         break;
                     case "read":
                         _StdOut.putText("Given a file name, outputs file's contents.");
+                        break;
+                    case "ls":
+                        _StdOut.putText("Lists the files on disk. Available flag: -l.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Hidden Files (-l): List hidden files as well.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -877,7 +885,7 @@ var TSOS;
                 _StdOut.putText("A file name must contain at least one valid character.");
                 return;
             }
-            else if (args[0] == "@") {
+            else if (args[0].charAt(0) == "@") {
                 _StdOut.putText("Invalid name. File names cannot start with '@.'");
                 return;
             }
@@ -917,6 +925,38 @@ var TSOS;
                 _StdOut.putText("A valid file name must be provided.");
             else {
                 _StdOut.putText(_DiskDriver.readFile(args[0]));
+            }
+        }
+        shellList(args) {
+            if (!_Disk.isFormatted)
+                _StdOut.putText("Files cannot be listed from an unformatted disk.");
+            else if (args[0] == "-l") {
+                let files = _DiskDriver.listFiles(true);
+                if (files.length == 0)
+                    _StdOut.putText("No files are stored on disk.");
+                else {
+                    _StdOut.putText("List of all files:");
+                    _StdOut.advanceLine();
+                    for (let i = 0; i < files.length; i++) {
+                        _StdOut.putText(files[i]);
+                        if (i != files.length - 1)
+                            _StdOut.advanceLine();
+                    }
+                }
+            }
+            else {
+                let files = _DiskDriver.listFiles(false);
+                if (files.length == 0)
+                    _StdOut.putText("No files are stored on disk.");
+                else {
+                    _StdOut.putText("List of files:");
+                    _StdOut.advanceLine();
+                    for (let i = 0; i < files.length; i++) {
+                        _StdOut.putText(files[i]);
+                        if (i != files.length - 1)
+                            _StdOut.advanceLine();
+                    }
+                }
             }
         }
     }
