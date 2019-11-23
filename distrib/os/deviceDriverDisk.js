@@ -77,7 +77,7 @@ var TSOS;
             //Find Directory Space
             outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
                 for (let j = 0; j < this.disk.blocks; j++) {
-                    if (this.getTSBAvailability(`0${i}${j}`) == "0") {
+                    if (this.getTSBUsage(`0${i}${j}`) == "0") {
                         isDirSpace = true;
                         dirSpace = `0${i}${j}`;
                         break outer_loop;
@@ -89,7 +89,7 @@ var TSOS;
                 for (let j = 0; j < this.disk.sectors; j++) {
                     for (let k = 0; k < this.disk.blocks; k++) {
                         //console.log("second loop set.");
-                        if (this.getTSBAvailability(`${i}${j}${k}`) == "0") {
+                        if (this.getTSBUsage(`${i}${j}${k}`) == "0") {
                             isFileSpace = true;
                             fileSpace = `${i}${j}${k}`;
                             break outer_loop;
@@ -100,9 +100,9 @@ var TSOS;
             if (isDirSpace && isFileSpace) {
                 if (!this.setTSBData(dirSpace, fileName))
                     return false;
-                this.setTSBAvailability(dirSpace, 1);
+                this.setTSBUsage(dirSpace, 1);
                 this.setTSBLink(dirSpace, fileSpace);
-                this.setTSBAvailability(fileSpace, 1);
+                this.setTSBUsage(fileSpace, 1);
                 return true;
             }
             else
@@ -121,17 +121,19 @@ var TSOS;
         writeToFile(fileName, data) {
             let isFileFound = false;
             let fileTSB = "";
+            let inUseBit;
             outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
                 for (let j = 0; j < this.disk.blocks; j++) {
                     let fileFound = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
                     if (fileFound == fileName) {
                         isFileFound = true;
+                        inUseBit = parseInt(this.getTSBUsage(`0${i}${j}`));
                         fileTSB = `0${i}${j}`;
                         break outer_loop;
                     }
                 }
             }
-            if (isFileFound) {
+            if (isFileFound && inUseBit == 1) {
                 this.setTSBData(this.getTSBLink(fileTSB), data);
                 return true;
             }
@@ -147,20 +149,23 @@ var TSOS;
         */
         readFile(fileName) {
             let hexName = this.convertToHex(fileName);
-            let fileFound = false;
+            let isFileFound = false;
+            let inUseBit;
             let fileTSB;
+            let printOut;
             outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
                 for (let j = 0; j < this.disk.blocks; j++) {
                     let currentFile = this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]; //May break if the file length is exactly 30 chars / 60 hex.
                     if (currentFile == hexName) {
-                        fileFound = true;
+                        isFileFound = true;
+                        inUseBit = parseInt(this.getTSBUsage(`0${i}${j}`));
                         fileTSB = this.getTSBLink(`0${i}${j}`);
                         break outer_loop;
                     }
                 }
             }
-            if (fileFound) {
-                let printOut = "";
+            if (isFileFound && inUseBit == 1) {
+                printOut = "";
                 outer_loop: for (let i = 1; i < this.disk.tracks; i++) {
                     for (let j = 0; j < this.disk.sectors; j++) {
                         for (let k = 0; k < this.disk.blocks; k++) {
@@ -173,15 +178,17 @@ var TSOS;
                         }
                     }
                 }
-                return printOut;
             }
+            else
+                printOut = "The requested file was not found.";
+            return printOut;
         }
         listFiles(listHidden) {
             let files = [];
             if (listHidden) {
                 for (let i = 0; i < this.disk.sectors; i++) {
                     for (let j = 1; j < this.disk.blocks; j++) {
-                        let currentFileBit = this.getTSBAvailability(`0${i}${j}`);
+                        let currentFileBit = this.getTSBUsage(`0${i}${j}`);
                         if (currentFileBit == "1") {
                             files[files.length] = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
                         }
@@ -191,7 +198,7 @@ var TSOS;
             else {
                 for (let i = 0; i < this.disk.sectors; i++) {
                     for (let j = 1; j < this.disk.blocks; j++) {
-                        let currentFileBit = this.getTSBAvailability(`0${i}${j}`);
+                        let currentFileBit = this.getTSBUsage(`0${i}${j}`);
                         if (currentFileBit == "1") {
                             let fileName = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
                             if (fileName.charAt(0) == "." || fileName.charAt(0) == "@")
@@ -204,7 +211,44 @@ var TSOS;
             }
             return files;
         }
+        deleteFile(fileName) {
+            let fileToDelete = this.convertToHex(fileName);
+            let isFileFound = false;
+            let nextTSBLink;
+            let inUseBit;
+            //Attempt to find the file
+            outer_loop: for (let i = 0; i < this.disk.sectors; i++) {
+                for (let j = 0; j < this.disk.blocks; j++) {
+                    if (fileToDelete == this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]) {
+                        isFileFound = true;
+                        inUseBit = parseInt(this.getTSBUsage(`0${i}${j}`));
+                        nextTSBLink = this.getTSBLink(`0${i}${j}`);
+                        this.wipeTSB(`0${i}${j}`);
+                        break outer_loop;
+                    }
+                }
+            }
+            //If the file is found, snake through its links to delete all data/references
+            if (isFileFound && inUseBit == 1) {
+                while (nextTSBLink != "---") {
+                    let newLink = this.getTSBLink(nextTSBLink);
+                    this.wipeTSB(nextTSBLink);
+                    nextTSBLink = newLink;
+                }
+                return true;
+            }
+            else
+                return false;
+        }
         /*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
+        /*To Do:
+                1. Refactor getTSBData into getTSBRaw -> returns 64 char string vs getTSBData -> returns max 60 char string, trimming end 0s
+                2. Make a File object to manage files for timestamps(?)
+                3. Error handler with Error objects(?)
+                    i. Most operational methods should return a boolean, so depending on the boolean and its context,
+                        it should create an 'Error' object with that information to print to the CLI
+                4. Refactor deviceDriverDisk to fileSystemDeviceDriver
+        */
         getTSBData(tsb) {
             return this.disk.storage.getItem(tsb);
         }
@@ -222,15 +266,16 @@ var TSOS;
             this.disk.storage.setItem(tsb, updated);
             return true;
         }
-        getTSBAvailability(tsb) {
+        getTSBUsage(tsb) {
             return this.disk.storage.getItem(tsb).charAt(0);
         }
-        setTSBAvailability(tsb, avail) {
+        setTSBUsage(tsb, avail) {
             let whole = this.getTSBData(tsb);
             let updated = avail + whole.substring(1);
             this.disk.storage.setItem(tsb, updated);
         }
         wipeTSB(tsb) {
+            this.disk.storage.setItem(tsb, "0---".padEnd(64, "0"));
         }
         findFreeTSB() {
             return "";

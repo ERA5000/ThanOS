@@ -57,6 +57,12 @@ module TSOS {
                                   "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
 
+            // delete
+            sc = new ShellCommand(this.shellDelete,
+                                  "delete",
+                                   "<filename> - Deletes the specified from disk.");
+            this.commandList[this.commandList.length] = sc;
+
             // dog
             sc = new ShellCommand(this.shellDog,
                                   "dog",
@@ -549,6 +555,11 @@ module TSOS {
                         _StdOut.advanceLine();
                         _StdOut.putText("Hidden Files (-l): List hidden files as well.");
                         break;
+                    case "delete":
+                        _StdOut.putText("Deletes the specified file from disk.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("This action is not reversible.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -1030,7 +1041,7 @@ module TSOS {
 
         public shellReadFile(args: string[]){
             if(!_Disk.isFormatted) _StdOut.putText("Data cannot be read from an unformatted disk.");
-            else if(args[0] == "") _StdOut.putText("A valid file name must be provided.");
+            else if(args.length == 0) _StdOut.putText("A valid file name must be provided.");
             else {
                 _StdOut.putText(_DiskDriver.readFile(args[0]));
             }
@@ -1061,6 +1072,22 @@ module TSOS {
                         if(i != files.length - 1) _StdOut.advanceLine();
                     }
                 }
+            }
+        }
+
+        public shellDelete(args: string[]){
+            if(!_Disk.isFormatted) _StdOut.putText("Files cannot be deleted from an unformatted disk.");
+            else{
+                if(args.length == 0) {
+                    _StdOut.putText("Usage: delete <filename>. Specify a file to delete.");
+                    return;
+                }
+                let wasDeleted = _DiskDriver.deleteFile(args[0]);
+                if(wasDeleted) {
+                    _StdOut.putText("File successfully deleted!");
+                    Utils.drawDisk();
+                }
+                else _StdOut.putText("The specified file was not found.");
             }
         }
     }
