@@ -79,6 +79,7 @@ module TSOS{
             let isFileSpace = false;
             let dirSpace: string;
             let fileSpace: string;
+            let isFileExtant = false;
 
             //Find Directory Space
             outer_loop:
@@ -97,7 +98,6 @@ module TSOS{
             for(let i = 1; i < this.disk.tracks; i++){
                 for(let j = 0; j < this.disk.sectors; j++){
                     for(let k = 0; k < this.disk.blocks; k++){
-                        //console.log("second loop set.");
                         if(this.getTSBUsage(`${i}${j}${k}`) == "0") {
                             isFileSpace = true;
                             fileSpace = `${i}${j}${k}`;
@@ -107,7 +107,19 @@ module TSOS{
                 }
             }
 
-            if(isDirSpace && isFileSpace){
+            //Ensure Singularity
+            outer_loop:
+            for(let i = 0; i < this.disk.tracks; i++){
+                for(let j = 0; j < this.disk.sectors; j++){
+                        if(this.getTSBInfo(`${0}${i}${j}`) == this.convertToHex(fileName)){
+                            isFileExtant = true;
+                            break outer_loop;
+                    }
+                }
+            }
+
+            //If there is file space, directory space, and it does not already exist, make the file
+            if(isDirSpace && isFileSpace && !isFileExtant){
                 if(!this.setTSBData(dirSpace, fileName)) return false;
                 this.setTSBUsage(dirSpace, 1);
                 this.setTSBLink(dirSpace, fileSpace);
@@ -117,7 +129,7 @@ module TSOS{
 
                 return true;
             }
-            else return false; //Create proper error message
+            else return false;
         }
 
         /*Use Cases for Writing to a file
@@ -129,11 +141,12 @@ module TSOS{
                     b. If not enough are available, for now, fail operation.        -> return 'not enough space' error
             from > 60 to <= 60 hex chars.                                           -> Unlink all TSBs, write converted data
         */
-       //TO DO: Add quote parsing. Throw error if string not in quotes.
         public writeToFile(fileName: string, data: string): boolean{
             let isFileFound = false;
             let fileTSB = "";
             let inUseBit: number;
+
+            //Find the File
             outer_loop:
             for(let i = 0; i < this.disk.sectors; i++){
                 for(let j = 0; j < this.disk.blocks; j++){
@@ -147,6 +160,8 @@ module TSOS{
                 }
             }
 
+            console.log("What is the converted length? " + this.convertToHex(data).length);
+            //If the converted data is < 60, do 'standard write,' snaking through links to wipe if they exist
             if(isFileFound && inUseBit == 1){
                 this.setTSBData(this.getTSBLink(fileTSB), data);
                 return true;
@@ -169,6 +184,7 @@ module TSOS{
             let fileTSB: string;
             let printOut: string;
 
+            //Find the File
             outer_loop:
             for(let i = 0; i < this.disk.sectors; i++){
                 for(let j = 0; j < this.disk.blocks; j++){
@@ -181,18 +197,16 @@ module TSOS{
                     }
                 }
             }
+
+            /*If the file is found and in use,
+              snake through its links to append all data to the output
+            */
             if(isFileFound && inUseBit == 1){
                 printOut = "";
-                outer_loop:
-                for(let i = 1; i < this.disk.tracks; i++){
-                    for(let j = 0; j < this.disk.sectors; j++){
-                        for(let k = 0; k < this.disk.blocks; k++){
-                            printOut += this.convertFromHex(this.getTSBInfo(fileTSB));
-                            fileTSB = this.getTSBLink(fileTSB);
-                            if(fileTSB == "---") break outer_loop;
-                            else fileTSB = this.getTSBLink(fileTSB);
-                        }
-                    }
+                while(fileTSB != "---"){
+                    let newLink = this.getTSBLink(fileTSB);
+                    printOut += this.convertFromHex(this.getTSBInfo(fileTSB));
+                    fileTSB = newLink;
                 }
             }
             else printOut = "The requested file was not found.";
@@ -232,7 +246,7 @@ module TSOS{
             let nextTSBLink: string;
             let inUseBit: number;
 
-            //Attempt to find the file
+            //Find the File
             outer_loop:
             for(let i = 0; i < this.disk.sectors; i++){
                 for(let j = 0; j < this.disk.blocks; j++){
@@ -331,8 +345,7 @@ module TSOS{
                 hex += data.charCodeAt(i).toString(16);
                 hex = hex.toUpperCase();
             }
-            if(hex.length > 60) return "BROKEN"; //TO DO: Need to implement TSB searching.
-            else return hex;
+            return hex;
         }
 
         /* Convert data from hex to ascii to readable strings

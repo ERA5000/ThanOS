@@ -185,12 +185,11 @@ var TSOS;
             // 1. Remove leading and trailing spaces.
             buffer = TSOS.Utils.trim(buffer);
             // 1.5 Make an exception for the write command to manage the command, fileName, and data
-            if (buffer.substring(0, 5) == "write") {
+            if (buffer.substring(0, 6) == "write ") {
                 let command = buffer.substring(0, 5);
-                buffer = buffer.substring(6);
-                let splitData = buffer.split(" ", 2);
-                let fileName = splitData[0];
-                let data = splitData[1];
+                buffer = buffer.substring(6).trim();
+                let fileName = buffer.substring(0, buffer.indexOf(" ")).trim();
+                let data = buffer.substring(buffer.indexOf(" ") + 1).trim();
                 retVal.command = TSOS.Utils.trim(command);
                 retVal.args[0] = fileName;
                 retVal.args[1] = data;
@@ -905,7 +904,7 @@ var TSOS;
                 _StdOut.putText(`File '${args[0]}' was created successfully!`);
             }
             else {
-                _StdOut.putText("Error! File name too long.");
+                _StdOut.putText("There was an issue creating the file.");
             }
         }
         shellWriteToFile(args) {
@@ -915,8 +914,11 @@ var TSOS;
                 _StdOut.putText("A valid file name must be provided.");
             else if (typeof args[1] === "undefined" || args[1] == "")
                 _StdOut.putText("Data must be given to write to a file.");
+            else if (args[1].charAt(0) != `"` || args[1].charAt(args[1].length - 1) != `"`)
+                _StdOut.putText("File data must be between quotes.");
             else {
-                let isWritten = _DiskDriver.writeToFile(args[0], args[1]);
+                let data = args[1].substring(1, args[1].length - 1);
+                let isWritten = _DiskDriver.writeToFile(args[0], data);
                 if (isWritten) {
                     _StdOut.putText(`File ${args[0]} successfully written to!`);
                     TSOS.Utils.drawDisk();
