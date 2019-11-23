@@ -45,7 +45,7 @@ var TSOS;
             _Dispatcher = new TSOS.Dispatcher();
             //Initializes the Disk and the Disk Driver
             _Disk = new TSOS.Disk(MAX_TRACKS, MAX_SECTORS, MAX_BLOCKS, MAX_BLOCK_SIZE, false, window.sessionStorage);
-            _DiskDriver = new TSOS.DeviceDriverDisk(_Disk);
+            _DiskDriver = new TSOS.FileSystemDeviceDriver(_Disk);
             //Sets the schedule to the default of Round Robin
             _CurrentSchedule = DEFAULT_SCHEDULE;
             // Finally, initiate student testing protocol.

@@ -1,6 +1,6 @@
 var TSOS;
 (function (TSOS) {
-    class DeviceDriverDisk extends TSOS.DeviceDriver {
+    class FileSystemDeviceDriver extends TSOS.DeviceDriver {
         constructor(disk) {
             super();
             this.disk = disk;
@@ -172,7 +172,6 @@ var TSOS;
                     for (let j = 0; j < this.disk.sectors; j++) {
                         for (let k = 0; k < this.disk.blocks; k++) {
                             printOut += this.convertFromHex(this.getTSBInfo(fileTSB));
-                            console.log("What is printOut? " + printOut);
                             fileTSB = this.getTSBLink(fileTSB);
                             if (fileTSB == "---")
                                 break outer_loop;
@@ -244,13 +243,6 @@ var TSOS;
                 return false;
         }
         /*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
-        /*To Do:
-                2. Make a File object to manage files for timestamps(?)
-                3. Error handler with Error objects(?)
-                    i. Most operational methods should return a boolean, so depending on the boolean and its context,
-                        it should create an 'Error' object with that information to print to the CLI
-                4. Refactor deviceDriverDisk to fileSystemDeviceDriver
-        */
         /*Returns only the information stored by the user.
             It uses "00" to denote when the data is done (and we can do this since the OS cannot interpret
                 the null byte ASCII char anyway), but if the whole string is just "0," it returns an empty string.
@@ -333,6 +325,6 @@ var TSOS;
             return ascii;
         }
     }
-    TSOS.DeviceDriverDisk = DeviceDriverDisk;
+    TSOS.FileSystemDeviceDriver = FileSystemDeviceDriver;
 })(TSOS || (TSOS = {}));
-//# sourceMappingURL=deviceDriverDisk.js.map
+//# sourceMappingURL=fileSystemDeviceDriver.js.map

@@ -1,5 +1,5 @@
 module TSOS{
-    export class DeviceDriverDisk extends DeviceDriver{
+    export class FileSystemDeviceDriver extends DeviceDriver{
 
         public disk: Disk;
 
@@ -112,6 +112,7 @@ module TSOS{
                 this.setTSBUsage(dirSpace, 1);
                 this.setTSBLink(dirSpace, fileSpace);
 
+                if(this.getTSBInfo(fileSpace) != "") this.wipeTSB(fileSpace);
                 this.setTSBUsage(fileSpace, 1);
 
                 return true;
@@ -136,7 +137,7 @@ module TSOS{
             outer_loop:
             for(let i = 0; i < this.disk.sectors; i++){
                 for(let j = 0; j < this.disk.blocks; j++){
-                    let fileFound = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                    let fileFound = this.convertFromHex(this.getTSBInfo(`0${i}${j}`));
                     if(fileFound == fileName) {
                         isFileFound = true;
                         inUseBit = parseInt(this.getTSBUsage(`0${i}${j}`));
@@ -171,7 +172,7 @@ module TSOS{
             outer_loop:
             for(let i = 0; i < this.disk.sectors; i++){
                 for(let j = 0; j < this.disk.blocks; j++){
-                    let currentFile = this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]; //May break if the file length is exactly 30 chars / 60 hex.
+                    let currentFile = this.getTSBInfo(`0${i}${j}`); //May break if the file length is exactly 30 chars / 60 hex.
                     if(currentFile == hexName){
                         isFileFound = true;
                         inUseBit = parseInt(this.getTSBUsage(`0${i}${j}`));
@@ -186,7 +187,7 @@ module TSOS{
                 for(let i = 1; i < this.disk.tracks; i++){
                     for(let j = 0; j < this.disk.sectors; j++){
                         for(let k = 0; k < this.disk.blocks; k++){
-                            printOut += this.convertFromHex(this.getTSBData(fileTSB).substring(4).split("00", 1)[0]);
+                            printOut += this.convertFromHex(this.getTSBInfo(fileTSB));
                             fileTSB = this.getTSBLink(fileTSB);
                             if(fileTSB == "---") break outer_loop;
                             else fileTSB = this.getTSBLink(fileTSB);
@@ -205,7 +206,7 @@ module TSOS{
                     for(let j = 1; j < this.disk.blocks; j++){
                         let currentFileBit = this.getTSBUsage(`0${i}${j}`);
                         if(currentFileBit == "1"){
-                            files[files.length] = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                            files[files.length] = this.convertFromHex(this.getTSBInfo(`0${i}${j}`));
                         }
                     }
                 }
@@ -215,9 +216,9 @@ module TSOS{
                     for(let j = 1; j < this.disk.blocks; j++){
                         let currentFileBit = this.getTSBUsage(`0${i}${j}`);
                         if(currentFileBit == "1"){
-                            let fileName = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                            let fileName = this.convertFromHex(this.getTSBInfo(`0${i}${j}`));
                             if(fileName.charAt(0) == "." || fileName.charAt(0) == "@") continue;
-                            else files[files.length] = this.convertFromHex(this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]);
+                            else files[files.length] = this.convertFromHex(this.getTSBInfo(`0${i}${j}`));
                         }
                     }
                 }
@@ -235,7 +236,7 @@ module TSOS{
             outer_loop:
             for(let i = 0; i < this.disk.sectors; i++){
                 for(let j = 0; j < this.disk.blocks; j++){
-                    if(fileToDelete == this.getTSBData(`0${i}${j}`).substring(4).split("00", 1)[0]){
+                    if(fileToDelete == this.getTSBInfo(`0${i}${j}`)){
                         isFileFound = true;
                         inUseBit = parseInt(this.getTSBUsage(`0${i}${j}`));
                         nextTSBLink = this.getTSBLink(`0${i}${j}`);
@@ -259,15 +260,18 @@ module TSOS{
 
 /*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
 
-/*To Do:
-        1. Refactor getTSBData into getTSBRaw -> returns 64 char string vs getTSBData -> returns max 60 char string, trimming end 0s
-        2. Make a File object to manage files for timestamps(?)
-        3. Error handler with Error objects(?)
-            i. Most operational methods should return a boolean, so depending on the boolean and its context,
-                it should create an 'Error' object with that information to print to the CLI
-        4. Refactor deviceDriverDisk to fileSystemDeviceDriver
-*/
-        public getTSBData(tsb: string): string{
+        /*Returns only the information stored by the user.
+            It uses "00" to denote when the data is done (and we can do this since the OS cannot interpret
+                the null byte ASCII char anyway), but if the whole string is just "0," it returns an empty string.
+                This is why that if statement in createFile *appears* unintuitive at first glance.
+        */
+        public getTSBInfo(tsb: string): string{
+            return this.disk.storage.getItem(tsb).substring(4).split("00", 1)[0];
+        }
+
+        /*Returns the entire 64 bytes of data
+        */
+        public getTSBRaw(tsb: string): string{
             return this.disk.storage.getItem(tsb);
         }
 
@@ -276,7 +280,7 @@ module TSOS{
                 *Potentially fixed as I now check for '00' as a 'null terminator' of sorts.
         */
         public setTSBData(tsb: string, data: string): boolean{
-            let whole = this.getTSBData(tsb);
+            let whole = this.getTSBRaw(tsb);
             let meta = whole.substring(0, 4);
             let hexName = this.convertToHex(data);
             if(hexName == "BROKEN") return false;
@@ -290,7 +294,7 @@ module TSOS{
         }
 
         public setTSBUsage(tsb: string, avail: number): void{
-            let whole = this.getTSBData(tsb);
+            let whole = this.getTSBRaw(tsb);
             let updated = avail + whole.substring(1);
             this.disk.storage.setItem(tsb, updated);
         }
@@ -309,7 +313,7 @@ module TSOS{
         }
 
         public setTSBLink(tsb: string, link: string): void{
-            let whole = this.getTSBData(tsb);
+            let whole = this.getTSBRaw(tsb);
             let inUse = whole.charAt(0);
             let updated = inUse + link + whole.substring(4);
             this.disk.storage.setItem(tsb, updated);
