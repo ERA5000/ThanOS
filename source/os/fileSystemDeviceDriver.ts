@@ -132,14 +132,46 @@ module TSOS{
             else return false;
         }
 
-        /*Use Cases for Writing to a file
-            <= 60 hex chars on a file.                                              -> write converted data
-                1. "Expected"/Standard write behavior.
-            > 60 hex chars on a file.
-                1. Find as many TSBs as needed. 
-                    a. If all are available, use them.                              -> write converted data
-                    b. If not enough are available, for now, fail operation.        -> return 'not enough space' error
-            from > 60 to <= 60 hex chars.                                           -> Unlink all TSBs, write converted data
+        /*Use Cases for Writing to a file:
+            1. <= 60 hex chars on a file.                     -> delete any previous data, write new data
+            2. > 60 hex chars on a file.
+                a. Find as many TSBs as needed. 
+                    i. If enough are available, use them.     -> search for TSBs, delete any previous data, write new data
+                    ii. If not, fail the operation.
+            3. Reducing TSB quantity while TSB count > 1      -> salvage TSBs, delete any previous data, write new data
+            4. If all else fails                              -> fail the operation
+                a. file not found
+                b. not enough space
+                c. some other third thing
+
+        Verbose:
+            My initial instinct on programming this was something small like "if space => write hex," and it worked.
+                For reference, this now currently sits at around 130 lines of code. The orginal was closer to 40.
+            But then I realized that for the case of the swap files at the very least, or just writing large files
+                in general, that would not cut it.
+            Above are the use-cases I came up with for how files might be written to.
+            The first use-case is pretty stright-forward: regardless of how much data / how many links were there prior,
+                just 'snake' through all of them and delete the data. Then write to the one TSB linked in the directory. Simple enough, no exceptions.
+            The second use-case is where things get interesting. So I had this idea of 'salvaging' for two reasons:
+                1. Since the data is overritten, technically those TSBs are now, relative to the command, 'available.' However,
+                2. If the write were to fail, we need to make sure NOT to overrite the data. Yet.
+                So instead of just jumping in and overriting and then looking for more if need be, that is what I did.
+            The third use-case is almost like a sub-use-case of 2. This is because we need more than 1 TSB, so it definitely
+                is not use-case 1, but because the data is less, more often than not the TSB count is going down. My point being that once
+                it's been determined how many are required, it effectively acts as a combination of use-case 1 in that we have the space
+                to do it, but like use-case 2 in that we still need to know how many.
+
+            I wrote the logic for this first before programming it, and it took me about 5 hours to get it working "completely."*
+                *I'm sure something will break it eventually. I'm writing this before I've even dared to implement swapping.
+            Regardless, *famous last words* swapping should just build itself at this point. All I (theoretically) have to do is link it up
+                and turn it on.
+            But I do write this in some confidence because what I have tested does work (including reading and deleting > 60 hex char files.
+                I even managed to intertwine two files and still parse them properly ;) ).
+            Still, I'm not holding my breath.
+
+            Aside: What is 'snaking?' I use this term to describe how files are supposed to be parsed: around other TSBs but through the ones
+                that are linked. Unlike what common sense imposes nor the list command, one cannot simply brute-force the whole cache to find what's requested
+                    (I guess you could but that is totally unnecessary). So that term is thrown around a bit.
         */
         public writeToFile(fileName: string, data: string): boolean{
             let isFileFound = false;
@@ -160,12 +192,114 @@ module TSOS{
                 }
             }
 
-            console.log("What is the converted length? " + this.convertToHex(data).length);
-            //If the converted data is < 60, do 'standard write,' snaking through links to wipe if they exist
             if(isFileFound && inUseBit == 1){
-                this.setTSBData(this.getTSBLink(fileTSB), data);
-                return true;
+                //If writing more than 60 hex chars
+                if(this.convertToHex(data).length > 60){
+                    //determine how many TSBs are necessary to write the data
+                    let required = Math.ceil(this.convertToHex(data).length / 60);
+                    let found = 0;
+                    let tempTSB = fileTSB;
+                    let writeableTSBs: string[] = [];
+                    //and attempt to salvage current TSBs in use.
+                    while(tempTSB != "---"){
+                        tempTSB = this.getTSBLink(tempTSB);
+                        if(tempTSB != "---") {
+                            writeableTSBs[writeableTSBs.length] = tempTSB;
+                            found++;
+                        }
+                        else break;
+                    }
+                    //If the salvage met the requirement
+                    if(found >= required){
+                        let tempTSB = this.getTSBLink(fileTSB);
+                        //delete the old data
+                        while(tempTSB != "---"){
+                            let newLink = this.getTSBLink(tempTSB);
+                            this.wipeTSB(tempTSB);
+                            tempTSB = newLink;
+                        }
+                        let shortner = data;
+                        //and write the new data.
+                        for(let i = 0; i < writeableTSBs.length; i++){
+                            if(shortner.length > 30) {
+                                this.setTSBData(writeableTSBs[i], shortner.substring(0, 30));
+                                this.setTSBUsage(writeableTSBs[i], 1);
+                                this.setTSBLink(writeableTSBs[i], writeableTSBs[i + 1]);
+                                shortner = shortner.substring(30);
+                            }
+                            else {
+                                this.setTSBData(writeableTSBs[i], shortner);
+                                this.setTSBUsage(writeableTSBs[i], 1);
+                                break;
+                            }
+                        }
+                        return true;
+                    }
+                    //If the salvage did not meet the requirement
+                    else if(found < required){
+                        //look for available TSBs.
+                        outer_loop:
+                        for(let i = 1; i < this.disk.tracks; i++){
+                            for(let j = 0; j < this.disk.sectors; j++){
+                                for(let k = 0; k < this.disk.blocks; k++){
+                                    if(this.getTSBUsage(`${i}${j}${k}`) == "0"){
+                                        writeableTSBs[writeableTSBs.length] = `${i}${j}${k}`;
+                                        found++;
+                                        if(found >= required) {
+                                            break outer_loop;
+                                        }
+                                        else continue;
+                                    }
+                                }
+                            }
+                        }
+                        //If more TSBs are available
+                        if(found >= required){
+                            let tempTSB = fileTSB;
+                            //delete their old data
+                            while(this.getTSBLink(tempTSB) != "---"){
+                                let newLink = this.getTSBLink(fileTSB);
+                                this.wipeTSB(newLink);
+                                tempTSB = newLink;
+                            }
+                            let shortner = data;
+                            //and write the new data.
+                            for(let i = 0; i < writeableTSBs.length; i++){
+                                if(shortner.length > 30) {
+                                    this.setTSBData(writeableTSBs[i], shortner.substring(0, 30));
+                                    this.setTSBUsage(writeableTSBs[i], 1);
+                                    this.setTSBLink(writeableTSBs[i], writeableTSBs[i + 1]);
+                                    shortner = shortner.substring(30);
+                                }
+                                else {
+                                    this.setTSBData(writeableTSBs[i], shortner);
+                                    this.setTSBUsage(writeableTSBs[i], 1);
+                                    break;
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                    /*If the salvage failed and no more TSBs are available, the larger data cannot be written.
+                        Also, this ensures the previous data does not get overritten since it failed (if I did everything correctly).*/
+                    else return false;
+                }
+                //If writing <= 60 hex chars
+                else{
+                    let tempTSB = this.getTSBLink(fileTSB);
+                    //delete all previous data
+                    while(tempTSB != "---"){
+                        let newLink = this.getTSBLink(tempTSB);
+                        this.wipeTSB(tempTSB);
+                        tempTSB = newLink;
+                    }
+                    //and write to the first TSB directly referenced in the directory.
+                    this.setTSBData(this.getTSBLink(fileTSB), data);
+                    this.setTSBUsage(this.getTSBLink(fileTSB), 1);
+                    return true;
+                }
             }
+            //If the file does not exist or something else weird happens, fail entirely.
             else return false;
         }
 
@@ -199,7 +333,7 @@ module TSOS{
             }
 
             /*If the file is found and in use,
-              snake through its links to append all data to the output
+              'snake' through its links to append all data to the output
             */
             if(isFileFound && inUseBit == 1){
                 printOut = "";
@@ -260,7 +394,7 @@ module TSOS{
                 }
             }
 
-            //If the file is found, snake through its links to delete all data/references
+            //If the file is found, 'snake' through its links to delete all data/references
             if(isFileFound && inUseBit == 1){
                 while(nextTSBLink != "---"){
                     let newLink = this.getTSBLink(nextTSBLink);
@@ -297,7 +431,6 @@ module TSOS{
             let whole = this.getTSBRaw(tsb);
             let meta = whole.substring(0, 4);
             let hexName = this.convertToHex(data);
-            if(hexName == "BROKEN") return false;
             let updated = (meta + hexName).padEnd(64, "0");
             this.disk.storage.setItem(tsb, updated);
             return true;
