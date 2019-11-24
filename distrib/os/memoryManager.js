@@ -79,7 +79,7 @@ var TSOS;
                 return -1;
         }
         //Makes all memory available for use.
-        allAvailable() {
+        setAllAvailable() {
             _Memory.seg1Avail = true;
             _Memory.seg2Avail = true;
             _Memory.seg3Avail = true;

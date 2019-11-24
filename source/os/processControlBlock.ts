@@ -23,7 +23,7 @@ module TSOS {
         private readonly segHash: number;
         
 
-        constructor(segment: number){
+        constructor(segment?: number){
             this.PC = 0;
             this.Acc = 0;
             this.Xreg = 0;
@@ -32,7 +32,7 @@ module TSOS {
             this.pid = _PID;
             _PID++;
             this.state = "Resident";
-            this.priority = 5;//Math.floor(Math.random() * 10 + 1);
+            this.priority = 5;
             this.segment = segment;
             this.determineRange();
             this.turnaroundTime = 0;

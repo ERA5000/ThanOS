@@ -682,7 +682,7 @@ module TSOS {
                     return;
                 }
                 else if(!_fsDD.isDiskFull()){
-                    pcb = new ProcessControlBlock(-1);
+                    pcb = new ProcessControlBlock();
                     let isCreated = _fsDD.createFile(`@swap${pcb.pid}`);
                     let isWritten = _fsDD.writeToFile(`@swap${pcb.pid}`, Utils.standardizeInput());
                     if(isCreated && isWritten){
@@ -785,24 +785,32 @@ module TSOS {
             else _StdOut.putText("Usage: quantum <flag> or <integer>. Specify an appropriate quantum.");
         }
 
-        //Clears memory of any programs with the State of 'Resident'
+        /*Clears memory of any programs with the State of 'Resident' and currently in memory.
+          It ignores the disk entirely. There's that weird i+=0 because again, splicing (not slicing)
+            changes the physical size of the array.
+          However, since we need to go through the whole Resident array to find which programs
+            were occupying the memory to update status and remove it, i is incremented when one isn't found,
+            otherwise it'd be stuck in an infinite loop.
+        */
         public shellClearMem(){
             if(_ResidentPCB.length <= 0) {
                 _StdOut.putText("There are no programs to clear.");
-                return;
             }
+            else if(_CPU.hasExecutionStarted) _StdOut.putText("Memory cannot be cleared during execution.");
             else{
-                for(let i = 0; i < _ResidentPCB.length; i++){
+                _MemoryManager.wipeSegmentByID();
+                _MemoryManager.setAllAvailable();
+                for(let i = 0; i < _ResidentPCB.length; i+=0){
                     let temp = _ResidentPCB[i];
-                    _MemoryManager.wipeSegmentByID(temp.segment);
-                    _MemoryManager.setMemoryStatus(temp.segment);
-                    temp.state = "Terminated";
-                    Utils.updatePCBRow(temp);
+                    if(temp.segment >= 0 && temp.segment <= 2){
+                        temp.state = "Terminated";
+                        Utils.updatePCBRow(temp);
+                        _ResidentPCB.splice(_ResidentPCB.indexOf(temp), 1);
+                    }
+                    else i++;
                 }
+                _StdOut.putText("Memory successfully cleared.");
             }
-            Utils.drawMemory();
-            _ResidentPCB = [];
-            _StdOut.putText("Memory successfully cleared.");
         }
 
         /*Runs all programs sitting in the Resident Queue. The Scheduler (is supposed to) ensure(s) that any new programs will be executed if added after

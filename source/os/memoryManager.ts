@@ -72,7 +72,7 @@ module TSOS {
         }
 
         //Makes all memory available for use.
-        public allAvailable(){
+        public setAllAvailable(){
             _Memory.seg1Avail = true;
             _Memory.seg2Avail = true;
             _Memory.seg3Avail = true;
