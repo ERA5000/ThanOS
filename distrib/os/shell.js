@@ -559,7 +559,7 @@ var TSOS;
                         _CPU.init();
                     _MemoryManager.wipeSegmentByID(pcb.segment);
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
-                    //This is now broken and will not be fixed until the continuity for load/run/runall/kill/killall works flawlessly*
+                    //This is now broken and will not be fixed until further notice
                     /*Make an attempt to clean old/unused PCBs
                     if(_ResidentPCB.length > 0) {
                         for(let i = 0; i < _ResidentPCB.length; i++){
@@ -818,7 +818,7 @@ var TSOS;
                     _StdOut.putText("Schedule set to Round Robin.");
                     break;
                 case "-d":
-                    _CurrentSchedule = DEFAULT_SCHEDULE;
+                    _CurrentSchedule = SCHEDULE_DEFAULT;
                     _StdOut.putText("Schedule set to default of Round Robin.");
                     break;
                 default:

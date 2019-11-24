@@ -28,7 +28,9 @@ const SYSTEM_CALL: number = 3;
 //Scheduling
 const QUANTUM_DEFAULT: number = 6; //Acts as a safety to the _Quantum variable just in case things break...
 
-const DEFAULT_SCHEDULE: string = "rr"; //Acts as a safety to the _CurrentSchedule variable just in case things break...
+const SCHEDULE_DEFAULT: string = "rr"; //Acts as a safety to the _CurrentSchedule variable just in case things break...
+
+const PRIORITY_DEFAULT: number = 5; //If the user does not input a priority for their programs, this is what it defaults to. Scaled out of 10, 1 being the smallest/highest.
 
 //Disk(ing)
 const MAX_TRACKS = 4;

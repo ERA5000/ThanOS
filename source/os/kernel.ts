@@ -59,7 +59,7 @@ module TSOS {
             _DiskDriver = new FileSystemDeviceDriver(_Disk);
 
             //Sets the schedule to the default of Round Robin
-            _CurrentSchedule = DEFAULT_SCHEDULE;
+            _CurrentSchedule = SCHEDULE_DEFAULT;
 
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {

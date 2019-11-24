@@ -36,7 +36,7 @@ module TSOS{
                     this.roundRobin();
                     break;
                 default:
-                    DEFAULT_SCHEDULE;
+                    SCHEDULE_DEFAULT;
                     break;
             }
             this.addTurnaroundTime();
