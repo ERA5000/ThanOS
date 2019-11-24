@@ -534,54 +534,66 @@ var TSOS;
         shellBSOD() {
             TSOS.Utils.crash();
         }
-        //Loads a program into memory for execution
+        //Loads a program into the OS for execution
         shellLoad(args) {
+            let memoryWrite = false;
+            let diskWrite = false;
             if (TSOS.Utils.verifyInput()) {
                 let availableMemory = _MemoryManager.getMemoryStatus();
-                if (!availableMemory) {
-                    _StdOut.putText("All of memory is currently occupied.");
-                    return;
-                }
-                else {
-                    //let overritten = false;
-                    let pcb = new TSOS.ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
-                    _MemoryManager.setMemoryStatus(pcb.segment);
-                    if (pcb.segment > 2) {
-                        _StdOut.putText("Segmentation Fault. Only memory is available for iProject3. Execution has stopped.");
-                        _Kernel.krnTrapError("Segmentation Fault. No more available memory.");
-                        _CPU.isExecuting = false;
-                        TSOS.Utils.disableSS();
-                        _HasCrashed = true;
-                        return;
+                let pcb;
+                if (availableMemory) {
+                    pcb = new TSOS.ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
+                    if (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) <= 10 && parseInt(args[0]) >= 1)
+                        pcb.priority = parseInt(args[0]);
+                    else {
+                        _StdOut.putText(`Defaulting to priority ${PRIORITY_DEFAULT}.`);
+                        _StdOut.advanceLine();
+                        pcb.priority = PRIORITY_DEFAULT;
                     }
+                    _MemoryManager.setMemoryStatus(pcb.segment);
                     pcb.location = "Memory";
-                    if (!_CPU.isExecuting)
+                    if (_CPU.isExecuting)
                         _CPU.init();
                     _MemoryManager.wipeSegmentByID(pcb.segment);
                     _MemoryAccessor.write(pcb.segment, TSOS.Utils.standardizeInput());
-                    //This is now broken and will not be fixed until further notice
-                    /*Make an attempt to clean old/unused PCBs
-                    if(_ResidentPCB.length > 0) {
-                        for(let i = 0; i < _ResidentPCB.length; i++){
-                            console.log("What is the state? " + _ResidentPCB[i].state);
-                            if(_ResidentPCB[i].state == "Terminated"){ //Might be able to overrite 'Ready' programs too -- check back later.
-                                _ResidentPCB[i].state = "Overwritten";
-                                Utils.updatePCBRow(_ResidentPCB[i]);
-                                _ResidentPCB[i] = pcb;
-                                _ReadyPCB.slice(i, 1);
-                                overritten = true;
-                                break;
-                            }
-                        }
-                    }
-                    if(!overritten) _ResidentPCB[_ResidentPCB.length] = pcb;*/
-                    _ResidentPCB[_ResidentPCB.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     TSOS.Utils.drawMemory();
+                    memoryWrite = true;
+                }
+                else if (!_Disk.isFormatted) {
+                    _StdOut.putText("There is no available memory.");
+                    _StdOut.advanceLine();
+                    _StdOut.putText("Try formatting the disk to input more programs.");
+                    return;
+                }
+                else if (!_fsDD.isDiskFull()) {
+                    pcb = new TSOS.ProcessControlBlock(-1);
+                    let isCreated = _fsDD.createFile(`@swap${pcb.pid}`);
+                    let isWritten = _fsDD.writeToFile(`@swap${pcb.pid}`, TSOS.Utils.standardizeInput());
+                    if (isCreated && isWritten) {
+                        if (args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) <= 10 && parseInt(args[0]) >= 1)
+                            pcb.priority = parseInt(args[0]);
+                        else {
+                            _StdOut.putText(`Defaulting to priority ${PRIORITY_DEFAULT}.`);
+                            _StdOut.advanceLine();
+                            pcb.priority = PRIORITY_DEFAULT;
+                        }
+                        pcb.location = "Disk";
+                        _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
+                        TSOS.Utils.drawDisk();
+                        diskWrite = true;
+                    }
+                    else {
+                        _StdOut.putText("There was not enough space available on disk to create the new program.");
+                        _fsDD.deleteFile(`@swap${pcb.pid}`);
+                        _PID--;
+                    }
+                    TSOS.Utils.drawDisk();
+                }
+                if (diskWrite || memoryWrite) {
+                    _ResidentPCB[_ResidentPCB.length] = pcb;
                     TSOS.Utils.addPCBRow(pcb);
                     TSOS.Utils.updatePCBRow(pcb);
-                    if (!_CPU.isExecuting)
-                        _CPU.init();
                 }
             }
         }
@@ -849,20 +861,20 @@ var TSOS;
             let isCompleted;
             let isQFormat = false;
             if (args[0] == "-q") {
-                if (!_DiskDriver.disk.isFormatted) {
+                if (!_fsDD.disk.isFormatted) {
                     _StdOut.putText("Quick Formats can only be performed after at least one full format.");
                     return;
                 }
                 else {
                     _StdOut.putText("Performing Quick Format...");
-                    isCompleted = _DiskDriver.format(true);
+                    isCompleted = _fsDD.format(true);
                     isQFormat = true;
                     _StdOut.advanceLine();
                 }
             }
             else if (args.length == 0) {
                 _StdOut.putText("Performing Full Format...");
-                isCompleted = _DiskDriver.format(false);
+                isCompleted = _fsDD.format(false);
                 _StdOut.advanceLine();
             }
             else {
@@ -884,7 +896,7 @@ var TSOS;
         }
         shellCreateFile(args) {
             let isCreated = false;
-            if (!_DiskDriver.disk.isFormatted) {
+            if (!_fsDD.disk.isFormatted) {
                 _StdOut.putText("Files can only be created once the disk is formatted.");
                 return;
             }
@@ -897,7 +909,7 @@ var TSOS;
                 return;
             }
             else {
-                isCreated = _DiskDriver.createFile(args[0]);
+                isCreated = _fsDD.createFile(args[0]);
             }
             if (isCreated) {
                 TSOS.Utils.drawDisk();
@@ -914,11 +926,13 @@ var TSOS;
                 _StdOut.putText("A valid file name must be provided.");
             else if (typeof args[1] === "undefined" || args[1] == "")
                 _StdOut.putText("Data must be given to write to a file.");
+            else if (args[0].charAt(0) == "@")
+                _StdOut.putText("File names starting with '@' cannot be written to.");
             else if (args[1].charAt(0) != `"` || args[1].charAt(args[1].length - 1) != `"`)
                 _StdOut.putText("File data must be between quotes.");
             else {
                 let data = args[1].substring(1, args[1].length - 1);
-                let isWritten = _DiskDriver.writeToFile(args[0], data);
+                let isWritten = _fsDD.writeToFile(args[0], data);
                 if (isWritten) {
                     _StdOut.putText(`File ${args[0]} successfully written to!`);
                     TSOS.Utils.drawDisk();
@@ -933,15 +947,17 @@ var TSOS;
                 _StdOut.putText("Data cannot be read from an unformatted disk.");
             else if (args.length == 0)
                 _StdOut.putText("A valid file name must be provided.");
+            else if (args[0].charAt(0) == "@")
+                _StdOut.putText("File names starting wtih '@' cannot be read.");
             else {
-                _StdOut.putText(_DiskDriver.readFile(args[0]));
+                _StdOut.putText(_fsDD.readFile(args[0]));
             }
         }
         shellList(args) {
             if (!_Disk.isFormatted)
                 _StdOut.putText("Files cannot be listed from an unformatted disk.");
             else if (args[0] == "-l") {
-                let files = _DiskDriver.listFiles(true);
+                let files = _fsDD.listFiles(true);
                 if (files.length == 0)
                     _StdOut.putText("No files are stored on disk.");
                 else {
@@ -955,7 +971,7 @@ var TSOS;
                 }
             }
             else {
-                let files = _DiskDriver.listFiles(false);
+                let files = _fsDD.listFiles(false);
                 if (files.length == 0)
                     _StdOut.putText("No files are stored on disk.");
                 else {
@@ -977,7 +993,11 @@ var TSOS;
                     _StdOut.putText("Usage: delete <filename>. Specify a file to delete.");
                     return;
                 }
-                let wasDeleted = _DiskDriver.deleteFile(args[0]);
+                else if (args[0].charAt(0) == "@") {
+                    _StdOut.putText("File names starting with '@' cannot be deleted.");
+                    return;
+                }
+                let wasDeleted = _fsDD.deleteFile(args[0]);
                 if (wasDeleted) {
                     _StdOut.putText("File successfully deleted!");
                     TSOS.Utils.drawDisk();

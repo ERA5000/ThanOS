@@ -265,6 +265,8 @@ var TSOS;
                             }
                             return true;
                         }
+                        else
+                            return false;
                     }
                     /*If the salvage failed and no more TSBs are available, the larger data cannot be written.
                         Also, this ensures the previous data does not get overritten since it failed (if I did everything correctly).*/
@@ -387,14 +389,42 @@ var TSOS;
             else
                 return false;
         }
-        /*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
+        /*Checks to see if any free space exists by scouring the directory.
+        This method purposely does not care about how much space is actually available as
+            that is handled directly at write-time (boo tightly coupling).
+        */
+        isDiskFull() {
+            let isFull;
+            for (let i = 0; i < this.disk.sectors; i++) {
+                for (let j = 0; j < this.disk.blocks; j++) {
+                    if (this.getTSBUsage(`0${i}${j}`) == '0') {
+                        isFull = false;
+                        return isFull;
+                    }
+                }
+            }
+            isFull = true;
+            return isFull;
+        }
+        /*Below are Helper methods for the shell command methods above.*/
         /*Returns only the information stored by the user.
             It uses "00" to denote when the data is done (and we can do this since the OS cannot interpret
                 the null byte ASCII char anyway), but if the whole string is just "0," it returns an empty string.
                 This is why that if statement in createFile *appears* unintuitive at first glance.
+            UPDATE 11/24/19: Super Salty about this one. So, based on what I know, splitting on any amount of 0s
+                cannot be differentiated. So if a Hex value ends with a 0, say the hex of ASCII '0' or the hex of ASCII 'P,'
+                it indiscriminantely chops off all of it.
+            I thought it would work like this: Say some hex is A230000... with the rest being filled with 0s. I thought
+                that by telling split to look for say '00', it would ignore the '30' since that 0 is 'attached' to the 3,
+                making it false. But no, it's just a hard left-to-right, character by character.
+            And there's no help in Regex either since there is no way to ignore the 'xth' instance of something. Aw well.
         */
         getTSBInfo(tsb) {
-            return this.disk.storage.getItem(tsb).substring(4).split("00", 1)[0];
+            let info = this.disk.storage.getItem(tsb).substring(4).split("00", 1)[0];
+            if (info.length % 2 != 0)
+                return (info += 0);
+            else
+                return info;
         }
         /*Returns the entire 64 bytes of data
         */

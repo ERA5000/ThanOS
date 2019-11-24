@@ -191,7 +191,6 @@ module TSOS{
                     }
                 }
             }
-
             if(isFileFound && inUseBit == 1){
                 //If writing more than 60 hex chars
                 if(this.convertToHex(data).length > 60){
@@ -279,6 +278,7 @@ module TSOS{
                             }
                             return true;
                         }
+                        else return false;
                     }
                     /*If the salvage failed and no more TSBs are available, the larger data cannot be written.
                         Also, this ensures the previous data does not get overritten since it failed (if I did everything correctly).*/
@@ -406,20 +406,47 @@ module TSOS{
             else return false;
         }
 
-/*Below are Helper methods for the shell command methods above. (These will become private once all are completed and tested!)*/
+        /*Checks to see if any free space exists by scouring the directory.
+        This method purposely does not care about how much space is actually available as
+            that is handled directly at write-time (boo tightly coupling).
+        */
+        public isDiskFull(): boolean{
+            let isFull;
+            for(let i = 0; i < this.disk.sectors; i++){
+                for(let j = 0; j < this.disk.blocks; j++){
+                    if(this.getTSBUsage(`0${i}${j}`) == '0'){
+                        isFull = false;
+                        return isFull;
+                    }
+                }
+            }
+            isFull = true;
+            return isFull;
+        }
+
+/*Below are Helper methods for the shell command methods above.*/
 
         /*Returns only the information stored by the user.
             It uses "00" to denote when the data is done (and we can do this since the OS cannot interpret
                 the null byte ASCII char anyway), but if the whole string is just "0," it returns an empty string.
                 This is why that if statement in createFile *appears* unintuitive at first glance.
+            UPDATE 11/24/19: Super Salty about this one. So, based on what I know, splitting on any amount of 0s
+                cannot be differentiated. So if a Hex value ends with a 0, say the hex of ASCII '0' or the hex of ASCII 'P,'
+                it indiscriminantely chops off all of it.
+            I thought it would work like this: Say some hex is A230000... with the rest being filled with 0s. I thought
+                that by telling split to look for say '00', it would ignore the '30' since that 0 is 'attached' to the 3,
+                making it false. But no, it's just a hard left-to-right, character by character.
+            And there's no help in Regex either since there is no way to ignore the 'xth' instance of something. Aw well.
         */
-        public getTSBInfo(tsb: string): string{
-            return this.disk.storage.getItem(tsb).substring(4).split("00", 1)[0];
+        private getTSBInfo(tsb: string): string{
+            let info = this.disk.storage.getItem(tsb).substring(4).split("00", 1)[0];
+            if(info.length % 2 != 0) return (info+=0);
+            else return info;
         }
 
         /*Returns the entire 64 bytes of data
         */
-        public getTSBRaw(tsb: string): string{
+        private getTSBRaw(tsb: string): string{
             return this.disk.storage.getItem(tsb);
         }
 
@@ -427,7 +454,7 @@ module TSOS{
             Watch out for file names/data ending in 0 -> This will be a bug later.*
                 *Potentially fixed as I now check for '00' as a 'null terminator' of sorts.
         */
-        public setTSBData(tsb: string, data: string): boolean{
+        private setTSBData(tsb: string, data: string): boolean{
             let whole = this.getTSBRaw(tsb);
             let meta = whole.substring(0, 4);
             let hexName = this.convertToHex(data);
@@ -436,30 +463,30 @@ module TSOS{
             return true;
         }
 
-        public getTSBUsage(tsb: string): string{
+        private getTSBUsage(tsb: string): string{
             return this.disk.storage.getItem(tsb).charAt(0);
         }
 
-        public setTSBUsage(tsb: string, avail: number): void{
+        private setTSBUsage(tsb: string, avail: number): void{
             let whole = this.getTSBRaw(tsb);
             let updated = avail + whole.substring(1);
             this.disk.storage.setItem(tsb, updated);
         }
 
-        public wipeTSB(tsb: string){
+        private wipeTSB(tsb: string){
             this.disk.storage.setItem(tsb, "0---".padEnd(64, "0"));
         }
 
-        public findFreeTSB(): string{  
+        private findFreeTSB(): string{  
             return "";
 
         }
 
-        public getTSBLink(tsb: string): string{
+        private getTSBLink(tsb: string): string{
             return this.disk.storage.getItem(tsb).substring(1, 4);
         }
 
-        public setTSBLink(tsb: string, link: string): void{
+        private  setTSBLink(tsb: string, link: string): void{
             let whole = this.getTSBRaw(tsb);
             let inUse = whole.charAt(0);
             let updated = inUse + link + whole.substring(4);

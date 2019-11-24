@@ -56,7 +56,7 @@ module TSOS {
 
             //Initializes the Disk and the Disk Driver
             _Disk = new Disk(MAX_TRACKS, MAX_SECTORS, MAX_BLOCKS, MAX_BLOCK_SIZE, false, window.sessionStorage);
-            _DiskDriver = new FileSystemDeviceDriver(_Disk);
+            _fsDD = new FileSystemDeviceDriver(_Disk);
 
             //Sets the schedule to the default of Round Robin
             _CurrentSchedule = SCHEDULE_DEFAULT;

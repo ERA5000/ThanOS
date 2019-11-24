@@ -77,7 +77,7 @@ var _CurrentPCB;
 var _SingleStep = false;
 //Disk
 var _Disk;
-var _DiskDriver;
+var _fsDD;
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();
