@@ -83,6 +83,7 @@ module TSOS{
             if(_ReadyPCB[this.pointer].segment == -1){
                 _fsDD.swap(_ReadyPCB[this.pointer], _CurrentPCB);
                 _CurrentPCB.location = "Disk";
+                Utils.drawDisk();
             }
 
             Utils.updatePCBRow(_CurrentPCB);

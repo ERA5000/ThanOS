@@ -484,9 +484,6 @@ var TSOS;
         wipeTSB(tsb) {
             this.disk.storage.setItem(tsb, "0---".padEnd(64, "0"));
         }
-        findFreeTSB() {
-            return "";
-        }
         getTSBLink(tsb) {
             return this.disk.storage.getItem(tsb).substring(1, 4);
         }

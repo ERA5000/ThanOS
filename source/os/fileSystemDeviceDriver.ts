@@ -508,16 +508,11 @@ module TSOS{
             this.disk.storage.setItem(tsb, "0---".padEnd(64, "0"));
         }
 
-        private findFreeTSB(): string{  
-            return "";
-
-        }
-
         private getTSBLink(tsb: string): string{
             return this.disk.storage.getItem(tsb).substring(1, 4);
         }
 
-        private  setTSBLink(tsb: string, link: string): void{
+        private setTSBLink(tsb: string, link: string): void{
             let whole = this.getTSBRaw(tsb);
             let inUse = whole.charAt(0);
             let updated = inUse + link + whole.substring(4);

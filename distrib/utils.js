@@ -276,7 +276,7 @@ var TSOS;
                     document.getElementById("mem" + ((pc + ((255 * segment) + segment)) + i)).style.backgroundColor = "#05aefc";
                 }
             }
-            this.scrollTable(_CurrentPCB);
+            this.scrollMemoryTable(_CurrentPCB);
         }
         /*Disables single step. Useful for when things can go awry so the best way to deal with it is
             to prevent users from clicking the buttons entirely.
@@ -294,18 +294,30 @@ var TSOS;
         }
         /*Auto scrolls the table to the highlighted section of memory.
             My display has a height of 7 rows, and each row is 22 pixels tall.
+                Each segment has 8 rows. 256 / 8 = 32 * 22 = 704 pixels.
             If a row is either of the first three, or last three, it cannot be centered, so don't do anything.
-            If a row is the fourth from the top or bottom, it already is centered, so don't do anything.
+            If a row is the fourth from the top or bottom, it already is centered, so don't do anything either.
             Otherwise, scroll down to that row, then SUBTRACT the height of three rows from the top of the display -- this centers it.
         */
-        static scrollTable(pcb) {
-            let segmentOffset = 704 * pcb.segment;
+        static scrollMemoryTable(pcb) {
+            const SEGMENT_HEIGHT = 704;
+            const TOP_THREE = 22;
+            const BOTTOM_THREE = 2725;
+            let segmentOffset = SEGMENT_HEIGHT * pcb.segment;
             let rowToScroll = (22 * Math.floor(pcb.PC / 8)) + segmentOffset;
-            if (rowToScroll <= 88 || rowToScroll >= 2725)
+            if (rowToScroll <= TOP_THREE || rowToScroll >= BOTTOM_THREE)
                 document.getElementById("MemoryTable").scrollTop = rowToScroll;
             else
                 document.getElementById("MemoryTable").scrollTop = rowToScroll - 66;
         }
+        /*Why doesn't the disk table auto scroll?
+            Because in order for that to work, I'd have to know which TSB to jump to, which is impossible.
+            There currently isn't a way to do a reverse-lookup (i.e. value to key), but I'd have to
+                know that for calculating the height's offset.
+            The best approach would be to do a brute-force search which is waaay too ineffective for not
+                only the obvious reason of O(n) search time, but also updating graphics like this is
+                quite taxing on the computer (see dog command comments).
+        */
         /* Prints the wait time and turnaround time of a process. I made a new method for it because I wanted to format what was printed and it was taking up
             too much space. I was conflicted about where to put this method: I knew I had to get it out of CPU, and have since moved it here, to Utils...
         */
