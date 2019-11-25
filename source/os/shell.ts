@@ -682,7 +682,7 @@ module TSOS {
                     return;
                 }
                 else if(!_fsDD.isDiskFull()){
-                    pcb = new ProcessControlBlock();
+                    pcb = new ProcessControlBlock(-1);
                     let isCreated = _fsDD.createFile(`@swap${pcb.pid}`);
                     let isWritten = _fsDD.writeToFile(`@swap${pcb.pid}`, Utils.standardizeInput());
                     if(isCreated && isWritten){

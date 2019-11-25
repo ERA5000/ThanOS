@@ -567,7 +567,7 @@ var TSOS;
                     return;
                 }
                 else if (!_fsDD.isDiskFull()) {
-                    pcb = new TSOS.ProcessControlBlock();
+                    pcb = new TSOS.ProcessControlBlock(-1);
                     let isCreated = _fsDD.createFile(`@swap${pcb.pid}`);
                     let isWritten = _fsDD.writeToFile(`@swap${pcb.pid}`, TSOS.Utils.standardizeInput());
                     if (isCreated && isWritten) {

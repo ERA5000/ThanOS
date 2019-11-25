@@ -125,7 +125,7 @@ var TSOS;
                     break;
                 case SOFTWARE_IRQ:
                     if (_Mode == 0) {
-                        _Scheduler.PCBSwap(_CurrentSchedule);
+                        _Scheduler.PCBSwitch(_CurrentSchedule);
                         _Mode = 1;
                     }
                     else

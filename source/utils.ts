@@ -207,11 +207,12 @@ module TSOS {
         public static updatePCBRow(pcbInUse: ProcessControlBlock): void{
             let rowToUpdate = <HTMLTableRowElement>document.getElementById("pcb" + pcbInUse.pid);
             rowToUpdate.cells[3].innerHTML = pcbInUse.PC.toString(16).toUpperCase().padStart(2, "0");
-            rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
+            rowToUpdate.cells[2].innerHTML = pcbInUse.state;
             rowToUpdate.cells[5].innerHTML = pcbInUse.Acc.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[6].innerHTML = pcbInUse.Xreg.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[7].innerHTML = pcbInUse.Yreg.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[8].innerHTML = pcbInUse.Zflag.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[9].innerHTML = pcbInUse.location;
         }
 
         /*Independently updates the IR table cell in the PCB display.

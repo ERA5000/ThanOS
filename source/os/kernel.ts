@@ -144,7 +144,7 @@ module TSOS {
                     break;
                 case SOFTWARE_IRQ:
                     if(_Mode == 0) {
-                        _Scheduler.PCBSwap(_CurrentSchedule);
+                        _Scheduler.PCBSwitch(_CurrentSchedule);
                         _Mode = 1;
                     }
                     else this.krnTrace("Insufficient Privilege. Unable to context switch.");
