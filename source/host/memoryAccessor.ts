@@ -23,7 +23,7 @@ module TSOS {
             if((segment >= 0 && segment <= 2) && (address >= 0 && address <= 255)) return _Memory.memoryContainer[segment][address];
             else {
                 _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
-                _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                 _CurrentPCB.state = "Terminated";
                 _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
             }
@@ -40,7 +40,7 @@ module TSOS {
             }
             else {
                 _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
-                _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                 _CurrentPCB.state = "Terminated";
                 _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
             }
@@ -54,7 +54,7 @@ module TSOS {
                 if((address >= 0 && address <= 255)) _Memory.memoryContainer[segment][address] = data;
                 else {
                     _Kernel.krnTrace("OutOfBoundsException. Illegal Address Write Access. Terminating Execution.");
-                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                     _CurrentPCB.state = "Terminated";
                     _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
                 }

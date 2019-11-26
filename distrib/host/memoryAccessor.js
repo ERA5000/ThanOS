@@ -22,7 +22,7 @@ var TSOS;
                 return _Memory.memoryContainer[segment][address];
             else {
                 _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
-                _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                 _CurrentPCB.state = "Terminated";
                 _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
             }
@@ -38,7 +38,7 @@ var TSOS;
             }
             else {
                 _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
-                _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                 _CurrentPCB.state = "Terminated";
                 _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
             }
@@ -52,7 +52,7 @@ var TSOS;
                     _Memory.memoryContainer[segment][address] = data;
                 else {
                     _Kernel.krnTrace("OutOfBoundsException. Illegal Address Write Access. Terminating Execution.");
-                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                     _CurrentPCB.state = "Terminated";
                     _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
                 }

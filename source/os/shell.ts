@@ -667,7 +667,7 @@ module TSOS {
                         _StdOut.advanceLine();
                         pcb.priority = PRIORITY_DEFAULT;
                     }
-                    _MemoryManager.setMemoryStatus(pcb.segment);
+                    _MemoryManager.toggleMemoryStatus(pcb.segment);
                     pcb.location = "Memory";
                     if(_CPU.isExecuting) _CPU.init();
                     _MemoryManager.wipeSegmentByID(pcb.segment);
@@ -838,7 +838,7 @@ module TSOS {
                 return;
             }
             else{
-                if(_ReadyPCB.length == 3) {
+                if(_ResidentPCB.length == 0 && _ReadyPCB.length > 0) {
                     _StdOut.putText("Everything is already running.");
                     return;
                 }
@@ -848,11 +848,21 @@ module TSOS {
                   Because I need to remove it, I use this as the for loop counter, which is why i itself does not actually change.
                 */
                 for(let i = 0; i < _ResidentPCB.length; i+=0) {
-                        _ResidentPCB[i].state = "Ready";
-                        Utils.updatePCBRow(_ResidentPCB[i]);
-                        _ReadyPCB[_ReadyPCB.length] = _ResidentPCB[i];
-                        _ResidentPCB.splice(i, 1);
+                    let temp = _ResidentPCB[i];
+                    if(temp.segment == -1){
+                        if(_MemoryManager.getNextAvailableSegment() != -1){
+                            //Brute-force swap
+                            _Swapper.swapFor(temp);
+                            temp.location = "Memory";
+                            Utils.updatePCBRow(temp);
+                        }
+                    }
+                    temp.state = "Ready";
+                    Utils.updatePCBRow(temp);
+                    _ReadyPCB[_ReadyPCB.length] = temp;
+                    _ResidentPCB.splice(i, 1);
                 }
+
                 if(_CPU.isExecuting) _StdOut.putText("New program(s) successfully added to the schedule.");
                 else{
                     _CPU.init();

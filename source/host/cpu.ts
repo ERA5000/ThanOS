@@ -117,7 +117,7 @@ module TSOS {
                     break;
                 default:
                     _Kernel.krnTrace("Invalid Op Code. Terminating execution.");
-                    _MemoryManager.setMemoryStatus(pcb.segment);
+                    _MemoryManager.toggleMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
                     _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
                     break;
