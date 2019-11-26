@@ -1035,6 +1035,15 @@ module TSOS {
                 else _StdOut.putText("Full Format successful!");
                 Utils.drawDisk();
                 Utils.enableScroll(<HTMLDivElement>document.getElementById("HDDDisplay"));
+                for(let i = 0; i < _ResidentPCB.length; i+=0){
+                    let temp = _ResidentPCB[i];
+                    if(temp.segment == -1){
+                        temp.state = "Terminated";
+                        Utils.updatePCBRow(temp);
+                        _ResidentPCB.splice(_ResidentPCB.indexOf(_ResidentPCB[i]), 1);
+                    }
+                    else i++;
+                }
             }
             else if(!isCompleted) _StdOut.putText("The format failed.");
             else _StdOut.putText("Error! There was an error displaying the error. Layman's: If you're seeing this, something is very wrong :(");
