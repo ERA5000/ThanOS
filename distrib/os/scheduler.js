@@ -59,6 +59,11 @@ var TSOS;
           My analysis could be (and probably is) wrong about why this works the way it does (I'm having doubts
             as I write this). It rides on certain observations and assumptions. Nonetheless, since it works, and
             these are *not* canonical answers after all, I'll leave it as is.
+
+        Update (1 to 2 commits later) Since the Disk now exists, it is very possible to assume programs can
+            sit on Disk without anything being in memory. I am writing this after doing extensive testing with
+            run vs runall and timing load commands during specific states of the OS. My bad. The Swapper has two
+            methods now, check the second one's comments for more info (swapFor).
         */
         setPointer(schedule) {
             if (schedule == "rr") {

@@ -93,7 +93,7 @@ module TSOS {
                     break;
                 case "00":
                     this.dataAmount = 0;
-                    _MemoryManager.setMemoryStatus(pcb.segment);
+                    _MemoryManager.setSegmentTrue(pcb.segment);
                     pcb.state = "Terminated";
                     Utils.printTime(pcb);
                     _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);

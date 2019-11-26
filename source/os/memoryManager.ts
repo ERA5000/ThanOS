@@ -60,7 +60,10 @@ module TSOS {
             if(_Memory.seg1Avail) return _Memory.seg1Avail;
             else if (_Memory.seg2Avail) return _Memory.seg2Avail;
             else if (_Memory.seg3Avail) return _Memory.seg3Avail;
-            else _Kernel.krnTrace("Error! No available memory.");
+            else {
+                _Kernel.krnTrace("Error! No available memory.");
+                return false;
+            }
         }
 
         //Translates a literal address (0-767) to an actual segment (0, 1, 2)

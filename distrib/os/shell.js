@@ -540,6 +540,7 @@ var TSOS;
             let diskWrite = false;
             if (TSOS.Utils.verifyInput()) {
                 let availableMemory = _MemoryManager.getMemoryStatus();
+                console.log("What is the available memory?" + availableMemory);
                 let pcb;
                 if (availableMemory) {
                     pcb = new TSOS.ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
@@ -613,6 +614,21 @@ var TSOS;
                                 _CPU.init();
                                 _CurrentPCB = null;
                                 _CPU.isExecuting = true;
+                                if (temp.segment == -1) {
+                                    if (_MemoryManager.getNextAvailableSegment() != -1) {
+                                        //Brute-force swap
+                                        _Swapper.swapFor(temp);
+                                        temp.location = "Memory";
+                                        TSOS.Utils.updatePCBRow(temp);
+                                    }
+                                    else {
+                                        //Standard swap
+                                        _Swapper.swapWith(temp, _ResidentPCB[0]);
+                                        temp.location = "Memory";
+                                        _ResidentPCB[0].location = "Disk";
+                                        TSOS.Utils.updatePCBRow(_ResidentPCB[0]);
+                                    }
+                                }
                             }
                             //If Single Step is enabled, make sure to update the new program's state and display immediately
                             if (_CPU.hasExecutionStarted) {

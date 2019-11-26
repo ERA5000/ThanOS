@@ -64,8 +64,10 @@ var TSOS;
                 return _Memory.seg2Avail;
             else if (_Memory.seg3Avail)
                 return _Memory.seg3Avail;
-            else
+            else {
                 _Kernel.krnTrace("Error! No available memory.");
+                return false;
+            }
         }
         //Translates a literal address (0-767) to an actual segment (0, 1, 2)
         translate(addressLiteral) {
