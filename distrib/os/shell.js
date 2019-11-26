@@ -894,6 +894,10 @@ var TSOS;
             The result of the format prints a success or failure message.
         */
         shellFormat(args) {
+            if (_CPU.hasExecutionStarted || _CPU.isExecuting) {
+                _StdOut.putText("The Disk cannot be formatted during execution.");
+                return;
+            }
             let isCompleted;
             let isQFormat = false;
             if (args[0] == "-q") {
