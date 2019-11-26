@@ -78,6 +78,7 @@ var _SingleStep = false;
 //Disk
 var _Disk;
 var _fsDD;
+var _Swapper;
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
     TSOS.Utils.clock();

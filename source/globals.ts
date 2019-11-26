@@ -105,6 +105,7 @@ var _SingleStep = false;
 //Disk
 var _Disk: TSOS.Disk;
 var _fsDD: TSOS.FileSystemDeviceDriver;
+var _Swapper: TSOS.Swapper;
 
 var onDocumentLoad = function() {
     TSOS.Control.hostInit();

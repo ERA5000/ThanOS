@@ -83,7 +83,7 @@ var TSOS;
             if (this.pointer >= _ReadyPCB.length)
                 this.pointer = 0;
             if (_ReadyPCB[this.pointer].segment == -1) {
-                _fsDD.swap(_ReadyPCB[this.pointer], _CurrentPCB);
+                _Swapper.swap(_ReadyPCB[this.pointer], _CurrentPCB);
                 _CurrentPCB.location = "Disk";
                 TSOS.Utils.drawDisk();
             }

@@ -18,7 +18,6 @@ var TSOS;
         }
         //Reads two bytes of memory.
         read(segment, address) {
-            console.log("What segment are you trying to read? " + segment);
             if ((segment >= 0 && segment <= 2) && (address >= 0 && address <= 255))
                 return _Memory.memoryContainer[segment][address];
             else {
