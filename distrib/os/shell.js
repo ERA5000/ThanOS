@@ -795,14 +795,16 @@ var TSOS;
                 let found = false;
                 for (let i = 0; i < _ReadyPCB.length; i++) {
                     if (_ReadyPCB[i].pid == parseInt(args[0])) {
+                        let temp = _ReadyPCB[i];
                         found = true;
-                        _StdOut.putText(`Found process with PID ${_ReadyPCB[i].pid}.`);
-                        _ReadyPCB[i].state = "Terminated";
-                        TSOS.Utils.updatePCBRow(_ReadyPCB[i]);
+                        _StdOut.putText(`Found process with PID ${temp.pid}.`);
+                        temp.state = "Terminated";
+                        TSOS.Utils.updatePCBRow(temp);
                         _StdOut.advanceLine();
-                        _StdOut.putText(`Process with PID ${_ReadyPCB[i].pid} has been killed.`);
-                        _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
-                        TSOS.Utils.printTime(_ReadyPCB[i]);
+                        _StdOut.putText(`Process with PID ${temp.pid} has been killed.`);
+                        if (temp.segment != -1)
+                            _MemoryManager.setSegmentTrue(temp.segment);
+                        TSOS.Utils.printTime(temp);
                         _ReadyPCB.splice(i, 1);
                         if (_ReadyPCB.length == 0)
                             _CPU.isExecuting = false;
