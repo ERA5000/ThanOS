@@ -805,7 +805,8 @@ var TSOS;
                 for (let i = 0; i < _ReadyPCB.length; i++) {
                     _ReadyPCB[i].state = "Terminated";
                     TSOS.Utils.updatePCBRow(_ReadyPCB[i]);
-                    _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
+                    if (_ReadyPCB[i].segment != -1)
+                        _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
                     TSOS.Utils.printTime(_ReadyPCB[i]);
                 }
                 _CPU.isExecuting = false;
