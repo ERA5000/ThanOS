@@ -147,7 +147,13 @@ module TSOS {
                     break;
                 case SOFTWARE_IRQ:
                     if(_Mode == 0) {
-                        _Scheduler.PCBSwitch(_CurrentSchedule);
+                        _Scheduler.setPointer(_CurrentSchedule);
+                        if(_ReadyPCB[_Pointer].segment == -1){
+                            _Swapper.swap(_ReadyPCB[_Pointer], _CurrentPCB);
+                            _CurrentPCB.location = "Disk";
+                            Utils.drawDisk();
+                        }
+                        _Scheduler.PCBSwitch();
                         _Mode = 1;
                     }
                     else this.krnTrace("Insufficient Privilege. Unable to context switch.");

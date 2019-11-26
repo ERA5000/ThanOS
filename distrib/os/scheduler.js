@@ -23,7 +23,6 @@ var TSOS;
                     A typo lost me a good hour, so just to be clear, we want *splice* (with a p).
             */
             this.cycle = 1;
-            this.pointer = 0;
         }
         schedulerInterrupt(scheduleType) {
             switch (scheduleType) {
@@ -43,30 +42,50 @@ var TSOS;
             this.addTurnaroundTime();
             this.addWaitTime();
         }
-        PCBSwitch(schedule) {
+        /*This method updates the pointer for the Ready Queue depending on the schedule.
+          This functionality had to be modularized from PCBSwitch because Swapping should be
+            the Kernel's responsibility, but in order to accomplish that these behaviors of A)
+            updating the pointer and B) actually changing the _CurrentPCB needed to be separated
+            (even though they are very closely related).
+          Now this may give the appearance that Swapping is tightly-coupled to Context Switching... and it will be.
+          While the behavior itself should not intrinsically be so, this is just an unfortunate
+            consequence of how my code is laid out. Obviously if a single program exists on disk
+            without anything being in memory, however unlikely that may be for our OSs, it should still
+            be able to move to memory to execute. So, because of how this culiminated,
+            the default behavior will be to have it this way and a single 'run' be the exception.
+          The theory is, especially for us at least, that swapping should not occur if some segment
+            is available (bc then the code would just go into that segment), but it seems that it can
+            happen.
+          My analysis could be (and probably is) wrong about why this works the way it does (I'm having doubts
+            as I write this). It rides on certain observations and assumptions. Nonetheless, since it works, and
+            these are *not* canonical answers after all, I'll leave it as is.
+        */
+        setPointer(schedule) {
             if (schedule == "rr") {
-                if (this.pointer < 0)
-                    this.pointer = 0;
+                if (_Pointer < 0)
+                    _Pointer = 0;
                 if (this.cycle >= 6)
-                    this.pointer++;
+                    _Pointer++;
+                if (_Pointer >= _ReadyPCB.length)
+                    _Pointer = 0;
             }
             else if (schedule == "fcfs") {
-                this.pointer = 0;
-                let first = _ReadyPCB[this.pointer];
+                _Pointer = 0;
+                let first = _ReadyPCB[_Pointer];
                 for (let i = 0; i < _ReadyPCB.length; i++) {
                     if (_ReadyPCB[i].pid < first.pid) {
                         first = _ReadyPCB[i];
-                        this.pointer = i;
+                        _Pointer = i;
                     }
                 }
             }
             else if (schedule == "priority") {
-                this.pointer = 0;
-                let highest = _ReadyPCB[this.pointer];
+                _Pointer = 0;
+                let highest = _ReadyPCB[_Pointer];
                 for (let i = 0; i < _ReadyPCB.length; i++) {
                     if (_ReadyPCB[i].priority < highest.priority) {
                         highest = _ReadyPCB[i];
-                        this.pointer = i;
+                        _Pointer = i;
                     }
                 }
             }
@@ -77,18 +96,15 @@ var TSOS;
                 _MemoryManager.wipeSegmentByID();
                 return;
             }
+        }
+        /*Actually switches two PCBs when a context switch has been requested.
+        */
+        PCBSwitch() {
             _Dispatcher.snapshot(_CurrentPCB);
             if (_CurrentPCB.state == "Running")
                 _CurrentPCB.state = "Ready";
-            if (this.pointer >= _ReadyPCB.length)
-                this.pointer = 0;
-            if (_ReadyPCB[this.pointer].segment == -1) {
-                _Swapper.swap(_ReadyPCB[this.pointer], _CurrentPCB);
-                _CurrentPCB.location = "Disk";
-                TSOS.Utils.drawDisk();
-            }
             TSOS.Utils.updatePCBRow(_CurrentPCB);
-            _CurrentPCB = _ReadyPCB[this.pointer];
+            _CurrentPCB = _ReadyPCB[_Pointer];
             _Dispatcher.reinstate(_CurrentPCB);
             _CurrentPCB.state = "Running";
             _CurrentPCB.location = "Memory";
@@ -128,8 +144,8 @@ var TSOS;
         roundRobin() {
             let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if (_ReadyPCB.length == 1) {
-                this.pointer = 0;
-                if (_CurrentPCB.pid != _ReadyPCB[this.pointer].pid) {
+                _Pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[_Pointer].pid) {
                     _Kernel.krnTrace("Context Switch via Round Robin");
                     _KernelInterruptQueue.enqueue(interrupt);
                 }
@@ -137,13 +153,13 @@ var TSOS;
                     this.cycle++;
                     if (this.cycle > 6)
                         this.cycle = 1;
-                    _ReadyPCB[this.pointer].turnaroundTime++;
+                    _ReadyPCB[_Pointer].turnaroundTime++;
                 }
                 return;
             }
             if ((_CurrentPCB.state == "Terminated" || this.cycle >= _Quantum) && _ReadyPCB.length > 0) {
                 if (_CurrentPCB.state == "Terminated")
-                    this.pointer--;
+                    _Pointer--;
                 if (_ReadyPCB.length > 1)
                     _Kernel.krnTrace("Context Switch via Round Robin");
                 _KernelInterruptQueue.enqueue(interrupt);
@@ -168,15 +184,15 @@ var TSOS;
         firstComeFirstServe() {
             let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if (_ReadyPCB.length == 1) {
-                this.pointer = 0;
-                if (_CurrentPCB.pid != _ReadyPCB[this.pointer].pid) {
+                _Pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[_Pointer].pid) {
                     _Kernel.krnTrace("Context Switch via First Come First Serve");
                     _KernelInterruptQueue.enqueue(interrupt);
                     return;
                 }
             }
             else if (_CurrentPCB.state == "Terminated" && _ReadyPCB.length > 0) {
-                this.pointer--;
+                _Pointer--;
                 if (_ReadyPCB.length > 1)
                     _Kernel.krnTrace("Context Switch via First Come First Serve");
                 _KernelInterruptQueue.enqueue(interrupt);
@@ -199,15 +215,15 @@ var TSOS;
         priority() {
             let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if (_ReadyPCB.length == 1) {
-                this.pointer = 0;
-                if (_CurrentPCB.pid != _ReadyPCB[this.pointer].pid) {
+                _Pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[_Pointer].pid) {
                     _Kernel.krnTrace("Context Switch via Priority");
                     _KernelInterruptQueue.enqueue(interrupt);
                     return;
                 }
             }
             else if (_CurrentPCB.state == "Terminated" && _ReadyPCB.length > 0) {
-                this.pointer--;
+                _Pointer--;
                 if (_ReadyPCB.length > 1)
                     _Kernel.krnTrace("Context Switch via Priority");
                 _KernelInterruptQueue.enqueue(interrupt);

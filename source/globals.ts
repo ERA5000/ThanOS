@@ -81,6 +81,7 @@ var _ReadyPCB: TSOS.ProcessControlBlock[] = [];
 var _ResidentPCB: TSOS.ProcessControlBlock[] = [];
 var _Dispatcher: TSOS.Dispatcher;
 var _CurrentSchedule: string;
+var _Pointer: number = 0;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;
