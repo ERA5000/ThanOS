@@ -82,7 +82,7 @@ module TSOS{
                 }
             }
             else if(schedule == "priority"){
-                _Pointer= 0;
+                _Pointer = 0;
                 let highest = _ReadyPCB[_Pointer];
                 for(let i = 0; i < _ReadyPCB.length; i++){
                     if(_ReadyPCB[i].priority < highest.priority){

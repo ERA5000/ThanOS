@@ -866,7 +866,17 @@ module TSOS {
                 if(_CPU.isExecuting) _StdOut.putText("New program(s) successfully added to the schedule.");
                 else{
                     _CPU.init();
-                    _CurrentPCB = _ReadyPCB[0];
+                    if(_CurrentSchedule == "priority"){
+                        let highest = _ReadyPCB[0];
+                        for(let i = 0; i < _ReadyPCB.length; i++){
+                            if(_ReadyPCB[i].priority < highest.priority){
+                                highest = _ReadyPCB[i];
+                            }
+                        }
+                        _CurrentPCB = highest;
+                        if(_CurrentPCB.segment == -1) _Swapper.swapWith(_CurrentPCB, _ReadyPCB[0])
+                    }
+                    else _CurrentPCB = _ReadyPCB[0];
                     _CPU.isExecuting = true;
                     _StdOut.putText("Now executing all programs in memory.");
                 }
@@ -984,7 +994,10 @@ module TSOS {
                     _StdOut.putText("Schedule set to default of Round Robin.");
                     break;
                 default:
+                    _CurrentSchedule = SCHEDULE_DEFAULT;
                     _StdOut.putText("That is not a valid Scheduling Algorithm.");
+                    _StdOut.advanceLine();
+                    _StdOut.putText("Defaulting to Round Robin.");
                     break;
             }
             if(_CPU.hasExecutionStarted) {
