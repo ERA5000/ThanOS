@@ -129,7 +129,12 @@ var TSOS;
                     if (_Mode == 0) {
                         _Scheduler.setPointer(_CurrentSchedule);
                         if (_ReadyPCB[_Pointer].segment == -1) {
-                            _Swapper.swapWith(_ReadyPCB[_Pointer], _CurrentPCB);
+                            if (_MemoryManager.getMemoryStatus()) {
+                                _Swapper.swapFor(_ReadyPCB[_Pointer]);
+                                TSOS.Utils.updatePCBRow(_ReadyPCB[_Pointer]);
+                            }
+                            else
+                                _Swapper.swapWith(_ReadyPCB[_Pointer], _CurrentPCB);
                             _CurrentPCB.location = "Disk";
                             TSOS.Utils.drawDisk();
                         }

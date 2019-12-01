@@ -100,7 +100,7 @@ var TSOS;
             else
                 _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set to true.");
         }
-        //Makes a specified segment unavailable
+        //Makes a specified segment unavailable.
         setSegmentFalse(segment) {
             if (segment == 0)
                 _Memory.seg1Avail = false;

@@ -45,6 +45,7 @@ module TSOS{
             let segment = _MemoryManager.getNextAvailableSegment();
             _MemoryManager.wipeSegmentByID(segment);
             _MemoryAccessor.write(segment, _fsDD.readFile(`@swap${toRollIn.pid}`));
+            _fsDD.deleteFile(`@swap${toRollIn.pid}`);
             _MemoryManager.setSegmentFalse(segment);
             toRollIn.segment = segment;
         }
