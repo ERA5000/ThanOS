@@ -115,41 +115,104 @@ module TSOS {
                 b. Automatic input, however, was significantly more involved. Because not all letters are the same width, you don't know when to draw the new line.
                     Therefore, it has to be done this tediously. Again, the thought-process is pretty intuitive, 
                     but the implementation is a nightmare (I was considering recursion at one point (⊙＿⊙') )
+
+            Update: 12/9/19
+            I figured out why my OS was not handling large contiguous inputs properly!
+                (This applies to Automatic Line Wrap solely since only the OS can buffer more than a single character at a time)
+            The crux is two (and a half) fold:
+                1. I was assuming spaces were prevalant when they might not be (let words = text.split(" ")) -- I knew I should've built the string by
+                    characters rather than "words."
+                2. I therefore did not have code parsing these large, contiguous inputs explicitly.
+                2.5. The for-loop was ending one iteration too quickly (< instead of <=) and a paranthesis was off 
+                    (it excluded the division by 495 instead of including it. This actually worked otherwise 'by coincidence' which as you know by now
+                        I hate because it is bad coding).
+
+            I actually found this issue when testing the commands in Lab 9. Basically, in verbose English, I was parsing the input string by "words."
+            What this means is that I was looking for the spaces, break on that, create an array of the words, and then do the iterative math to
+                print things until completion. That explanation is up there, you get the idea.
+            HOWEVER, if a string's 'drawn length' is either A) >= 495 or B) the length of the string's 'drawn length' is >= the difference between what was already 
+                there and 495, it would break the code altogether because there was no way to parse it properly since I was looking for spaces only to break on.
+            So, that is the fix I effectively implemented. Here is it how it now works:
+                1. It will attempt to print a string as normal. printed = true
+                2. If there was a problem printing the current 'word,' printed = false, the 'if' I described is now true.
+                    a. Incrementally add all possible characters from that string until the line length is reached.
+                    b. Replace the large string in the buffer with whatever was leftover.
+                3. Run to completion, repeat as necessary.
+
+            Ideally, the character-building would be the solution in totality. However, it works, so this is how it will stay for now.
+            I recognize this code as relatively impressive, yet bad because while it is cool to see all of this interact, I feel
+                that a lot of this code is 'implicit' in that any given part is too contigent on other parts that work out of order. 
+                Basically, it is really unlinear, and I'm pretty sure that's bad. If not, great! All set.
+
+            Because of the timeline I am sitting on, as of writing this, the solution has not been tested fully (which I plan to do before iProject4 is due).
+                However, the use-cases I found that broke this are now fixed.
+            Therefore, if I do not get time to fully test and old problems persist or even new problems arise, this is probably why (assuming it has to do with printing text,
+                that is... Or maybe not. JS will find any excuse to break :P).
         */
         public putText(text): void {
             if (text !== "") {
+                const SCREEN_WIDTH = 495; //The screen width is 500, but I subtract 5 to help ensure nothing gets completely cut-off.
 
-                //Line Wrap (Automatic)
-                if(_DrawingContext.measureText(this.currentFont, this.currentFontSize, text) >= 495) {
+                //Line Wrap (Automatic - OS printing text)
+                if(_DrawingContext.measureText(this.currentFont, this.currentFontSize, text) >= SCREEN_WIDTH) {
                     let words = text.split(" ");
                     let newLine = "";
                     let counter = 0;
                     let done = false;
-                    for(let i = 0; i < Math.ceil(_DrawingContext.measureText(this.currentFont, this.currentFontSize, text)) / 495; i++) {
+                    let printed = false;
+                    
+                    //Run for however many lines need to be utilized
+                    for(let i = 0; i <= Math.ceil(_DrawingContext.measureText(this.currentFont, this.currentFontSize, text) / SCREEN_WIDTH); i++) {
+                        //While there is room to print a word
                         while(_DrawingContext.measureText(this.currentFont, this.currentFontSize, newLine) + 
-                            _DrawingContext.measureText(this.currentFont, this.currentFontSize, words[counter]) <= 495) {
+                            _DrawingContext.measureText(this.currentFont, this.currentFontSize, words[counter]) <= SCREEN_WIDTH) {
                             newLine += words[counter] + " ";
                             counter++;
+                            printed = true;
                             if(counter >= words.length){ 
                                 done = true;
                                 break;
                             }
                         }
+                        /*If there was a problem printing the text AND 
+                            (If the string's drawn length is >= 495 OR 
+                                the string's drawn length >= the difference between 495 and what's already there)
+                            Iteratively build what can be printed, character-by-character until there is no more room on the line.
+                        */
+                        if(!printed && (_DrawingContext.measureText(this.currentFont, this.currentFontSize, words[counter]) >= SCREEN_WIDTH || 
+                        _DrawingContext.measureText(this.currentFont, this.currentFontSize, words[counter]) >= SCREEN_WIDTH - 
+                            _DrawingContext.measureText(this.currentFont, this.currentFontSize, newLine))){
+                            let chars = words[counter].split("");
+                            for(let i = 0; i < chars.length; i++){
+                                if(_DrawingContext.measureText(this.currentFont, this.currentFontSize, newLine) + 
+                                _DrawingContext.measureText(this.currentFont, this.currentFontSize, chars[i]) <= SCREEN_WIDTH){
+                                    newLine += chars[i];
+                                }
+                                else{
+                                    let leftover = chars.slice(i).join(""); //Rejoin the array (yes slice, not sPlice this time).
+                                    words[counter] = leftover; //Replace the whole string with whatever could not be printed.
+                                    break;
+                                }
+                            }
+                        }
                         _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, newLine);
                         if(done) return;
-                        this.advanceLine();
-                        newLine = "";
+                        else {
+                            this.advanceLine();
+                            newLine = "";
+                            printed = false;
+                        }
                     }
                 }
-                //Line Wrap (Manual)
-                else if(this.currentXPosition >= 495) {
+                //Line Wrap (Manual - User typing text)
+                else if(this.currentXPosition >= SCREEN_WIDTH) {
                     this.previousLinePosition[this.previousLinePosition.length] = this.currentXPosition;
                     this.advanceLine();
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                     var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                     this.currentXPosition = this.currentXPosition + offset;
                 }
-                //Normal typing
+                //Normal typing - not wrapping on this character
                 else {
                     // Draw the text at the current X and Y coordinates.
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
