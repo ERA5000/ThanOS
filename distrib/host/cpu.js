@@ -87,7 +87,7 @@ var TSOS;
                     break;
                 case "00":
                     this.dataAmount = 0;
-                    _MemoryManager.setMemoryStatus(pcb.segment);
+                    _MemoryManager.setSegmentTrue(pcb.segment);
                     pcb.state = "Terminated";
                     TSOS.Utils.printTime(pcb);
                     _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
@@ -111,7 +111,7 @@ var TSOS;
                     break;
                 default:
                     _Kernel.krnTrace("Invalid Op Code. Terminating execution.");
-                    _MemoryManager.setMemoryStatus(pcb.segment);
+                    _MemoryManager.toggleMemoryStatus(pcb.segment);
                     pcb.state = "Terminated";
                     _ReadyPCB.splice(_ReadyPCB.indexOf(pcb), 1);
                     break;

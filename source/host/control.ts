@@ -95,6 +95,7 @@ module TSOS {
             _Memory.init();
             Utils.drawMemory();
             _MemoryAccessor = new MemoryAccessor();
+            Utils.enableScroll(<HTMLDivElement>document.getElementById("MemoryTable"));
 
             // ... then set the host clock pulse ...
             _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);

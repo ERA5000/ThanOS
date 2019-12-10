@@ -54,6 +54,16 @@ module TSOS {
             //Initializes the Dispatcher
             _Dispatcher = new Dispatcher();
 
+            //Initializes the Swapper
+            _Swapper = new Swapper();
+
+            //Initializes the Disk and the Disk Driver
+            _Disk = new Disk(MAX_TRACKS, MAX_SECTORS, MAX_BLOCKS, MAX_BLOCK_SIZE, false, window.sessionStorage);
+            _fsDD = new FileSystemDeviceDriver(_Disk);
+
+            //Sets the schedule to the default of Round Robin
+            _CurrentSchedule = SCHEDULE_DEFAULT;
+
             // Finally, initiate student testing protocol.
             if (_GLaDOS) {
                 _GLaDOS.afterStartup();
@@ -97,7 +107,7 @@ module TSOS {
             } else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 _CPU.cycle();
                 Utils.updateGUI(_CurrentPCB, _CPU.dataAmount); // Moved all graphical updates to here from CPU
-                _Scheduler.schedulerInterrupt("RoundRobin");
+                _Scheduler.schedulerInterrupt(_CurrentSchedule);
             } else {                       // If there are no interrupts and there is nothing being executed then just be idle.
                 this.krnTrace("Idle");
             }
@@ -137,7 +147,16 @@ module TSOS {
                     break;
                 case SOFTWARE_IRQ:
                     if(_Mode == 0) {
-                        _Scheduler.PCBSwap();
+                        _Scheduler.setPointer(_CurrentSchedule);
+                        if(_ReadyPCB[_Pointer].segment == -1){
+                            if(_MemoryManager.getMemoryStatus()) {
+                                _Swapper.swapFor(_ReadyPCB[_Pointer]);
+                                Utils.updatePCBRow(_ReadyPCB[_Pointer]);
+                            }
+                            else _Swapper.swapWith(_ReadyPCB[_Pointer], _CurrentPCB);
+                            Utils.drawDisk();
+                        }
+                        _Scheduler.PCBSwitch();
                         _Mode = 1;
                     }
                     else this.krnTrace("Insufficient Privilege. Unable to context switch.");

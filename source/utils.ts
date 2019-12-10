@@ -207,11 +207,12 @@ module TSOS {
         public static updatePCBRow(pcbInUse: ProcessControlBlock): void{
             let rowToUpdate = <HTMLTableRowElement>document.getElementById("pcb" + pcbInUse.pid);
             rowToUpdate.cells[3].innerHTML = pcbInUse.PC.toString(16).toUpperCase().padStart(2, "0");
-            rowToUpdate.cells[2].innerHTML = pcbInUse.state + "";
+            rowToUpdate.cells[2].innerHTML = pcbInUse.state;
             rowToUpdate.cells[5].innerHTML = pcbInUse.Acc.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[6].innerHTML = pcbInUse.Xreg.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[7].innerHTML = pcbInUse.Yreg.toString(16).toUpperCase().padStart(2, "0");
             rowToUpdate.cells[8].innerHTML = pcbInUse.Zflag.toString(16).toUpperCase().padStart(2, "0");
+            rowToUpdate.cells[9].innerHTML = pcbInUse.location;
         }
 
         /*Independently updates the IR table cell in the PCB display.
@@ -288,7 +289,7 @@ module TSOS {
                     document.getElementById("mem"+((pc + ((255 * segment) + segment)) + i)).style.backgroundColor = "#05aefc";
                 }
             }
-            this.scrollTable(_CurrentPCB);
+            this.scrollMemoryTable(_CurrentPCB);
         }
 
         /*Disables single step. Useful for when things can go awry so the best way to deal with it is
@@ -309,16 +310,29 @@ module TSOS {
 
         /*Auto scrolls the table to the highlighted section of memory.
             My display has a height of 7 rows, and each row is 22 pixels tall.
+                Each segment has 8 rows. 256 / 8 = 32 * 22 = 704 pixels.
             If a row is either of the first three, or last three, it cannot be centered, so don't do anything.
-            If a row is the fourth from the top or bottom, it already is centered, so don't do anything.
+            If a row is the fourth from the top or bottom, it already is centered, so don't do anything either.
             Otherwise, scroll down to that row, then SUBTRACT the height of three rows from the top of the display -- this centers it.
         */
-        private static scrollTable(pcb: ProcessControlBlock){
-            let segmentOffset = 704 * pcb.segment;
+        private static scrollMemoryTable(pcb: ProcessControlBlock){
+            const SEGMENT_HEIGHT = 704;
+            const TOP_THREE = 22;
+            const BOTTOM_THREE = 2725;
+            let segmentOffset = SEGMENT_HEIGHT * pcb.segment;
             let rowToScroll = (22 * Math.floor(pcb.PC / 8)) + segmentOffset;
-            if(rowToScroll <= 88 || rowToScroll >= 2725) document.getElementById("MemoryTable").scrollTop = rowToScroll;
+            if(rowToScroll <= TOP_THREE || rowToScroll >= BOTTOM_THREE) document.getElementById("MemoryTable").scrollTop = rowToScroll;
             else document.getElementById("MemoryTable").scrollTop = rowToScroll - 66;
         }
+
+        /*Why doesn't the disk table auto scroll?
+            Because in order for that to work, I'd have to know which TSB to jump to, which is impossible.
+            There currently isn't a way to do a reverse-lookup (i.e. value to key), but I'd have to
+                know that for calculating the height's offset.
+            The best approach would be to do a brute-force search which is waaay too ineffective for not
+                only the obvious reason of O(n) search time, but also updating graphics like this is
+                quite taxing on the computer (see dog command comments).
+        */
 
         /* Prints the wait time and turnaround time of a process. I made a new method for it because I wanted to format what was printed and it was taking up
             too much space. I was conflicted about where to put this method: I knew I had to get it out of CPU, and have since moved it here, to Utils...
@@ -620,5 +634,37 @@ module TSOS {
             _PetCounter = 0;
             _Kernel.krnEnableInterrupts();
         }
+
+        /* Draws the disk to the display
+        */
+        public static drawDisk(): void{
+            let table = "<table id='disk'>";
+            table += "<tr><th>T:S:B</th><th>In Use</th><th>Next</th><th>Data</th></tr>";
+
+            for(let i = 0; i < _Disk.tracks; i++){
+                for(let j = 0; j < _Disk.sectors; j++){
+                    for(let k = 0; k < _Disk.blocks; k++){
+                        let curRow = `${i}${j}${k}`;
+                        let linkT = _Disk.storage.getItem(`${curRow}`).charAt(1);
+                        let linkS = _Disk.storage.getItem(`${curRow}`).charAt(2);
+                        let linkB = _Disk.storage.getItem(`${curRow}`).charAt(3);
+                        table += `<tr><td>${i}:${j}:${k}</td>`;
+                        table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(0, 1)}</td>`;
+                        table += `<td>${linkT}:${linkS}:${linkB}</td>`;
+                        table += `<td>${_Disk.storage.getItem(`${curRow}`).substring(4)}</td></tr>`;
+                    }
+                }
+            }
+            table += "</table>";
+            document.getElementById("DiskTable").innerHTML = table;
+        }
+
+        /* Takes a Div element and enables scrolling only when the relavent info in that div has been 'activated.'
+                This way, the scroll bar does not just sit there being useless and ugly.
+        */
+        public static enableScroll(elem: HTMLDivElement): void{
+            elem.style.overflowY = "scroll";
+        }
+
     }
 }

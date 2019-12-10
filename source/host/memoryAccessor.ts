@@ -20,11 +20,27 @@ module TSOS {
 
         //Reads two bytes of memory.
         public read(segment: number, address: number): string {
-            if(_CurrentPCB.segment != _CurrentPCB.getSegHash()) _Kernel.krnTrapError("IntegrityMismatchException. Illegal Read Access.");
-            else if((segment >= 0 && segment <= 2) && (address >= 0 && address <= 255)) return _Memory.memoryContainer[segment][address];
+            if((segment >= 0 && segment <= 2) && (address >= 0 && address <= 255)) return _Memory.memoryContainer[segment][address];
             else {
                 _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
-                _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
+                _CurrentPCB.state = "Terminated";
+                _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
+            }
+        }
+
+        //Returns a whole segment of data.
+        public getSegData(segment: number){
+            if((segment >= 0 && segment <= 2)) {
+                let data = "";
+                for(let i = 0; i < _Memory.memoryContainer[segment].length; i++){
+                    data += _Memory.memoryContainer[segment][i];
+                }
+                return data;
+            }
+            else {
+                _Kernel.krnTrace("OutOfBoundsException. Illegal Address Read Access. Terminating Execution.");
+                _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                 _CurrentPCB.state = "Terminated";
                 _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
             }
@@ -34,12 +50,11 @@ module TSOS {
             The 'stream of code' is 512 characters long, containing 256 2-byte segments.
         */
         public write(segment: number, data: string, address?: number): void {
-            if(_CurrentPCB != null && _CurrentPCB.segment != _CurrentPCB.getSegHash()) _Kernel.krnTrapError("IntegrityMismatchException. Illegal Write Access.");
-            else if(address) {
+            if(address) {
                 if((address >= 0 && address <= 255)) _Memory.memoryContainer[segment][address] = data;
                 else {
                     _Kernel.krnTrace("OutOfBoundsException. Illegal Address Write Access. Terminating Execution.");
-                    _MemoryManager.setMemoryStatus(_CurrentPCB.segment);
+                    _MemoryManager.toggleMemoryStatus(_CurrentPCB.segment);
                     _CurrentPCB.state = "Terminated";
                     _ReadyPCB.splice(_ReadyPCB.indexOf(_CurrentPCB), 1);
                 }

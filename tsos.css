@@ -156,7 +156,6 @@ td, th{
 /*Just the memory table*/
 #MemoryTable{
   height: 156px;
-  overflow-y: scroll;
   border: 1px solid gray;
 }
 /*Table header width to give the text room*/
@@ -171,6 +170,7 @@ td, th{
 
 /*For some reason the PCB table/div combo is not behaving the same way as the memory table/div combo, so this kind of brute-forces it to.
   I'd like to come back and fix this bc this is stupid.*/
+/*11.12.19 TO DO: Remove overflow-y and only enable it when height exceeds max.*/
 #PCBDiv{
   max-height: 156px;
   overflow-y: scroll;
@@ -183,7 +183,6 @@ td, th{
   position: absolute;
   width: 55px;
   height: 45px;
-  /*animation: spin 4s linear infinite;*/
   cursor: grab;
 }
 
@@ -223,4 +222,23 @@ td, th{
   z-index: 4;
   width: 40px;
   height: 40px;
+}
+
+#HDDEverything{
+  margin-top: 10px;
+}
+
+#HDDDisplay{
+  height: 200px;
+  width: 715px;
+}
+
+#notFormatted{
+  display: flex;
+  justify-content: space-evenly;
+  background-image: radial-gradient(white, gray, black);
+  width: 300px;
+  text-align: center;
+  font-weight: bold;
+  border: 2px solid black;
 }

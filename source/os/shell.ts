@@ -45,18 +45,42 @@ module TSOS {
                                   " - Crashes the system.");
             this.commandList[this.commandList.length] = sc;
 
+            // create
+            sc = new ShellCommand(this.shellCreateFile,
+                                  "create",
+                                   "<filename> - Creates a file with the designated name.");
+            this.commandList[this.commandList.length] = sc;
+
             // date
             sc = new ShellCommand(this.shellDate, 
                                   "date",
                                   "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
 
-            //dog
+            // delete
+            sc = new ShellCommand(this.shellDelete,
+                                  "delete",
+                                   "<filename> - Deletes the specified from disk.");
+            this.commandList[this.commandList.length] = sc;
+
+            // dog
             sc = new ShellCommand(this.shellDog,
                                   "dog",
                                    "- Make a heckin' floofer do an appear.");
             this.commandList[this.commandList.length] = sc;
             
+            // format
+            sc = new ShellCommand(this.shellFormat,
+                                  "format",
+                                   "- Formats the disk drive.");
+            this.commandList[this.commandList.length] = sc;
+
+            // getschedule
+            sc = new ShellCommand(this.shellGetSchedule,
+                                  "getsch",
+                                   "- See the current CPU schedule.");
+            this.commandList[this.commandList.length] = sc;
+
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
@@ -73,6 +97,12 @@ module TSOS {
             sc = new ShellCommand(this.shellKillAll,
                                   "killall",
                                   "- Kills all programs.");
+            this.commandList[this.commandList.length] = sc;
+
+            // list
+            sc = new ShellCommand(this.shellList,
+                                  "ls",
+                                  "- Lists the files on disk.");
             this.commandList[this.commandList.length] = sc;
 
             // load
@@ -95,14 +125,20 @@ module TSOS {
 
             // ps
             sc = new ShellCommand(this.shellPS,
-                                  "ps",
-                                "- Lists the PID and State of all available processes.");
+                                 "ps",
+                                 "- Lists the PID and State of all available processes.");
             this.commandList[this.commandList.length] = sc;
 
             // quantum <number>
             sc = new ShellCommand(this.shellQuantum,
                                   "quantum",
                                   "<flag> or <integer> - Set the quantum for RR scheduling.");
+            this.commandList[this.commandList.length] = sc;
+
+            // read <file>
+            sc = new ShellCommand(this.shellReadFile,
+                                  "read",
+                                  "<filename> - Read the contents of a file.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
@@ -119,8 +155,14 @@ module TSOS {
 
             // runall
             sc = new ShellCommand(this.shellRunAll,
-                                    "runall",
-                                    "- Runs all programs in memory.");
+                                  "runall",
+                                  "- Runs all programs in memory.");
+            this.commandList[this.commandList.length] = sc;
+
+            // set schedule
+            sc = new ShellCommand(this.shellSetSchedule,
+                                  "setsch",
+                                  "- Sets the scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
 
             // shutdown
@@ -131,14 +173,14 @@ module TSOS {
 
             // snap
             sc = new ShellCommand(this.shellSnap,
-                                    "snap",
-                                    "- Reality is often disappointing. That is, it was.");
+                                  "snap",
+                                  "- Reality is often disappointing. That is, it was.");
             this.commandList[this.commandList.length] = sc;
 
             // status
             sc = new ShellCommand(this.shellStatus,
-                                    "status",
-                                    " - Sets a new status.");
+                                  "status",
+                                  " - Sets a new status.");
             this.commandList[this.commandList.length] = sc;
 
             // trace <on | off>
@@ -155,8 +197,14 @@ module TSOS {
 
             // whereami
             sc = new ShellCommand(this.shellWhereAmI,
-                                    "whereami",
-                                    "- Let me guess, your home?");
+                                  "whereami",
+                                "- Let me guess, your home?");
+            this.commandList[this.commandList.length] = sc;
+
+            // write 
+            sc = new ShellCommand(this.shellWriteToFile,
+                                  "write",
+                                  "<filename> <data> - Writes data to the specified file.");
             this.commandList[this.commandList.length] = sc;
 
             // Display the initial prompt.
@@ -205,6 +253,9 @@ module TSOS {
                     this.execute(this.shellCurse);
                 } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {        // Check for apologies.
                     this.execute(this.shellApology);
+                } else if(cmd == "") {
+                    _StdOut.advanceLine();
+                    _StdOut.putText(this.promptStr);
                 } else { // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
                 }
@@ -232,6 +283,26 @@ module TSOS {
             // 1. Remove leading and trailing spaces.
             buffer = Utils.trim(buffer);
 
+            // 1.5 Make an exception for the write command to manage the command, fileName, and data
+            if(buffer.substring(0, 6) == "write "){
+                let command = buffer.substring(0, 5);
+                buffer = buffer.substring(6).trim();
+                let fileName;
+                let data;
+
+                //If spaces exist, there is data -> parse for it.
+                    //This needs to be done because if substring tries to make a string using an index of a char that does not exist (-1), it freaks out.
+                if(buffer.indexOf(" ") != -1) {
+                    fileName = buffer.substring(0, buffer.indexOf(" ")).trim();
+                    data = buffer.substring(buffer.indexOf(" ") + 1).trim();
+                }
+                else fileName = buffer.trim(); //Otherwise, there is only a filename
+
+                retVal.command = Utils.trim(command);
+                retVal.args[0] = fileName;
+                retVal.args[1] = data;
+                return retVal;
+            }
 
             //2. Split up the input by spaces
             var tempList = buffer.split(" ");
@@ -453,6 +524,52 @@ module TSOS {
                         _StdOut.advanceLine();
                         _StdOut.putText("-A very good boi");
                         break;
+                    case "setsch":
+                        _StdOut.putText("Defines the order in which the programs will execute.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Valid inputs: fcfs, priority, rr, or -d.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("FCFS: First Come First Serve.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Priority: Defined by importance, Non preemptive.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Round Robin: All programs get x turns, x = quantum.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("-d: The default scheduling algorithm, Round Robin.");
+                        break;
+                    case "getsch":
+                        _StdOut.putText("Returns the current scheduling algorithm for CPU execution.");
+                        break;
+                    case "format":
+                        _StdOut.putText("Formats the disk drive. Available flag: -q.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Full Format: Default Operation. Complete wipe of drive and meta data.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Quick Format (-q): Wipe only meta data.");
+                        break;
+                    case "create":
+                        _StdOut.putText("If the disk is formatted and there is available space, ");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("creates a file with the specified name.");
+                        break;
+                    case "write":
+                        _StdOut.putText("When given a file name and some data, ");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("the data is written to the specified file.");
+                        break;
+                    case "read":
+                        _StdOut.putText("Given a file name, outputs file's contents.");
+                        break;
+                    case "ls":
+                        _StdOut.putText("Lists the files on disk. Available flag: -l.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("Hidden Files (-l): List hidden files as well.");
+                        break;
+                    case "delete":
+                        _StdOut.putText("Deletes the specified file from disk.");
+                        _StdOut.advanceLine();
+                        _StdOut.putText("This action is not reversible.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -544,53 +661,63 @@ module TSOS {
             Utils.crash();
         }
 
-        //Loads a program into memory for execution
+        //Loads a program into the OS for execution
         public shellLoad(args: string[]) {
+            let memoryWrite = false;
+            let diskWrite = false;
             if(Utils.verifyInput()){
                 let availableMemory = _MemoryManager.getMemoryStatus();
-                if(!availableMemory) {
-                    _StdOut.putText("All of memory is currently occupied.");
-                    return;
-                }
-                else {
-                    //let overritten = false;
-                    let pcb = new ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
-                    _MemoryManager.setMemoryStatus(pcb.segment);
-                    if(pcb.segment > 2) {
-                        _StdOut.putText("Segmentation Fault. Only memory is available for iProject3. Execution has stopped.");
-                        _Kernel.krnTrapError("Segmentation Fault. No more available memory.");
-                        _CPU.isExecuting = false;
-                        Utils.disableSS();
-                        _HasCrashed = true;
-                        return;
+                let pcb: ProcessControlBlock;
+                if(availableMemory){
+                    pcb = new ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
+                    if(args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) <= 10 && parseInt(args[0]) >= 1) pcb.priority = parseInt(args[0]);
+                    else {
+                        _StdOut.putText(`Defaulting to priority ${PRIORITY_DEFAULT}.`);
+                        _StdOut.advanceLine();
+                        pcb.priority = PRIORITY_DEFAULT;
                     }
+                    _MemoryManager.toggleMemoryStatus(pcb.segment);
                     pcb.location = "Memory";
-                    if(!_CPU.isExecuting) _CPU.init();
+                    if(_CPU.isExecuting) _CPU.init();
                     _MemoryManager.wipeSegmentByID(pcb.segment);
                     _MemoryAccessor.write(pcb.segment, Utils.standardizeInput());
-
-                    //This is now broken and will not be fixed until the continuity for load/run/runall/kill/killall works flawlessly*
-                    /*Make an attempt to clean old/unused PCBs
-                    if(_ResidentPCB.length > 0) {
-                        for(let i = 0; i < _ResidentPCB.length; i++){
-                            console.log("What is the state? " + _ResidentPCB[i].state);
-                            if(_ResidentPCB[i].state == "Terminated"){ //Might be able to overrite 'Ready' programs too -- check back later.
-                                _ResidentPCB[i].state = "Overwritten";
-                                Utils.updatePCBRow(_ResidentPCB[i]);
-                                _ResidentPCB[i] = pcb;
-                                _ReadyPCB.slice(i, 1);
-                                overritten = true;
-                                break;
-                            }
-                        }
-                    }
-                    if(!overritten) _ResidentPCB[_ResidentPCB.length] = pcb;*/
-                    _ResidentPCB[_ResidentPCB.length] = pcb;
                     _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
                     Utils.drawMemory();
+                    memoryWrite = true;
+                }
+                else if(!_Disk.isFormatted){
+                    _StdOut.putText("There is no available memory.");
+                    _StdOut.advanceLine();
+                    _StdOut.putText("Try formatting the disk to input more programs.");
+                    return;
+                }
+                else if(!_fsDD.isDiskFull()){
+                    pcb = new ProcessControlBlock(-1);
+                    let isCreated = _fsDD.createFile(`@swap${pcb.pid}`);
+                    let isWritten = _fsDD.writeToFile(`@swap${pcb.pid}`, Utils.standardizeInput());
+                    if(isCreated && isWritten){
+                        if(args.length > 0 && Number.isInteger(parseInt(args[0])) && parseInt(args[0]) <= 10 && parseInt(args[0]) >= 1) pcb.priority = parseInt(args[0]);
+                        else {
+                            _StdOut.putText(`Defaulting to priority ${PRIORITY_DEFAULT}.`);
+                            _StdOut.advanceLine();
+                            pcb.priority = PRIORITY_DEFAULT;
+                        }
+                        pcb.location = "Disk";
+                        _StdOut.putText(`Program successfully loaded! PID ${pcb.pid}`);
+                        Utils.drawDisk();
+                        diskWrite = true;
+                    }
+                    else{
+                        _StdOut.putText("There was not enough space available on disk to create the new program.");
+                        _fsDD.deleteFile(`@swap${pcb.pid}`);
+                        _PID--;
+                    }
+                    Utils.drawDisk();
+                }
+                if(diskWrite || memoryWrite){
+                    _ResidentPCB[_ResidentPCB.length] = pcb;
                     Utils.addPCBRow(pcb);
                     Utils.updatePCBRow(pcb);
-                    if(!_CPU.isExecuting) _CPU.init();
                 }
             }
         }
@@ -610,6 +737,18 @@ module TSOS {
                                 _CPU.init();
                                 _CurrentPCB = null;
                                 _CPU.isExecuting = true;
+                                if(temp.segment == -1){
+                                    if(_MemoryManager.getNextAvailableSegment() != -1){
+                                        //Brute-force swap
+                                        _Swapper.swapFor(temp);
+                                        Utils.updatePCBRow(temp);
+                                    }
+                                    else{
+                                        //Standard swap
+                                        _Swapper.swapWith(temp, _ResidentPCB[0]);
+                                        Utils.updatePCBRow(_ResidentPCB[0]);
+                                    }
+                                }
                             }
 
                             //If Single Step is enabled, make sure to update the new program's state and display immediately
@@ -668,24 +807,32 @@ module TSOS {
             else _StdOut.putText("Usage: quantum <flag> or <integer>. Specify an appropriate quantum.");
         }
 
-        //Clears memory of any programs with the State of 'Resident'
+        /*Clears memory of any programs with the State of 'Resident' and currently in memory.
+          It ignores the disk entirely. There's that weird i+=0 because again, splicing (not slicing)
+            changes the physical size of the array.
+          However, since we need to go through the whole Resident array to find which programs
+            were occupying the memory to update status and remove it, i is incremented when one isn't found,
+            otherwise it'd be stuck in an infinite loop.
+        */
         public shellClearMem(){
             if(_ResidentPCB.length <= 0) {
                 _StdOut.putText("There are no programs to clear.");
-                return;
             }
+            else if(_CPU.hasExecutionStarted) _StdOut.putText("Memory cannot be cleared during execution.");
             else{
-                for(let i = 0; i < _ResidentPCB.length; i++){
+                _MemoryManager.wipeSegmentByID();
+                _MemoryManager.setAllAvailable();
+                for(let i = 0; i < _ResidentPCB.length; i+=0){
                     let temp = _ResidentPCB[i];
-                    _MemoryManager.wipeSegmentByID(temp.segment);
-                    _MemoryManager.setMemoryStatus(temp.segment);
-                    temp.state = "Terminated";
-                    Utils.updatePCBRow(temp);
+                    if(temp.segment >= 0 && temp.segment <= 2){
+                        temp.state = "Terminated";
+                        Utils.updatePCBRow(temp);
+                        _ResidentPCB.splice(_ResidentPCB.indexOf(temp), 1);
+                    }
+                    else i++;
                 }
+                _StdOut.putText("Memory successfully cleared.");
             }
-            Utils.drawMemory();
-            _ResidentPCB = [];
-            _StdOut.putText("Memory successfully cleared.");
         }
 
         /*Runs all programs sitting in the Resident Queue. The Scheduler (is supposed to) ensure(s) that any new programs will be executed if added after
@@ -697,7 +844,7 @@ module TSOS {
                 return;
             }
             else{
-                if(_ReadyPCB.length == 3) {
+                if(_ResidentPCB.length == 0 && _ReadyPCB.length > 0) {
                     _StdOut.putText("Everything is already running.");
                     return;
                 }
@@ -707,15 +854,39 @@ module TSOS {
                   Because I need to remove it, I use this as the for loop counter, which is why i itself does not actually change.
                 */
                 for(let i = 0; i < _ResidentPCB.length; i+=0) {
-                        _ResidentPCB[i].state = "Ready";
-                        Utils.updatePCBRow(_ResidentPCB[i]);
-                        _ReadyPCB[_ReadyPCB.length] = _ResidentPCB[i];
-                        _ResidentPCB.splice(i, 1);
+                    let temp = _ResidentPCB[i];
+                    if(temp.segment == -1){
+                        if(_MemoryManager.getNextAvailableSegment() != -1){
+                            //Brute-force swap
+                            _Swapper.swapFor(temp);
+                            temp.location = "Memory";
+                            Utils.updatePCBRow(temp);
+                        }
+                    }
+                    temp.state = "Ready";
+                    Utils.updatePCBRow(temp);
+                    _ReadyPCB[_ReadyPCB.length] = temp;
+                    _ResidentPCB.splice(i, 1);
                 }
+
                 if(_CPU.isExecuting) _StdOut.putText("New program(s) successfully added to the schedule.");
                 else{
                     _CPU.init();
-                    _CurrentPCB = _ReadyPCB[0];
+                    if(_CurrentSchedule == "priority"){
+                        let highest = _ReadyPCB[0];
+                        for(let i = 0; i < _ReadyPCB.length; i++){
+                            if(_ReadyPCB[i].priority < highest.priority){
+                                highest = _ReadyPCB[i];
+                            }
+                        }
+                        _CurrentPCB = highest;
+                        if(_CurrentPCB.segment == -1) {
+                            _Swapper.swapWith(_CurrentPCB, _ReadyPCB[0]);
+                            Utils.updatePCBRow(_CurrentPCB);
+                            Utils.updatePCBRow(_ReadyPCB[0]);
+                        }
+                    }
+                    else _CurrentPCB = _ReadyPCB[0];
                     _CPU.isExecuting = true;
                     _StdOut.putText("Now executing all programs in memory.");
                 }
@@ -759,14 +930,15 @@ module TSOS {
                 let found = false;
                 for(let i = 0; i < _ReadyPCB.length; i++) {
                     if(_ReadyPCB[i].pid == parseInt(args[0])) {
+                        let temp = _ReadyPCB[i];
                         found = true;
-                        _StdOut.putText(`Found process with PID ${_ReadyPCB[i].pid}.`);
-                        _ReadyPCB[i].state = "Terminated";
-                        Utils.updatePCBRow(_ReadyPCB[i]);
+                        _StdOut.putText(`Found process with PID ${temp.pid}.`);
+                        temp.state = "Terminated";
+                        Utils.updatePCBRow(temp);
                         _StdOut.advanceLine();
-                        _StdOut.putText(`Process with PID ${_ReadyPCB[i].pid} has been killed.`);
-                        _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
-                        Utils.printTime(_ReadyPCB[i]);
+                        _StdOut.putText(`Process with PID ${temp.pid} has been killed.`);
+                        if(temp.segment != -1) _MemoryManager.setSegmentTrue(temp.segment);
+                        Utils.printTime(temp);
                         _ReadyPCB.splice(i, 1);
                         if(_ReadyPCB.length == 0) _CPU.isExecuting = false;
                         else {
@@ -793,7 +965,7 @@ module TSOS {
                 for(let i = 0; i < _ReadyPCB.length; i++){
                     _ReadyPCB[i].state = "Terminated";
                     Utils.updatePCBRow(_ReadyPCB[i]);
-                    _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
+                    if(_ReadyPCB[i].segment != -1) _MemoryManager.setSegmentTrue(_ReadyPCB[i].segment);
                     Utils.printTime(_ReadyPCB[i]);
                 }
                 _CPU.isExecuting = false;
@@ -805,9 +977,224 @@ module TSOS {
             }
         }
 
+        /* In Memorium to Gabe the Dog. RIP in peace, homie.
+         */
         public shellDog(){
             if(_CPU.hasExecutionStarted) _StdOut.putText("The dog doesn't like CPU execution. Try again later.");
             else Utils.dogInit();
+        }
+
+        /* Shell command to set the current CPU scheduling algorithm.
+        */
+        public shellSetSchedule(args: string[]){
+            let schedule = args[0];
+            switch(schedule){
+                case "fcfs":
+                    _CurrentSchedule = "fcfs";
+                    _StdOut.putText("Schedule set to First Come First Serve.");
+                    break;
+                case "priority":
+                    _CurrentSchedule = "priority";
+                    _StdOut.putText("Schedule set to Priority.");
+                    break;
+                case "rr":
+                    _CurrentSchedule = "rr";
+                    _StdOut.putText("Schedule set to Round Robin.");
+                    break;
+                case "-d":
+                    _CurrentSchedule = SCHEDULE_DEFAULT;
+                    _StdOut.putText("Schedule set to default of Round Robin.");
+                    break;
+                default:
+                    _CurrentSchedule = SCHEDULE_DEFAULT;
+                    _StdOut.putText("That is not a valid Scheduling Algorithm.");
+                    _StdOut.advanceLine();
+                    _StdOut.putText("Defaulting to Round Robin.");
+                    break;
+            }
+            if(_CPU.hasExecutionStarted) {
+                let interrupt = new Interrupt(SOFTWARE_IRQ, [0]);
+                _KernelInterruptQueue.enqueue(interrupt);
+            }
+        }
+
+        /* Prints the current CPU scheduling algorithm to the console.
+        */
+        public shellGetSchedule(){
+            let schedule: string;
+            if(_CurrentSchedule == "fcfs") schedule = "First Come First Serve";
+            else if(_CurrentSchedule == "priority") schedule = "Priority";
+            else schedule = "Round Robin";
+            _StdOut.putText(`The current CPU scheduling algorithm is ${schedule}.`);
+        }
+
+        /* Shell command to format the disk.
+            The result of the format prints a success or failure message.
+        */
+        public shellFormat(args: string[]){
+            if(_CPU.hasExecutionStarted || _CPU.isExecuting){
+                _StdOut.putText("The Disk cannot be formatted during execution.");
+                return;
+            }
+            let isCompleted: boolean;
+            let isQFormat: boolean = false;
+            if(args[0] == "-q") {
+                if(!_fsDD.disk.isFormatted){
+                    _StdOut.putText("Quick Formats can only be performed after at least one full format.");
+                    return;
+                }
+                else{
+                    _StdOut.putText("Performing Quick Format...");
+                    isCompleted = _fsDD.format(true);
+                    isQFormat = true;
+                    _StdOut.advanceLine();
+                }
+            }
+            else if(args.length == 0){
+                _StdOut.putText("Performing Full Format...");
+                isCompleted = _fsDD.format(false);
+                _StdOut.advanceLine();
+            }
+            else{
+                _StdOut.putText("Usage: format <flag?>.");
+                return;
+            }
+
+            if(isCompleted){
+                if(isQFormat) _StdOut.putText("Quick Format successful!");
+                else _StdOut.putText("Full Format successful!");
+                Utils.drawDisk();
+                Utils.enableScroll(<HTMLDivElement>document.getElementById("HDDDisplay"));
+                for(let i = 0; i < _ResidentPCB.length; i+=0){
+                    let temp = _ResidentPCB[i];
+                    if(temp.segment == -1){
+                        temp.state = "Terminated";
+                        Utils.updatePCBRow(temp);
+                        _ResidentPCB.splice(_ResidentPCB.indexOf(_ResidentPCB[i]), 1);
+                    }
+                    else i++;
+                }
+            }
+            else if(!isCompleted) _StdOut.putText("The format failed.");
+            else _StdOut.putText("Error! There was an error displaying the error. Layman's: If you're seeing this, something is very wrong :(");
+
+        }
+
+        /* Shell command to create a file.
+            Creates a file on disk if A) the disk is formatted, B) there is enough space, and C) the file does not already exist.
+        */
+        public shellCreateFile(args: string[]){
+            let isCreated = false
+            if(!_fsDD.disk.isFormatted) {
+                _StdOut.putText("Files can only be created once the disk is formatted.");
+                return;
+            }
+            else if(args.length <= 0) {
+                _StdOut.putText("A file name must contain at least one valid character.");
+                return;
+            }
+            else if(args[0].charAt(0) == "@") {
+                _StdOut.putText("Invalid name. File names cannot start with '@.'");
+                return;
+            }
+            else {
+                isCreated = _fsDD.createFile(args[0]);
+            }
+            if(isCreated) {
+                Utils.drawDisk();
+                _StdOut.putText(`File '${args[0]}' was created successfully!`);
+            }
+            else{
+                _StdOut.putText("There was an issue creating the file.");
+            }
+        }
+
+        /* Shell command to write data to files
+            Writes data to a file if A) the disk is formatted, B) the file already exists and C) there is enough room for the data.
+        */
+        public shellWriteToFile(args: string[]){
+            if(!_Disk.isFormatted) _StdOut.putText("Data cannot be written to an unformatted disk.");
+            else if(typeof args[0] === "undefined" || args[0] == "") _StdOut.putText("A valid file name must be provided.");
+            else if(typeof args[1] === "undefined" || args[1] == "") _StdOut.putText("Data must be given to write to a file.");
+            else if(args[0].charAt(0) == "@") _StdOut.putText("File names starting with '@' cannot be written to.");
+            else if(args[1].charAt(0) != `"` || args[1].charAt(args[1].length-1) != `"`) _StdOut.putText("File data must be between quotes.");
+            else {
+                let data = args[1].substring(1, args[1].length-1);
+                let isWritten = _fsDD.writeToFile(args[0], data);
+                if(isWritten) {
+                    _StdOut.putText(`File ${args[0]} successfully written to!`);
+                    Utils.drawDisk();
+                }
+                else{
+                    _StdOut.putText("File write unsuccessful.");
+                }
+            }
+        }
+
+        /* Shell command to read a file
+            Reads a file from disk if A) the disk is formatted and B) the file already exists
+        */
+        public shellReadFile(args: string[]){
+            if(!_Disk.isFormatted) _StdOut.putText("Data cannot be read from an unformatted disk.");
+            else if(args.length == 0) _StdOut.putText("A valid file name must be provided.");
+            else if(args[0].charAt(0) == "@") _StdOut.putText("File names starting wtih '@' cannot be read.");
+            else {
+                _StdOut.putText(_fsDD.readFile(args[0]));
+            }
+        }
+
+        /* Shell command to list the files on disk
+            Lists all files on disk if the disk is formatted.
+        */
+        public shellList(args: string[]){
+            if(!_Disk.isFormatted) _StdOut.putText("Files cannot be listed from an unformatted disk.");
+            else if(args[0] == "-l"){
+                let files = _fsDD.listFiles(true);
+                if(files.length == 0) _StdOut.putText("No files are stored on disk.");
+                else{
+                    _StdOut.putText("List of all files:");
+                    _StdOut.advanceLine();
+                    for(let i = 0; i < files.length; i++){
+                        _StdOut.putText(files[i]);
+                        if(i != files.length - 1) _StdOut.advanceLine();
+                    }
+                }
+            }
+            else{
+                let files = _fsDD.listFiles(false);
+                if(files.length == 0) _StdOut.putText("No files are stored on disk.");
+                else{
+                    _StdOut.putText("List of files:");
+                    _StdOut.advanceLine();
+                    for(let i = 0; i < files.length; i++){
+                        _StdOut.putText(files[i]);
+                        if(i != files.length - 1) _StdOut.advanceLine();
+                    }
+                }
+            }
+        }
+
+        /* Shell command to delete a file from the disk
+            Deletes a file from the disk if A) the disk is formatted and B) the file already exists.
+        */
+        public shellDelete(args: string[]){
+            if(!_Disk.isFormatted) _StdOut.putText("Files cannot be deleted from an unformatted disk.");
+            else{
+                if(args.length == 0) {
+                    _StdOut.putText("Usage: delete <filename>. Specify a file to delete.");
+                    return;
+                }
+                else if(args[0].charAt(0) == "@") {
+                    _StdOut.putText("File names starting with '@' cannot be deleted.");
+                    return;
+                }
+                let wasDeleted = _fsDD.deleteFile(args[0]);
+                if(wasDeleted) {
+                    _StdOut.putText("File successfully deleted!");
+                    Utils.drawDisk();
+                }
+                else _StdOut.putText("The specified file was not found.");
+            }
         }
     }
 }

@@ -42,8 +42,11 @@ module TSOS {
             return;
         }
 
-        //Flips memory status. When in use or initially written to, the memory becomes unavailable
-        public setMemoryStatus(segment?: number): void {
+        /*Blindly flips memory status.
+          If no segment is given, all get flipped.
+          Can be useful for when the state is not explicitly known but needs to be changed.
+        */
+        public toggleMemoryStatus(segment?: number): void {
             if(segment < 0 || segment > 2) _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
             else if(segment == 0) _Memory.seg1Avail = !_Memory.seg1Avail;
             else if (segment == 1) _Memory.seg2Avail = !_Memory.seg2Avail;
@@ -55,12 +58,15 @@ module TSOS {
             }
         }
 
-        //Returns status of the next available memory segment, if there is one.
+        //Returns boolean status of the next available memory segment, if there is one.
         public getMemoryStatus(): boolean {
             if(_Memory.seg1Avail) return _Memory.seg1Avail;
             else if (_Memory.seg2Avail) return _Memory.seg2Avail;
             else if (_Memory.seg3Avail) return _Memory.seg3Avail;
-            else _Kernel.krnTrace("Error! No available memory.");
+            else {
+                _Kernel.krnTrace("Error! No available memory.");
+                return false;
+            }
         }
 
         //Translates a literal address (0-767) to an actual segment (0, 1, 2)
@@ -72,7 +78,7 @@ module TSOS {
         }
 
         //Makes all memory available for use.
-        public allAvailable(){
+        public setAllAvailable(){
             _Memory.seg1Avail = true;
             _Memory.seg2Avail = true;
             _Memory.seg3Avail = true;
@@ -83,7 +89,15 @@ module TSOS {
             if(segment == 0) _Memory.seg1Avail = true;
             else if (segment == 1) _Memory.seg2Avail = true;
             else if (segment == 2) _Memory.seg3Avail = true;
-            else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set.");
+            else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set to true.");
+        }
+
+        //Makes a specified segment unavailable.
+        public setSegmentFalse(segment: number){
+            if(segment == 0) _Memory.seg1Avail = false;
+            else if (segment == 1) _Memory.seg2Avail = false;
+            else if (segment == 2) _Memory.seg3Avail = false;
+            else _Kernel.krnTrapError("Segmentation Fault. Status of nonexistent memory set to false.");
         }
     }
 }

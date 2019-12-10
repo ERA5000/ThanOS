@@ -2,7 +2,7 @@ var TSOS;
 (function (TSOS) {
     class Scheduler {
         constructor() {
-            /* So what is this 'logic continuity loop' I keep referring to? (I hope I have been typing it elsewhere... Otherwise, this is what it is)
+            /* So what is this 'logic continuity module' I keep referring to? (I hope I have been typing it elsewhere... Otherwise, this is what it is)
                 It essentially defines the combinations (and permutations?) in which the commands load, run, runall, kill, killall, and clearmem
                 interact with each other. I have tried to make these interactions as intuitive as possible by adhering to these three ideas:
                     1. Program the command to do what the user would expect.
@@ -17,33 +17,99 @@ var TSOS;
                 runall -> splices from Resident Q, places onto Ready Q
                 kill -> splices from Ready Q
                 killall -> splices from Ready Q
-                clearmem -> stops execution of the CPU, clears memory entirely (Resident and Ready Qs)
+                clearmem -> Only clears programs that are 'Resident'
         
                 If at any point this traversal pattern is infringed, everything will probably break. Also, apparently 'slice' and 'splice' are both valid Array methods...
                     A typo lost me a good hour, so just to be clear, we want *splice* (with a p).
             */
             this.cycle = 1;
-            this.pointer = 0;
         }
         schedulerInterrupt(scheduleType) {
             switch (scheduleType) {
-                case "RoundRobin":
-                    this.RoundRobin();
+                case "fcfs":
+                    this.firstComeFirstServe();
+                    break;
+                case "priority":
+                    this.priority();
+                    break;
+                case "rr":
+                    this.roundRobin();
                     break;
                 default:
-                    _Kernel.krnTrapError("Invalid Scheduling Scheme. Terminating Execution.");
+                    SCHEDULE_DEFAULT;
+                    break;
+            }
+            this.addTurnaroundTime();
+            this.addWaitTime();
+        }
+        /*This method updates the pointer for the Ready Queue depending on the schedule.
+          This functionality had to be modularized from PCBSwitch because Swapping should be
+            the Kernel's responsibility, but in order to accomplish that these behaviors of A)
+            updating the pointer and B) actually changing the _CurrentPCB needed to be separated
+            (even though they are very closely related).
+          Now this may give the appearance that Swapping is tightly-coupled to Context Switching... and it will be.
+          While the behavior itself should not intrinsically be so, this is just an unfortunate
+            consequence of how my code is laid out. Obviously if a single program exists on disk
+            without anything being in memory, however unlikely that may be for our OSs, it should still
+            be able to move to memory to execute. So, because of how this culiminated,
+            the default behavior will be to have it this way and a single 'run' be the exception.
+          The theory is, especially for us at least, that swapping should not occur if some segment
+            is available (bc then the code would just go into that segment), but it seems that it can
+            happen.
+          My analysis could be (and probably is) wrong about why this works the way it does (I'm having doubts
+            as I write this). It rides on certain observations and assumptions. Nonetheless, since it works, and
+            these are *not* canonical answers after all, I'll leave it as is.
+
+        Update (1 to 2 commits later) Since the Disk now exists, it is very possible to assume programs can
+            sit on Disk without anything being in memory. I am writing this after doing extensive testing with
+            run vs runall and timing load commands during specific states of the OS. My bad. The Swapper has two
+            methods now, check the second one's comments for more info (swapFor).
+        */
+        setPointer(schedule) {
+            if (schedule == "rr") {
+                if (_Pointer < 0)
+                    _Pointer = 0;
+                if (this.cycle >= 6)
+                    _Pointer++;
+                if (_Pointer >= _ReadyPCB.length)
+                    _Pointer = 0;
+            }
+            else if (schedule == "fcfs") {
+                _Pointer = 0;
+                let first = _ReadyPCB[_Pointer];
+                for (let i = 0; i < _ReadyPCB.length; i++) {
+                    if (_ReadyPCB[i].pid < first.pid) {
+                        first = _ReadyPCB[i];
+                        _Pointer = i;
+                    }
+                }
+            }
+            else if (schedule == "priority") {
+                _Pointer = 0;
+                let highest = _ReadyPCB[_Pointer];
+                for (let i = 0; i < _ReadyPCB.length; i++) {
+                    if (_ReadyPCB[i].priority < highest.priority) {
+                        highest = _ReadyPCB[i];
+                        _Pointer = i;
+                    }
+                }
+            }
+            else {
+                _Kernel.krnTrapError("Invalid Scheduling Scheme. Terminating OS.");
+                _CPU.isExecuting = false;
+                _CPU.hasExecutionStarted = false;
+                _MemoryManager.wipeSegmentByID();
+                return;
             }
         }
-        PCBSwap() {
-            this.pointer++;
+        /*Actually switches two PCBs when a context switch has been requested.
+        */
+        PCBSwitch() {
             _Dispatcher.snapshot(_CurrentPCB);
             if (_CurrentPCB.state == "Running")
                 _CurrentPCB.state = "Ready";
             TSOS.Utils.updatePCBRow(_CurrentPCB);
-            if (this.pointer >= _ReadyPCB.length) {
-                this.pointer = 0;
-            }
-            _CurrentPCB = _ReadyPCB[this.pointer];
+            _CurrentPCB = _ReadyPCB[_Pointer];
             _Dispatcher.reinstate(_CurrentPCB);
             _CurrentPCB.state = "Running";
             TSOS.Utils.updatePCBRow(_CurrentPCB);
@@ -79,26 +145,25 @@ var TSOS;
 
             Update 11/4/19: this.cycle >= _Quantum is now inclusive since it checks after it increases, making it correctly do 6 instead of 7 cycles
             */
-        RoundRobin() {
+        roundRobin() {
             let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
             if (_ReadyPCB.length == 1) {
-                this.pointer = 0;
-                if (_CurrentPCB.pid != _ReadyPCB[this.pointer].pid) {
+                _Pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[_Pointer].pid) {
                     _Kernel.krnTrace("Context Switch via Round Robin");
                     _KernelInterruptQueue.enqueue(interrupt);
-                    return;
                 }
                 else {
                     this.cycle++;
                     if (this.cycle > 6)
                         this.cycle = 1;
-                    _ReadyPCB[this.pointer].turnaroundTime++;
-                    return;
+                    _ReadyPCB[_Pointer].turnaroundTime++;
                 }
+                return;
             }
             if ((_CurrentPCB.state == "Terminated" || this.cycle >= _Quantum) && _ReadyPCB.length > 0) {
                 if (_CurrentPCB.state == "Terminated")
-                    this.pointer--;
+                    _Pointer--;
                 if (_ReadyPCB.length > 1)
                     _Kernel.krnTrace("Context Switch via Round Robin");
                 _KernelInterruptQueue.enqueue(interrupt);
@@ -110,13 +175,72 @@ var TSOS;
                     _CPU.isExecuting = false;
                     this.cycle = 1;
                     _CPU.init();
-                    return;
                 }
                 else
                     this.cycle++;
             }
-            this.addTurnaroundTime();
-            this.addWaitTime();
+        }
+        /**
+         * First Come First Serve scheduling scheme.
+         * On intial run, it simply executes the programs in order.
+         * While running, it first checks to see which PCB has the lowest PID and then runs that program.
+         */
+        firstComeFirstServe() {
+            let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+            if (_ReadyPCB.length == 1) {
+                _Pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[_Pointer].pid) {
+                    _Kernel.krnTrace("Context Switch via First Come First Serve");
+                    _KernelInterruptQueue.enqueue(interrupt);
+                    return;
+                }
+            }
+            else if (_CurrentPCB.state == "Terminated" && _ReadyPCB.length > 0) {
+                _Pointer--;
+                if (_ReadyPCB.length > 1)
+                    _Kernel.krnTrace("Context Switch via First Come First Serve");
+                _KernelInterruptQueue.enqueue(interrupt);
+                return;
+            }
+            else {
+                if (_ReadyPCB.length == 0) {
+                    _CPU.hasExecutionStarted = false;
+                    _CPU.isExecuting = false;
+                    this.cycle = 1;
+                    _CPU.init();
+                }
+            }
+        }
+        /**
+         * Priority scheduling scheme.
+         * On initial run, as of now, it does NOT check priority since the programs all share priority.
+         * While running, it first checks to see which PCB has the highest priority (lowest literal value) and then runs that program.
+         */
+        priority() {
+            let interrupt = new TSOS.Interrupt(SOFTWARE_IRQ, [0]);
+            if (_ReadyPCB.length == 1) {
+                _Pointer = 0;
+                if (_CurrentPCB.pid != _ReadyPCB[_Pointer].pid) {
+                    _Kernel.krnTrace("Context Switch via Priority");
+                    _KernelInterruptQueue.enqueue(interrupt);
+                    return;
+                }
+            }
+            else if (_CurrentPCB.state == "Terminated" && _ReadyPCB.length > 0) {
+                _Pointer--;
+                if (_ReadyPCB.length > 1)
+                    _Kernel.krnTrace("Context Switch via Priority");
+                _KernelInterruptQueue.enqueue(interrupt);
+                return;
+            }
+            else {
+                if (_ReadyPCB.length == 0) {
+                    _CPU.hasExecutionStarted = false;
+                    _CPU.isExecuting = false;
+                    this.cycle = 1;
+                    _CPU.init();
+                }
+            }
         }
         /* Adds 1 to each PCB after every cycle count.
         */
@@ -141,5 +265,11 @@ var TSOS;
 A9 00 A9 02 A9 04 A9 06 A9 08 A9 10 A9 12 A9 14 A9 16 A9 18 A9 20 A9 22 A9 24
 
 A9 01 A9 03 A9 05 A9 07 A9 09 A9 11 A9 13 A9 15 A9 17 A9 19 A9 21 A9 23 A9 25
+
+A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9 A9
+
+EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA EA
+
+EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9 EA A9
 */ 
 //# sourceMappingURL=scheduler.js.map
