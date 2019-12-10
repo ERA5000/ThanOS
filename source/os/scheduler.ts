@@ -109,7 +109,6 @@ module TSOS{
             _CurrentPCB = _ReadyPCB[_Pointer];
             _Dispatcher.reinstate(_CurrentPCB);
             _CurrentPCB.state = "Running";
-            _CurrentPCB.location = "Memory";
             Utils.updatePCBRow(_CurrentPCB);
             this.cycle = 1;
         }

@@ -154,7 +154,6 @@ module TSOS {
                                 Utils.updatePCBRow(_ReadyPCB[_Pointer]);
                             }
                             else _Swapper.swapWith(_ReadyPCB[_Pointer], _CurrentPCB);
-                            _CurrentPCB.location = "Disk";
                             Utils.drawDisk();
                         }
                         _Scheduler.PCBSwitch();

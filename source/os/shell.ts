@@ -738,14 +738,11 @@ module TSOS {
                                     if(_MemoryManager.getNextAvailableSegment() != -1){
                                         //Brute-force swap
                                         _Swapper.swapFor(temp);
-                                        temp.location = "Memory";
                                         Utils.updatePCBRow(temp);
                                     }
                                     else{
                                         //Standard swap
                                         _Swapper.swapWith(temp, _ResidentPCB[0]);
-                                        temp.location = "Memory";
-                                        _ResidentPCB[0].location = "Disk";
                                         Utils.updatePCBRow(_ResidentPCB[0]);
                                     }
                                 }

@@ -630,7 +630,6 @@ var TSOS;
                                     else {
                                         //Standard swap
                                         _Swapper.swapWith(temp, _ResidentPCB[0]);
-                                        temp.location = "Memory";
                                         TSOS.Utils.updatePCBRow(_ResidentPCB[0]);
                                     }
                                 }
