@@ -22,6 +22,7 @@ var TSOS;
         If you could believe it, it actually worked on the 'first' try. The only thing breaking it, as I predicted,
             was segHash (RIP in peace). Once removed, this thing soared.
         */
+        //Referred to in comments as 'Standard Swap'
         swapWith(toRollIn, toRollOut) {
             let dataFromMem = _MemoryAccessor.getSegData(toRollOut.segment);
             _MemoryManager.wipeSegmentByID(toRollOut.segment);
@@ -30,7 +31,9 @@ var TSOS;
             _fsDD.createFile(`@swap${toRollOut.pid}`);
             _fsDD.writeToFile(`@swap${toRollOut.pid}`, dataFromMem);
             toRollIn.segment = toRollOut.segment;
+            toRollIn.location = "Memory";
             toRollOut.segment = -1;
+            toRollOut.location = "Disk";
         }
         /*Because the Disk now exists, it is possible that a program can sit on Disk
             without anything being in memory. Because of how I've implemented everything,
@@ -48,6 +51,7 @@ var TSOS;
             As long as three Processes State's do not "Ready" and their Locations
                 do not concurrently say "Memory", then everything is working as intended.
         */
+        //Referred to in comments as 'Brute-force Swap'
         swapFor(toRollIn) {
             let segment = _MemoryManager.getNextAvailableSegment();
             _MemoryManager.wipeSegmentByID(segment);
@@ -55,6 +59,7 @@ var TSOS;
             _fsDD.deleteFile(`@swap${toRollIn.pid}`);
             _MemoryManager.setSegmentFalse(segment);
             toRollIn.segment = segment;
+            toRollIn.location = "Memory";
         }
     }
     TSOS.Swapper = Swapper;

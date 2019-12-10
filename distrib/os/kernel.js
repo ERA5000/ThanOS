@@ -133,9 +133,7 @@ var TSOS;
                                 _Swapper.swapFor(_ReadyPCB[_Pointer]);
                                 TSOS.Utils.updatePCBRow(_ReadyPCB[_Pointer]);
                             }
-                            else
-                                _Swapper.swapWith(_ReadyPCB[_Pointer], _CurrentPCB);
-                            _CurrentPCB.location = "Disk";
+                            else _Swapper.swapWith(_ReadyPCB[_Pointer], _CurrentPCB);
                             TSOS.Utils.drawDisk();
                         }
                         _Scheduler.PCBSwitch();

@@ -664,7 +664,6 @@ module TSOS {
             let diskWrite = false;
             if(Utils.verifyInput()){
                 let availableMemory = _MemoryManager.getMemoryStatus();
-                console.log("What is the available memory?" + availableMemory);
                 let pcb: ProcessControlBlock;
                 if(availableMemory){
                     pcb = new ProcessControlBlock(_MemoryManager.getNextAvailableSegment());
@@ -881,7 +880,11 @@ module TSOS {
                             }
                         }
                         _CurrentPCB = highest;
-                        if(_CurrentPCB.segment == -1) _Swapper.swapWith(_CurrentPCB, _ReadyPCB[0])
+                        if(_CurrentPCB.segment == -1) {
+                            _Swapper.swapWith(_CurrentPCB, _ReadyPCB[0]);
+                            Utils.updatePCBRow(_CurrentPCB);
+                            Utils.updatePCBRow(_ReadyPCB[0]);
+                        }
                     }
                     else _CurrentPCB = _ReadyPCB[0];
                     _CPU.isExecuting = true;
