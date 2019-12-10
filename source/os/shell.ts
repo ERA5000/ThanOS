@@ -284,9 +284,16 @@ module TSOS {
             if(buffer.substring(0, 6) == "write "){
                 let command = buffer.substring(0, 5);
                 buffer = buffer.substring(6).trim();
+                let fileName;
+                let data;
 
-                let fileName = buffer.substring(0, buffer.indexOf(" ")).trim();
-                let data = buffer.substring(buffer.indexOf(" ") + 1).trim();
+                //If spaces exist, there is data -> parse for it.
+                    //This needs to be done because if substring tries to make a string using an index of a char that does not exist (-1), it freaks out.
+                if(buffer.indexOf(" ") != -1) {
+                    fileName = buffer.substring(0, buffer.indexOf(" ")).trim();
+                    data = buffer.substring(buffer.indexOf(" ") + 1).trim();
+                }
+                else fileName = buffer.trim(); //Otherwise, there is only a filename
 
                 retVal.command = Utils.trim(command);
                 retVal.args[0] = fileName;
@@ -974,6 +981,8 @@ module TSOS {
             else Utils.dogInit();
         }
 
+        /* Shell command to set the current CPU scheduling algorithm.
+        */
         public shellSetSchedule(args: string[]){
             let schedule = args[0];
             switch(schedule){
@@ -1068,6 +1077,9 @@ module TSOS {
 
         }
 
+        /* Shell command to create a file.
+            Creates a file on disk if A) the disk is formatted, B) there is enough space, and C) the file does not already exist.
+        */
         public shellCreateFile(args: string[]){
             let isCreated = false
             if(!_fsDD.disk.isFormatted) {
@@ -1094,6 +1106,9 @@ module TSOS {
             }
         }
 
+        /* Shell command to write data to files
+            Writes data to a file if A) the disk is formatted, B) the file already exists and C) there is enough room for the data.
+        */
         public shellWriteToFile(args: string[]){
             if(!_Disk.isFormatted) _StdOut.putText("Data cannot be written to an unformatted disk.");
             else if(typeof args[0] === "undefined" || args[0] == "") _StdOut.putText("A valid file name must be provided.");
@@ -1113,6 +1128,9 @@ module TSOS {
             }
         }
 
+        /* Shell command to read a file
+            Reads a file from disk if A) the disk is formatted and B) the file already exists
+        */
         public shellReadFile(args: string[]){
             if(!_Disk.isFormatted) _StdOut.putText("Data cannot be read from an unformatted disk.");
             else if(args.length == 0) _StdOut.putText("A valid file name must be provided.");
@@ -1122,6 +1140,9 @@ module TSOS {
             }
         }
 
+        /* Shell command to list the files on disk
+            Lists all files on disk if the disk is formatted.
+        */
         public shellList(args: string[]){
             if(!_Disk.isFormatted) _StdOut.putText("Files cannot be listed from an unformatted disk.");
             else if(args[0] == "-l"){
@@ -1150,6 +1171,9 @@ module TSOS {
             }
         }
 
+        /* Shell command to delete a file from the disk
+            Deletes a file from the disk if A) the disk is formatted and B) the file already exists.
+        */
         public shellDelete(args: string[]){
             if(!_Disk.isFormatted) _StdOut.putText("Files cannot be deleted from an unformatted disk.");
             else{

@@ -1,5 +1,12 @@
 var TSOS;
 (function (TSOS) {
+    /* One important note about the swapper: It grabs ALL of the allotted segment, including any 'extra zeroes.'
+        Why? Well, by definition of the von Neumann architecture, there is no way to know what is instructions, what is data,
+            and what is garbage. The only reason I can call them 'extra zeroes' is because of the human hindsight I have of any
+            given program. To the computer in the moment, anything is fair game.
+        So, while I am sure to some degree it could be parsed, that would probably be beyond the practical scope for this project
+            and course. After all, it works!
+    */
     class Swapper {
         /*The Disk Swapping method! Hooray! The culmination of all iProjects is finally here.
         Here's how I broke down swapping:

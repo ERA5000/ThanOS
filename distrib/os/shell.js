@@ -188,8 +188,16 @@ var TSOS;
             if (buffer.substring(0, 6) == "write ") {
                 let command = buffer.substring(0, 5);
                 buffer = buffer.substring(6).trim();
-                let fileName = buffer.substring(0, buffer.indexOf(" ")).trim();
-                let data = buffer.substring(buffer.indexOf(" ") + 1).trim();
+                let fileName;
+                let data;
+                //If spaces exist, there is data -> parse for it.
+                //This needs to be done because if substring tries to make a string using an index of a char that does not exist (-1), it freaks out.
+                if (buffer.indexOf(" ") != -1) {
+                    fileName = buffer.substring(0, buffer.indexOf(" ")).trim();
+                    data = buffer.substring(buffer.indexOf(" ") + 1).trim();
+                }
+                else
+                    fileName = buffer.trim(); //Otherwise, there is only a filename
                 retVal.command = TSOS.Utils.trim(command);
                 retVal.args[0] = fileName;
                 retVal.args[1] = data;
@@ -864,6 +872,8 @@ var TSOS;
             else
                 TSOS.Utils.dogInit();
         }
+        /* Shell command to set the current CPU scheduling algorithm.
+        */
         shellSetSchedule(args) {
             let schedule = args[0];
             switch (schedule) {
@@ -961,6 +971,9 @@ var TSOS;
             else
                 _StdOut.putText("Error! There was an error displaying the error. Layman's: If you're seeing this, something is very wrong :(");
         }
+        /* Shell command to create a file.
+            Creates a file on disk if A) the disk is formatted, B) there is enough space, and C) the file does not already exist.
+        */
         shellCreateFile(args) {
             let isCreated = false;
             if (!_fsDD.disk.isFormatted) {
@@ -986,6 +999,9 @@ var TSOS;
                 _StdOut.putText("There was an issue creating the file.");
             }
         }
+        /* Shell command to write data to files
+            Writes data to a file if A) the disk is formatted, B) the file already exists and C) there is enough room for the data.
+        */
         shellWriteToFile(args) {
             if (!_Disk.isFormatted)
                 _StdOut.putText("Data cannot be written to an unformatted disk.");
@@ -1009,6 +1025,9 @@ var TSOS;
                 }
             }
         }
+        /* Shell command to read a file
+            Reads a file from disk if A) the disk is formatted and B) the file already exists
+        */
         shellReadFile(args) {
             if (!_Disk.isFormatted)
                 _StdOut.putText("Data cannot be read from an unformatted disk.");
@@ -1020,6 +1039,9 @@ var TSOS;
                 _StdOut.putText(_fsDD.readFile(args[0]));
             }
         }
+        /* Shell command to list the files on disk
+            Lists all files on disk if the disk is formatted.
+        */
         shellList(args) {
             if (!_Disk.isFormatted)
                 _StdOut.putText("Files cannot be listed from an unformatted disk.");
@@ -1052,6 +1074,9 @@ var TSOS;
                 }
             }
         }
+        /* Shell command to delete a file from the disk
+            Deletes a file from the disk if A) the disk is formatted and B) the file already exists.
+        */
         shellDelete(args) {
             if (!_Disk.isFormatted)
                 _StdOut.putText("Files cannot be deleted from an unformatted disk.");
