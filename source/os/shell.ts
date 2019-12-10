@@ -253,6 +253,9 @@ module TSOS {
                     this.execute(this.shellCurse);
                 } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {        // Check for apologies.
                     this.execute(this.shellApology);
+                } else if(cmd == "") {
+                    _StdOut.advanceLine();
+                    _StdOut.putText(this.promptStr);
                 } else { // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
                 }
