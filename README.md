@@ -42,4 +42,17 @@ Semester: Fall 2019
 
 Professor: Alan Labouseur
 
-**Unless otherwise specified, grade the master branch!
+
+Branches
+========
+Each branch represents a significant milestone in the project's growth towards, what can be considered, a basic Operating System.
+
+**iProject1** formulated the fundamentals and helped to create a base off of which to work.
+
+**iProject2** introduced the CPU with its ability to run a single program from memory.
+
+**iProject3** tripled the standard by allowing up to three (3) programs to execute concurrently.
+
+**iProject4** brought all of the facets together by creating a Disk Drive that not only allows programs to roll into and out of via a swapper, but to also act as a raw File System for storage.
+
+Commits made beyond a branch (specifically after 12/15/19) are for the purposes of maintenance, personal upgrades, and refactoring. Enjoy!
