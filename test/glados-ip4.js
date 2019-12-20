@@ -6,7 +6,7 @@ function Glados() {
    this.version = 2112;
 
    this.init = function() {
-      var msg = "Hello [subject name here]. Let's test our FINAL PROJECT (woot woot woot woot).\n";
+      var msg = "Auto test for iProject4 enabled.\n";
       alert(msg);
    };
 

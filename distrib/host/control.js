@@ -42,6 +42,7 @@ var TSOS;
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
+            document.getElementById("btnNextStep").disabled = true;
         }
         static hostLog(msg, source = "?") {
             // Note the OS CLOCK.

@@ -50,6 +50,8 @@ module TSOS {
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
+
+            (<HTMLButtonElement>document.getElementById("btnNextStep")).disabled = true;
         }
 
         public static hostLog(msg: string, source: string = "?"): void {
