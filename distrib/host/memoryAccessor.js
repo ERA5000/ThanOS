@@ -68,7 +68,7 @@ var TSOS;
                 _Kernel.krnTrace("IndexOutOfBounds. Only 3 segments of memory are available. Nothing was written.");
         }
         //Debugging purposes - Prints the contents of memory to the console
-        print() {
+        static print() {
             let seg1 = "";
             let seg2 = "";
             let seg3 = "";
@@ -81,9 +81,9 @@ var TSOS;
             for (let i = 0; i < 256; i++) {
                 seg3 += _Memory.memSeg3[i];
             }
-            console.log("This is in memSeg1: " + seg1);
-            console.log("This is in memSeg2: " + seg2);
-            console.log("This is in memSeg3: " + seg3);
+            console.log("This is in memSeg1: " + seg1 + " Length: " + seg1.length);
+            console.log("This is in memSeg2: " + seg2 + " Length: " + seg2.length);
+            console.log("This is in memSeg3: " + seg3 + " Length: " + seg3.length);
         }
     }
     TSOS.MemoryAccessor = MemoryAccessor;

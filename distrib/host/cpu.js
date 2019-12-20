@@ -133,11 +133,13 @@ var TSOS;
             this.PC += 3;
         }
         //Stores the accumulator's value in memory.
+        /*The padStart ensures exactly two (2) digits are stored since the accumulator uses number variables (and I did not want to change this in the spirit thereof).
+            For example, the accumulator only stores '1', but memory needs '01' since the program length matters. The CPU display of '01' is strictly graphical.*/
         storeInMem() {
             let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC + 1);
             let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC + 2);
             let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
-            _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase(), newValue);
+            _MemoryAccessor.write(_CurrentPCB.segment, (this.Acc).toString(16).toUpperCase().padStart(2, "0"), newValue);
             this.PC += 3;
         }
         //Adds a value to the accumulator. If the value is greater than 255, it 'rolls over' to 0 + remainder.
