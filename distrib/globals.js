@@ -11,7 +11,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME = "ThanOS";
-const APP_VERSION = "4.5.5";
+const APP_VERSION = "4.5.6";
 const CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds), so 1000 = 1 second.
 //Interrupts
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).

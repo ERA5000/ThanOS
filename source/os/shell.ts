@@ -527,7 +527,7 @@ module TSOS {
                     case "setsch":
                         _StdOut.putText("Defines the order in which the programs will execute.");
                         _StdOut.advanceLine();
-                        _StdOut.putText("Valid inputs: fcfs, priority, rr, or -d.");
+                        _StdOut.putText("Valid inputs: fcfs, priority, rr, or d.");
                         _StdOut.advanceLine();
                         _StdOut.putText("FCFS: First Come First Serve.");
                         _StdOut.advanceLine();
@@ -535,17 +535,17 @@ module TSOS {
                         _StdOut.advanceLine();
                         _StdOut.putText("Round Robin: All programs get x turns, x = quantum.");
                         _StdOut.advanceLine();
-                        _StdOut.putText("-d: The default scheduling algorithm, Round Robin.");
+                        _StdOut.putText("d: The default scheduling algorithm, Round Robin.");
                         break;
                     case "getsch":
                         _StdOut.putText("Returns the current scheduling algorithm for CPU execution.");
                         break;
                     case "format":
-                        _StdOut.putText("Formats the disk drive. Available flag: -q.");
+                        _StdOut.putText("Formats the disk drive. Available flag: q.");
                         _StdOut.advanceLine();
                         _StdOut.putText("Full Format: Default Operation. Complete wipe of drive and meta data.");
                         _StdOut.advanceLine();
-                        _StdOut.putText("Quick Format (-q): Wipe only meta data.");
+                        _StdOut.putText("Quick Format (q): Wipe only meta data.");
                         break;
                     case "create":
                         _StdOut.putText("If the disk is formatted and there is available space, ");
@@ -561,9 +561,9 @@ module TSOS {
                         _StdOut.putText("Given a file name, outputs file's contents.");
                         break;
                     case "ls":
-                        _StdOut.putText("Lists the files on disk. Available flag: -l.");
+                        _StdOut.putText("Lists the files on disk. Available flag: l.");
                         _StdOut.advanceLine();
-                        _StdOut.putText("Hidden Files (-l): List hidden files as well.");
+                        _StdOut.putText("Hidden Files (l): List hidden files as well.");
                         break;
                     case "delete":
                         _StdOut.putText("Deletes the specified file from disk.");
@@ -785,12 +785,12 @@ module TSOS {
             let valid = /^[0-9.]+$/gm;
             if(args.length > 0){
 
-                if(args[0] == '-d' || args[0] == '0') {
+                if(args[0] == 'd' || args[0] == '0') {
                     _StdOut.putText(`The quantum has been reset to its default value of ${QUANTUM_DEFAULT}.`);
                     _Quantum = QUANTUM_DEFAULT;
                     return;
                 }
-                else if(args[0] == '-v') {
+                else if(args[0] == 'v') {
                     _StdOut.putText(`The current quantum is ${_Quantum}.`);
                     return;
                 }
@@ -1001,7 +1001,7 @@ module TSOS {
                     _CurrentSchedule = "rr";
                     _StdOut.putText("Schedule set to Round Robin.");
                     break;
-                case "-d":
+                case "d":
                     _CurrentSchedule = SCHEDULE_DEFAULT;
                     _StdOut.putText("Schedule set to default of Round Robin.");
                     break;
@@ -1038,7 +1038,7 @@ module TSOS {
             }
             let isCompleted: boolean;
             let isQFormat: boolean = false;
-            if(args[0] == "-q") {
+            if(args[0] == "q") {
                 if(!_fsDD.disk.isFormatted){
                     _StdOut.putText("Quick Formats can only be performed after at least one full format.");
                     return;
@@ -1148,7 +1148,7 @@ module TSOS {
         */
         public shellList(args: string[]){
             if(!_Disk.isFormatted) _StdOut.putText("Files cannot be listed from an unformatted disk.");
-            else if(args[0] == "-l"){
+            else if(args[0] == "l"){
                 let files = _fsDD.listFiles(true);
                 if(files.length == 0) _StdOut.putText("No files are stored on disk.");
                 else{
