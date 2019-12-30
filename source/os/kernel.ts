@@ -104,11 +104,15 @@ module TSOS {
                 // Mode bit is now toggled for software interrupts (context switches) and the system call functionality
                 if(interrupt.irq == 2 || interrupt.irq == 3) _Mode = 0;
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
+                // Updates for A) the System Call (FF) and B) between process swaps (as opposed to the SysCall being glitchy and the swapping waiting an extra cycle to update)
+                if(_CurrentPCB) Utils.updateGUI(_CurrentPCB, _CPU.dataAmount);
+            }
+            else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 _CPU.cycle();
                 Utils.updateGUI(_CurrentPCB, _CPU.dataAmount); // Moved all graphical updates to here from CPU
                 _Scheduler.schedulerInterrupt(_CurrentSchedule);
-            } else {                       // If there are no interrupts and there is nothing being executed then just be idle.
+            }
+            else {                       // If there are no interrupts and there is nothing being executed then just be idle.
                 this.krnTrace("Idle");
             }
         }
@@ -253,7 +257,9 @@ module TSOS {
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
             }
+            console.log(`Before: ${_CPU.PC}`);
             _CPU.PC++;
+            console.log(`After: ${_CPU.PC}`);
         }
     }
 }

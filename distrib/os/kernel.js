@@ -86,6 +86,9 @@ var TSOS;
                 if (interrupt.irq == 2 || interrupt.irq == 3)
                     _Mode = 0;
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
+                // Updates for A) the System Call (FF) and B) between process swaps (as opposed to the SysCall being glitchy and the swapping waiting an extra cycle to update)
+                if (_CurrentPCB)
+                    TSOS.Utils.updateGUI(_CurrentPCB, _CPU.dataAmount);
             }
             else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 _CPU.cycle();
@@ -233,7 +236,9 @@ var TSOS;
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
             }
+            console.log(`Before: ${_CPU.PC}`);
             _CPU.PC++;
+            console.log(`After: ${_CPU.PC}`);
         }
     }
     TSOS.Kernel = Kernel;

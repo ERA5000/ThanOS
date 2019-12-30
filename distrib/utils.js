@@ -345,6 +345,7 @@ var TSOS;
             this.highlightMemory(pcb.segment, pcb.PC, instrucAmount);
             this.updatePCBIR(pcb);
             _Dispatcher.snapshot(pcb);
+            console.log(`CPU PC: ${_CPU.PC}, PCB PC: ${_CurrentPCB.PC}`);
             this.updatePCBRow(pcb);
         }
         /** A fun new command I made in my spare time from iProject3 -- Dogs!
