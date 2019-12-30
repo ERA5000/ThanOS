@@ -214,13 +214,13 @@ module TSOS {
             else this.PC += 2;
         }
 
-        //Increment the value of in memory by 1.
+        //Increment the value of a byte in memory by 1.
         public incByte() { //Little Endian
             let locationOfValue1 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+1);
             let locationOfValue2 = _MemoryAccessor.read(_CurrentPCB.segment, this.PC+2);
             let newValue = parseInt(locationOfValue2 + locationOfValue1, 16);
             let toIncrement = parseInt(_MemoryAccessor.read(_CurrentPCB.segment, newValue), 16) + 1;
-            _MemoryAccessor.write(_CurrentPCB.segment, toIncrement.toString(16).toUpperCase(), newValue);
+            _MemoryAccessor.write(_CurrentPCB.segment, (toIncrement.toString(16).toUpperCase() + "").padStart(2, "0"), newValue);
             this.PC += 3;
         }
     }
