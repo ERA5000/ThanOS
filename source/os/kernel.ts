@@ -257,9 +257,7 @@ module TSOS {
                 _StdOut.advanceLine();
                 _StdOut.putText(_OsShell.promptStr);
             }
-            console.log(`Before: ${_CPU.PC}`);
             _CPU.PC++;
-            console.log(`After: ${_CPU.PC}`);
         }
     }
 }
