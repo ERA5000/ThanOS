@@ -48,7 +48,7 @@ module TSOS {
         A boolean hasCrashed was created to stop other behaviors (like the Host Log output) to make it more unsettling.
         */
         public static crash(): void {
-            let crash = new Audio("../../distrib/resources/audio/crash.mp3");
+            let crash = new Audio("distrib/resources/audio/crash.mp3");
             crash.play();
             let img = (<CanvasImageSource>document.getElementById("bsod"));
             (<HTMLCanvasElement>document.getElementById("display")).getContext("2d").drawImage(img, 0, 0, 500, 510);
@@ -373,7 +373,7 @@ module TSOS {
          *  but iProject4 probably won't be as forgiving timewise.
          */        
         public static dogInit(): void{
-            let dogSong = new Audio("distrib/resources/audio/dogSong.mp3");
+            let dogSong = new Audio("distrib/resources/audio/dogsong.mp3");
             dogSong.play();
             dogSong.loop = true;
             _MusicManager[_MusicManager.length] = dogSong;
